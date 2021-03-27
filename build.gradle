@@ -1,0 +1,39 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+    id 'java'
+}
+
+group 'fr.zorg'
+version '1.0'
+
+def mcVersion = '1.16'
+def subVersion = '.5'
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven { url = 'https://jitpack.io' }
+    maven { url = 'https://repo.destroystokyo.com/repository/maven-public/' }
+}
+
+dependencies {
+    compileOnly group: 'org.spigotmc', name: 'spigot-api', version: mcVersion + subVersion + '-R0.1-SNAPSHOT'
+    compileOnly group: 'net.md-5', name: 'bungeecord-api', version: mcVersion + '-R0.1-SNAPSHOT'
+    implementation group: 'org.jetbrains', name: 'annotations', version: '16.0.2'
+    implementation (group: 'com.github.SkriptLang', name: 'Skript', version: '2.5.3') {
+        exclude group: 'com.sk89q.worldguard', module: 'worldguard-legacy'
+        exclude group: 'net.milkbowl.vault', module: 'Vault'
+    }
+}
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+processResources {
+    filter ReplaceTokens, tokens: [
+            'version': project.property("version"),
+            'apiVersion': mcVersion
+    ]
+}
