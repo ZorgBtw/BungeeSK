@@ -42,7 +42,6 @@ public class AESEncryption {
             cipher.init(Cipher.ENCRYPT_MODE, this.secretKey);
             return Base64.getEncoder().encodeToString(cipher.doFinal(message.getBytes(StandardCharsets.UTF_8)));
         } catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException e) {
-            e.printStackTrace();
         }
         return message;
     }
@@ -55,7 +54,6 @@ public class AESEncryption {
             cipher.init(Cipher.DECRYPT_MODE, this.secretKey);
             return new String(cipher.doFinal(Base64.getDecoder().decode(message)));
         } catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException e) {
-            e.printStackTrace();
         }
         return message;
     }
