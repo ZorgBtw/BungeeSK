@@ -1,6 +1,6 @@
 package fr.zorg.bungeesk.bukkit.skript.conditions;
 
-import ch.njol.skript.Skript;
+import ch.njol.skript.conditions.base.PropertyCondition;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
@@ -12,8 +12,7 @@ import org.jetbrains.annotations.Nullable;
 public class CondBungeeConnected extends Condition {
 
     static {
-        Skript.registerCondition(CondBungeeConnected.class,
-                "%bungeeconn% is connected");
+        PropertyCondition.register(CondBungeeConnected.class, "connected", "bungeeconn");
     }
 
     private Expression<ClientSettings> bungee;
@@ -26,7 +25,10 @@ public class CondBungeeConnected extends Condition {
 
     @Override
     public boolean check(Event e) {
-        return bungee.getSingle(e).isConnected();
+        Boolean isConn = bungee.getSingle(e).isConnected();
+        if (!isNegated()) {
+            return isConn;
+        } return !isConn;
     }
 
     @Override
