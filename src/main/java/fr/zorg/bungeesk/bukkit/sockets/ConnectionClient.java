@@ -1,15 +1,14 @@
 package fr.zorg.bungeesk.bukkit.sockets;
 
 import fr.zorg.bungeesk.bukkit.BungeeSK;
+import fr.zorg.bungeesk.common.encryption.AESEncryption;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.ConnectException;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.logging.Level;
 
 public final class ConnectionClient {
@@ -49,11 +48,14 @@ public final class ConnectionClient {
     private final BufferedReader reader;
     private final PrintWriter writer;
 
+    private final AESEncryption encryption;
+
     private ConnectionClient(final Socket socket, final String name, final String password) throws IOException {
         this.socket = socket;
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.writer = new PrintWriter(socket.getOutputStream(), true);
-        this.writer.println("name=" + name + "µpassword=" + password);
+        this.encryption = new AESEncryption(password);
+        this.write("name=" + name + "µpassword=" + password);
         this.readThread = new Thread(this::read);
         this.readThread.setDaemon(true);
         this.readThread.start();
@@ -63,12 +65,13 @@ public final class ConnectionClient {
         try {
             while (this.isConnected()) {
 
-                final String data = this.reader.readLine();
-                if (data == null) {
+                final String rawData = this.reader.readLine();
+                if (rawData == null) {
                     this.forceDisconnect();
                     break;
                 }
 
+                final String data = this.encryption.decrypt(rawData);
                 switch (data.toUpperCase()) {
                     case "BB": {
                         BungeeSK.getInstance().getLogger().log(Level.INFO, "bb recieved");
@@ -109,7 +112,7 @@ public final class ConnectionClient {
     }
 
     public void write(final String message) {
-        this.writer.println(message);
+        this.writer.println(this.encryption.encrypt(message));
     }
 
     public String getAddress() {

@@ -1,5 +1,6 @@
 package fr.zorg.bungeesk.bungee.sockets;
 
+import fr.zorg.bungeesk.common.encryption.AESEncryption;
 import fr.zorg.bungeesk.common.utils.Utils;
 
 import java.io.IOException;
@@ -12,16 +13,18 @@ import java.util.List;
 public final class Server {
 
     //Big thank to @BakaAless (https://github.com/BakaAless) for this code in its entirety
-
     private final List<ClientServer> clients;
     private final String password;
     private final ServerSocket servSocket;
     private final Thread waitingConnection;
 
+    final AESEncryption encryption;
+
     public Server(final int port, final String passwd) throws IOException {
         this.password = passwd;
         this.clients = new ArrayList<>();
         this.servSocket = new ServerSocket(port);
+        this.encryption = new AESEncryption(passwd);
 
         this.waitingConnection = new Thread(this::waitForConn);
         this.waitingConnection.setDaemon(true);
