@@ -6,10 +6,10 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 public class BungeeSK extends Plugin {
@@ -23,6 +23,9 @@ public class BungeeSK extends Plugin {
         instance = this;
         this.getLogger().log(Level.INFO, ChatColor.GOLD + "BungeeSK has been succesfully started !");
         BungeeConfig.get().load();
+        final File file = new File(this.getDataFolder().getAbsolutePath(), "common-skript");
+        if (!file.exists())
+            file.mkdir();
         try {
             this.server = new Server(BungeeConfig.get().getPort(), BungeeConfig.get().getPassword());
         } catch (IOException e) {
@@ -33,6 +36,25 @@ public class BungeeSK extends Plugin {
     @Override
     public void onDisable() {
         this.server.disconnect();
+    }
+
+    public List<String> filesToString() {
+        final File folder = new File(this.getDataFolder().getAbsolutePath(), "common-skript");
+        if (!folder.exists())
+            return new ArrayList<>();
+        final FilenameFilter filter = (dir, name) -> !name.replaceAll("--", "").startsWith("-") && name.endsWith(".sk");
+        final ArrayList<String> list = new ArrayList<>();
+        for (final File file : folder.listFiles(filter)) {
+            list.add("newFile:" + file.getName());
+            try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line;
+                while ((line = reader.readLine()) != null)
+                    list.add(line);
+            } catch (IOException ignored) {
+            }
+            list.add("endFile");
+        }
+        return list;
     }
 
     public static BungeeSK getInstance() {

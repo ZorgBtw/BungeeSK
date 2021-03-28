@@ -12,7 +12,6 @@ import java.util.List;
 
 public final class Server {
 
-    //Big thank to @BakaAless (https://github.com/BakaAless) for this code in its entirety
     private final List<ClientServer> clients;
     private final String password;
     private final ServerSocket servSocket;

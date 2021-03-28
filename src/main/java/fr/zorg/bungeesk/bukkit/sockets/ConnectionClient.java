@@ -4,11 +4,11 @@ import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.common.encryption.AESEncryption;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 
 public final class ConnectionClient {
@@ -41,8 +41,6 @@ public final class ConnectionClient {
         return instance;
     }
 
-    // Big thank to @BakaAless (https://github.com/BakaAless) for this code in its entirety !
-
     private final Socket socket;
     private final Thread readThread;
     private final BufferedReader reader;
@@ -72,13 +70,47 @@ public final class ConnectionClient {
                 }
 
                 final String data = this.encryption.decrypt(rawData);
-                switch (data.toUpperCase()) {
+                final String[] separateDatas = data.split("µ");
+
+                final String header = separateDatas[0];
+                final List<String> received = new ArrayList<>(Arrays.asList(separateDatas).subList(1, separateDatas.length));
+                switch (header.toUpperCase()) {
                     case "BB": {
                         BungeeSK.getInstance().getLogger().log(Level.INFO, "bb recieved");
-                    }
-                    case "DISCONNECT": {
+                    } case "DISCONNECT": {
                         this.disconnect();
                         break;
+                    } case "SEND_SKRIPTS": {
+                        final String[] flux = received.get(0).split(",");
+                        final File folder = new File("Skript/skripts/BungeeSK");
+                        if (!folder.exists())
+                            folder.mkdirs();
+                        File file = null;
+                        FileWriter fileWriter;
+                        PrintWriter writer = null;
+                        for (final String line : flux) {
+                            try {
+                                if (line.equals("END_SKRIPTS"))
+                                    break;
+                                if (line.startsWith("newFile:")) {
+                                    file = new File(folder, line.substring(8));
+                                    fileWriter = new FileWriter(file);
+                                    fileWriter.write("");
+                                    writer = new PrintWriter(fileWriter);
+                                    continue;
+                                }
+                                if (file == null || writer == null)
+                                    continue;
+                                if (line.equalsIgnoreCase("endFile")) {
+                                    writer.close();
+                                    file = null;
+                                    writer = null;
+                                    continue;
+                                }
+                                writer.println(line);
+                            } catch (IOException ignored) {
+                            }
+                        }
                     }
                 }
             }

@@ -27,6 +27,7 @@ public class BungeeConfig {
 
     private int port = 100;
     private String password = Utils.randomString(10);
+    private boolean sendFilesAuto = false;
 
     private transient File file;
     private transient Configuration config;
@@ -76,4 +77,7 @@ public class BungeeConfig {
         return this.password;
     }
 
+    public boolean isSendFilesAutoEnabled() {
+        return this.sendFilesAuto;
+    }
 }

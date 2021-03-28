@@ -1,6 +1,7 @@
 package fr.zorg.bungeesk.bungee.sockets;
 
 import fr.zorg.bungeesk.bungee.BungeeSK;
+import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -8,11 +9,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 
 public final class ClientServer {
 
-    //Big thank to @BakaAless (https://github.com/BakaAless) for this code in its entirety !
     private final Socket socket;
     private String name;
     private final Thread readThread;
@@ -69,13 +72,15 @@ public final class ClientServer {
                         }
                         server.addClient(this);
 
-
                         BungeeSK.getInstance().getLogger().log(Level.INFO, "§3New server connected under name §a"
                                 + this.name
                                 + " §3with adress §a"
                                 + this.socket.getInetAddress().getHostAddress()
                                 + ":"
                                 + this.socket.getPort() );
+
+                        if (BungeeConfig.get().isSendFilesAutoEnabled())
+                            this.sendFiles();
 
                     } else {
                         this.disconnect();
@@ -84,15 +89,22 @@ public final class ClientServer {
                     continue;
                 }
 
-                switch (data.toUpperCase()) {
+                final String[] separateDatas = data.split("µ");
+
+                final String header = separateDatas[0];
+                final List<String> received = new ArrayList<>(Arrays.asList(separateDatas).subList(1, separateDatas.length));
+
+                switch (header.toUpperCase()) {
                     case "AA":
                         BungeeSK.getInstance().getLogger().log(Level.INFO, "aa received, bb sent");
-                        write("bb");
+                        this.write("bb");
 
                     case "DISCONNECT":
                         this.forceDisconnect();
                         break reader;
 
+                    case "RETRIEVE_SKRIPTS":
+                        this.sendFiles();
                 }
 
             }
@@ -100,7 +112,13 @@ public final class ClientServer {
             this.forceDisconnect();
         }
 
+    }
 
+    private void sendFiles() {
+        final List<String> result = BungeeSK.getInstance().filesToString();
+        result.add("END_SKRIPTS");
+        final String toString = Arrays.toString(result.toArray(new String[0])).substring(1);
+        this.write("SEND_SKRIPTSµ" + toString.substring(0, toString.length() - 1));
     }
 
     public void disconnect() {
