@@ -20,15 +20,17 @@ public class CondBungeeConnected extends Condition {
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         bungee = (Expression<ClientSettings>) exprs[0];
+        setNegated(matchedPattern == 1);
         return true;
     }
 
     @Override
     public boolean check(Event e) {
-        Boolean isConn = bungee.getSingle(e).isConnected();
-        if (!isNegated()) {
-            return isConn;
-        } return !isConn;
+        boolean isConn = bungee.getSingle(e).isConnected();
+        if (isNegated()) {
+            return !isConn;
+        }
+        return isConn;
     }
 
     @Override
