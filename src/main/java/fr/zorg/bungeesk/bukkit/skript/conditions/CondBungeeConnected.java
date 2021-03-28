@@ -1,6 +1,10 @@
 package fr.zorg.bungeesk.bukkit.skript.conditions;
 
 import ch.njol.skript.conditions.base.PropertyCondition;
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
@@ -9,6 +13,15 @@ import fr.zorg.bungeesk.bukkit.sockets.ClientSettings;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
+@Name("Is bungeecord connected")
+@Description("Checks if the server and the bungeecord are linked")
+@Since("1.0.0")
+@Examples("command /isconnected:\n" +
+        "\ttrigger:\n" +
+        "\t\tif {connection} is not connected:\n" +
+        "\t\t\tsend \"Not working !\"\n" +
+        "\t\tif {connection} is connected:\n" +
+        "\t\t\tsend \"Working as well !\"")
 public class CondBungeeConnected extends Condition {
 
     static {

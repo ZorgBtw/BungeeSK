@@ -12,6 +12,10 @@ public class Types {
     static {
         Classes.registerClass(new ClassInfo<>(ClientSettings.class, "bungeeconn")
                 .defaultExpression(new EventValueExpression<>(ClientSettings.class))
+                .user("bungeeconn")
+                .name("Bungee connection")
+                .description("Represents a new bungee connection")
+                .since("1.0.0")
                 .parser(new Parser<ClientSettings>() {
 
                     @Override
