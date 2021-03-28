@@ -81,13 +81,14 @@ public final class ConnectionClient {
                         this.disconnect();
                         break;
                     } case "SEND_SKRIPTS": {
-                        final String[] flux = received.get(0).split(",");
-                        final File folder = new File("Skript/skripts/BungeeSK");
+                        final String[] flux = received.get(0).split(", ");
+                        final File folder = new File("plugins/Skript/scripts/BungeeSK");
                         if (!folder.exists())
                             folder.mkdirs();
                         File file = null;
-                        FileWriter fileWriter;
+                        FileWriter fileWriter = null;
                         PrintWriter writer = null;
+                        System.out.println(flux);
                         for (final String line : flux) {
                             try {
                                 if (line.equals("END_SKRIPTS"))
@@ -95,19 +96,23 @@ public final class ConnectionClient {
                                 if (line.startsWith("newFile:")) {
                                     file = new File(folder, line.substring(8));
                                     fileWriter = new FileWriter(file);
+                                    file.createNewFile();
                                     fileWriter.write("");
-                                    writer = new PrintWriter(fileWriter);
+                                    writer = new PrintWriter(fileWriter, true);
                                     continue;
                                 }
                                 if (file == null || writer == null)
                                     continue;
                                 if (line.equalsIgnoreCase("endFile")) {
                                     writer.close();
+                                    fileWriter.close();
                                     file = null;
+                                    fileWriter = null;
                                     writer = null;
                                     continue;
                                 }
                                 writer.println(line);
+
                             } catch (IOException ignored) {
                             }
                         }
