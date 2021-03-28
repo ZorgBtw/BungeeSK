@@ -6,7 +6,6 @@ import ch.njol.skript.expressions.base.EventValueExpression;
 import ch.njol.skript.lang.ParseContext;
 import ch.njol.skript.registrations.Classes;
 import fr.zorg.bungeesk.bukkit.sockets.ClientSettings;
-import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
 
 public class Types {
 
@@ -22,17 +21,17 @@ public class Types {
 
                     @Override
                     public ClientSettings parse(final String id, final ParseContext context) {
-                        return null; // x parsed as Client
+                        return null;
                     }
 
                     @Override
                     public String toString(final ClientSettings settings, final int arg1) {
-                        return settings.toString(); // send "%Client%"
+                        return settings.toString();
                     }
 
                     @Override
                     public String toVariableNameString(final ClientSettings client) {
-                        return client.toString(); // set {players::%player%::%Client%} to "hello type"
+                        return client.toString();
                     }
 
                 }));

@@ -6,13 +6,11 @@ import fr.zorg.bungeesk.common.utils.Utils;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.logging.Level;
 
 public class BungeeConfig {

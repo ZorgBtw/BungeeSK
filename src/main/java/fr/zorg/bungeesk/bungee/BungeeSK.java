@@ -4,10 +4,8 @@ import fr.zorg.bungeesk.bungee.sockets.Server;
 import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.plugin.Plugin;
-import net.md_5.bungee.config.Configuration;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
