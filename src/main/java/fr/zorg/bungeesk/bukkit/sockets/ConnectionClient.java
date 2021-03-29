@@ -86,7 +86,6 @@ public final class ConnectionClient {
                         File file = null;
                         FileWriter fileWriter = null;
                         PrintWriter writer = null;
-                        System.out.println(flux);
                         for (final String line : flux) {
                             try {
                                 if (line.equals("END_SKRIPTS"))

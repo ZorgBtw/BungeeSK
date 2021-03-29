@@ -1,6 +1,6 @@
 package fr.zorg.bungeesk.bukkit.skript.conditions;
 
-import ch.njol.skript.conditions.base.PropertyCondition;
+import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -9,7 +9,7 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
-import fr.zorg.bungeesk.bukkit.sockets.ClientSettings;
+import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,25 +22,26 @@ import org.jetbrains.annotations.Nullable;
         "\t\t\tsend \"Not working !\"\n" +
         "\t\tif {connection} is connected:\n" +
         "\t\t\tsend \"Working as well !\"")
-public class CondBungeeConnected extends Condition {
+public class CondClientConnected extends Condition {
 
     static {
-        PropertyCondition.register(CondBungeeConnected.class, "connected", "bungeeconn");
+        Skript.registerCondition(CondClientConnected.class,
+                "client is connected",
+                "client is(n't| not) connected");
     }
 
-    private Expression<ClientSettings> bungee;
+    private boolean invert;
 
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        bungee = (Expression<ClientSettings>) exprs[0];
-        setNegated(matchedPattern == 1);
+        invert = matchedPattern == 1;
         return true;
     }
 
     @Override
     public boolean check(Event e) {
-        boolean isConn = bungee.getSingle(e).isConnected();
-        if (isNegated()) {
+        boolean isConn = ConnectionClient.get() != null && ConnectionClient.get().isConnected();
+        if (invert) {
             return !isConn;
         }
         return isConn;

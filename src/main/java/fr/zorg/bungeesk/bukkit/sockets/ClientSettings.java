@@ -43,8 +43,4 @@ public final class ClientSettings {
         ConnectionClient.generateConnection(this);
     }
 
-    public boolean isConnected() {
-        return ConnectionClient.get().isConnected();
-    }
-
 }
