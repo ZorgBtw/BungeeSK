@@ -75,6 +75,14 @@ public final class ConnectionClient {
                 final String header = separateDatas[0];
                 final List<String> received = new ArrayList<>(Arrays.asList(separateDatas).subList(1, separateDatas.length));
                 switch (header.toUpperCase()) {
+                    case "ALREADY_CONNECTED": {
+                        this.disconnect();
+                        break;
+                    }
+                    case "WRONG_PASSWORD": {
+                        this.disconnect();
+                        break;
+                    }
                     case "DISCONNECT": {
                         this.disconnect();
                         break;

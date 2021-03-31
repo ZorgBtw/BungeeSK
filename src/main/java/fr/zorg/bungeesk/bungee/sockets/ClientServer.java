@@ -22,8 +22,11 @@ public final class ClientServer {
     private final BufferedReader reader;
     private final PrintWriter writer;
 
+    private boolean identified;
+
     public ClientServer(final Socket socket) throws IOException {
         this.socket = socket;
+        this.identified = false;
         this.reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
         this.writer = new PrintWriter(this.socket.getOutputStream(), true);
 
@@ -70,8 +73,9 @@ public final class ClientServer {
                             this.disconnect();
                             break;
                         }
-                        server.addClient(this);
 
+                        this.identified = true;
+                        server.addClient(this);
                         BungeeSK.getInstance().getLogger().log(Level.INFO, "§3New server connected under name §a"
                                 + this.name
                                 + " §3with adress §a"
@@ -123,7 +127,14 @@ public final class ClientServer {
 
     public void disconnect() {
         try {
-            this.write("DISCONNECT");
+            if (this.identified) {
+                if (this.name != null)
+                    this.writer.println("ALREADY_CONNECTED");
+                else
+                    this.writer.println("WRONG_PASSWORD");
+            }
+            else
+                this.write("DISCONNECT");
         } catch (final Exception ignored) {
         }
         this.forceDisconnect();
