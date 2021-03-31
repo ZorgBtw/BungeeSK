@@ -45,7 +45,7 @@ public class EffStartConnection extends Effect {
 
     @Override
     public String toString(@Nullable Event e, boolean debug) {
-        return null;
+        return "start connection with bungee connection";
     }
 
 }

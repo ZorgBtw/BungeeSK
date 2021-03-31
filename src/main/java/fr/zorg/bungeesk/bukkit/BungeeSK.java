@@ -14,7 +14,7 @@ public class BungeeSK extends JavaPlugin {
     private Metrics metrics;
 
     @Override
-    public void onLoad() {
+    public void onEnable() {
         this.metrics = new Metrics(this, 10655);
         final SkriptAddon addon = Skript.registerAddon(this);
         try {

@@ -59,6 +59,11 @@ public final class ClientServer {
                             break;
                         }
                         if (server.getClient(this.name).isPresent()) {
+                            BungeeSK.getInstance().getLogger().log(Level.INFO, "§6New server trying to connect under name §c"
+                                    + this.name
+                                    + " §6with address §c"
+                                    + this.socket.getInetAddress().getHostAddress()
+                                    + "§6with §cname already in system !");
                             this.disconnect();
                             break;
                         }
@@ -76,12 +81,10 @@ public final class ClientServer {
 
                         this.identified = true;
                         server.addClient(this);
-                        BungeeSK.getInstance().getLogger().log(Level.INFO, "§3New server connected under name §a"
+                        BungeeSK.getInstance().getLogger().log(Level.INFO, "§6New server connected under name §a"
                                 + this.name
-                                + " §3with adress §a"
-                                + this.socket.getInetAddress().getHostAddress()
-                                + ":"
-                                + this.socket.getPort() );
+                                + " §6with adress §a"
+                                + this.socket.getInetAddress().getHostAddress());
 
                         if (BungeeConfig.get().isSendFilesAutoEnabled())
                             this.sendFiles();
@@ -96,19 +99,30 @@ public final class ClientServer {
                 final String[] separateDatas = data.split("µ");
 
                 final String header = separateDatas[0];
-                final List<String> received = new ArrayList<>(Arrays.asList(separateDatas).subList(1, separateDatas.length));
+                final String args = separateDatas[1];
 
                 switch (header.toUpperCase()) {
-                    case "AA":
-                        BungeeSK.getInstance().getLogger().log(Level.INFO, "aa received, bb sent");
-                        this.write("bb");
-
-                    case "DISCONNECT":
+                    case "DISCONNECT": {
                         this.forceDisconnect();
                         break reader;
+                    }
 
-                    case "RETRIEVE_SKRIPTS":
+                    case "RETRIEVE_SKRIPTS": {
+                        final List<String> received = new ArrayList<>(Arrays.asList(separateDatas).subList(1, separateDatas.length));
                         this.sendFiles();
+                        break;
+                    }
+
+                    case "EFFEXECUTECOMMAND": {
+                        if (args.equalsIgnoreCase("bungee")) {
+                            BungeeSK.getInstance().getProxy().getPluginManager().dispatchCommand(BungeeSK.getInstance().getProxy().getConsole(), separateDatas[2]);
+                        } else if (args.equalsIgnoreCase("all")) {
+                            server.writeAll("CONSOLECOMMANDµ" + separateDatas[2]);
+                        } else {
+                            server.getClient(args).get().write("CONSOLECOMMANDµ" + separateDatas[2]);
+                        }
+                        break;
+                    }
                 }
 
             }
@@ -132,8 +146,7 @@ public final class ClientServer {
                     this.writer.println("ALREADY_CONNECTED");
                 else
                     this.writer.println("WRONG_PASSWORD");
-            }
-            else
+            } else
                 this.write("DISCONNECT");
         } catch (final Exception ignored) {
         }

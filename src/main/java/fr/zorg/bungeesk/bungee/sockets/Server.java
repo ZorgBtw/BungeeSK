@@ -78,11 +78,9 @@ public final class Server {
         }
     }
 
-    public void write(final String message, Optional<ClientServer>... clients) {
-        if (clients == null || clients.length == 0)
-            clients = (Optional<ClientServer>[]) this.clients.stream().map(Optional::of).toArray();
-        for (final Optional<ClientServer> optionalClient : clients) {
-            optionalClient.ifPresent(client -> client.write(message));
+    public void writeAll(final String message) {
+        for (final ClientServer client : this.clients) {
+            client.write(message);
         }
     }
 

@@ -36,10 +36,10 @@ public class Updater extends BukkitRunnable {
         this.cancel();
     }
 
-    public <T extends Scheduler> Scheduler getByClass(Class<T> clazz) {
+    public <T extends Scheduler> T getByClass(Class<T> clazz) {
         for (final Scheduler scheduler : this.toUpdate) {
             if (scheduler.getClass().equals(clazz))
-                return scheduler;
+                return (T) scheduler;
         }
         return null;
     }

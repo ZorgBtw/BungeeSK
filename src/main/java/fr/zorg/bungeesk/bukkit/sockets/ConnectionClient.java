@@ -1,7 +1,10 @@
 package fr.zorg.bungeesk.bukkit.sockets;
 
 import fr.zorg.bungeesk.bukkit.BungeeSK;
+import fr.zorg.bungeesk.bukkit.updater.Commands;
+import fr.zorg.bungeesk.bukkit.updater.Updater;
 import fr.zorg.bungeesk.common.encryption.AESEncryption;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
@@ -35,8 +38,7 @@ public final class ConnectionClient {
             final Socket socket = new Socket(settings.getAddress(), settings.getPort().intValue());
             instance = new ConnectionClient(socket, settings.getName(), settings.getPassword());
         } catch (Exception e) {
-            BungeeSK.getInstance().getLogger().log(Level.INFO, e.toString());
-            e.printStackTrace();
+            BungeeSK.getInstance().getLogger().log(Level.SEVERE, "BungeeSK couldn't find server with this address/port !");
         }
         return instance;
     }
@@ -76,17 +78,24 @@ public final class ConnectionClient {
                 final List<String> received = new ArrayList<>(Arrays.asList(separateDatas).subList(1, separateDatas.length));
                 switch (header.toUpperCase()) {
                     case "ALREADY_CONNECTED": {
+                        BungeeSK.getInstance().getLogger().log(Level.WARNING, "§6Trying to connect to §c"
+                                + this.socket.getInetAddress().getHostAddress()
+                                + " §6and returned failure: §cServer already connected under this name !");
                         this.disconnect();
                         break;
                     }
                     case "WRONG_PASSWORD": {
+                        BungeeSK.getInstance().getLogger().log(Level.WARNING, "§6Trying to connect to §c"
+                                + this.socket.getInetAddress().getHostAddress()
+                                + " §6and returned failure: §cWrong provided password !");
                         this.disconnect();
                         break;
                     }
                     case "DISCONNECT": {
                         this.disconnect();
                         break;
-                    } case "SEND_SKRIPTS": {
+                    }
+                    case "SEND_SKRIPTS": {
                         final String[] flux = received.get(0).split(", ");
                         final File folder = new File("plugins/Skript/scripts/BungeeSK");
                         if (!folder.exists())
@@ -121,6 +130,11 @@ public final class ConnectionClient {
                             } catch (IOException ignored) {
                             }
                         }
+                        break;
+                    }
+                    case "CONSOLECOMMAND": {
+                        Updater.get().getByClass(Commands.class).addCommandToSend(Bukkit.getConsoleSender(), separateDatas[1]);
+                        break;
                     }
                 }
             }
@@ -132,7 +146,8 @@ public final class ConnectionClient {
     public void disconnect() {
         try {
             this.writer.println("DISCONNECT");
-        } catch (final Exception ignored) { }
+        } catch (final Exception ignored) {
+        }
         this.forceDisconnect();
     }
 
@@ -144,7 +159,7 @@ public final class ConnectionClient {
                 this.writer.close();
                 this.readThread.interrupt();
             }
-            } catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

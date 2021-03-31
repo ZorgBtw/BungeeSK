@@ -49,7 +49,7 @@ public class ScopeConnectToServer extends EffectSection {
 
     @Override
     public String toString(@Nullable Event e, boolean debug) {
-        return null;
+        return "create new bungee connection";
     }
 
     @Override
