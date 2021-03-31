@@ -59,11 +59,6 @@ public final class ClientServer {
                             break;
                         }
                         if (server.getClient(this.name).isPresent()) {
-                            BungeeSK.getInstance().getLogger().log(Level.INFO, "§6New server trying to connect under name §c"
-                                    + this.name
-                                    + " §6with address §c"
-                                    + this.socket.getInetAddress().getHostAddress()
-                                    + "§6with §cname already in system !");
                             this.disconnect();
                             break;
                         }
@@ -141,7 +136,7 @@ public final class ClientServer {
 
     public void disconnect() {
         try {
-            if (this.identified) {
+            if (!this.identified) {
                 if (this.name != null)
                     this.writer.println("ALREADY_CONNECTED");
                 else

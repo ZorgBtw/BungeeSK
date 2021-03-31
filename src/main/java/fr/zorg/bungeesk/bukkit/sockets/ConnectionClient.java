@@ -87,7 +87,7 @@ public final class ConnectionClient {
                     case "WRONG_PASSWORD": {
                         BungeeSK.getInstance().getLogger().log(Level.WARNING, "§6Trying to connect to §c"
                                 + this.socket.getInetAddress().getHostAddress()
-                                + " §6and returned failure: §cWrong provided password !");
+                                + " §6and returned failure: §cWrong password !");
                         this.disconnect();
                         break;
                     }
