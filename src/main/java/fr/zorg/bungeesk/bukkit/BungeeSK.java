@@ -2,6 +2,8 @@ package fr.zorg.bungeesk.bukkit;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
+import fr.zorg.bungeesk.bukkit.updater.Commands;
+import fr.zorg.bungeesk.bukkit.updater.Updater;
 import fr.zorg.bungeesk.bukkit.utils.Metrics;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -20,6 +22,12 @@ public class BungeeSK extends JavaPlugin {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        Updater.get().register(new Commands());
+    }
+
+    @Override
+    public void onDisable() {
+        Updater.get().stop();
     }
 
     public static BungeeSK getInstance() {
