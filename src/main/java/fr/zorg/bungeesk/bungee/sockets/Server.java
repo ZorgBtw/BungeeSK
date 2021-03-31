@@ -56,6 +56,10 @@ public final class Server {
         return this.clients.stream().anyMatch(client -> client.getSocket().equals(socket));
     }
 
+    public void removeClient(final ClientServer client) {
+        this.clients.remove(client);
+    }
+
     public void removeClient(final String name) {
         this.getClient(name).ifPresent(this.clients::remove);
     }

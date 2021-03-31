@@ -46,7 +46,10 @@ public final class ClientServer {
                 final String data = BungeeSK.getInstance().getServer().encryption.decrypt(rawData);
                 if (this.name == null) {
                     if (!server.isClient(socket)) {
-                        if (!data.contains("µ")) continue;
+                        if (!data.contains("µ")) {
+                            this.disconnect();
+                            break;
+                        }
                         String[] datas = data.split("µ");
                         if (datas.length != 2) {
                             this.disconnect();
@@ -155,7 +158,7 @@ public final class ClientServer {
                 this.reader.close();
                 this.writer.close();
                 this.readThread.interrupt();
-                BungeeSK.getInstance().getServer().removeClient(this.getName());
+                BungeeSK.getInstance().getServer().removeClient(this);
             } catch (IOException e) {
                 e.printStackTrace();
             }
