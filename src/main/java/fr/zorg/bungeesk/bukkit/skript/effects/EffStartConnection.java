@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Start new connection")
 @Description("Start a new connection to bungeecord")
+@Since("1.0.0")
 @Examples("on load:\n" +
         "\tcreate new bungee connection:\n" +
         "\t\tset address of connection to \"127.0.0.1\"\n" +
@@ -22,7 +23,6 @@ import org.jetbrains.annotations.Nullable;
         "\t\tset password of connection to \"abcd\"\n" +
         "\t\tset name of connection to \"server1\"\n" +
         "\tstart new connection with connection")
-@Since("1.0.0")
 
 public class EffStartConnection extends Effect {
 

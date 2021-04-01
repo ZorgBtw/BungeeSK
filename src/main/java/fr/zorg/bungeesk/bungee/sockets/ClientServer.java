@@ -97,7 +97,10 @@ public final class ClientServer {
                 final String[] separateDatas = data.split("µ");
 
                 final String header = separateDatas[0];
-                final String args = separateDatas[1];
+                String args = null;
+                if (separateDatas.length > 1) {
+                    args = separateDatas[1];
+                }
 
                 switch (header.toUpperCase()) {
                     case "DISCONNECT": {
@@ -106,7 +109,6 @@ public final class ClientServer {
                     }
 
                     case "RETRIEVE_SKRIPTS": {
-                        final List<String> received = new ArrayList<>(Arrays.asList(separateDatas).subList(1, separateDatas.length));
                         this.sendFiles();
                         break;
                     }

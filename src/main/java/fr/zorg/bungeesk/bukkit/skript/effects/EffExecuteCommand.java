@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
@@ -14,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Execute console command")
 @Description("Make bungee or spigot execute command")
+@Since("1.0.0")
 @Examples({"make bungee console execute command \"alert This is an alert !\"",
            "make server \"hub\" execute command \"say Hi everyone !\""})
 

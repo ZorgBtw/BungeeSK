@@ -33,8 +33,4 @@ public class BungeeSK extends JavaPlugin {
     public static BungeeSK getInstance() {
         return JavaPlugin.getPlugin(BungeeSK.class);
     }
-
-    public Metrics getMetrics() {
-        return this.metrics;
-    }
 }
