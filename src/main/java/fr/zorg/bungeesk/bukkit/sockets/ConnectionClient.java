@@ -1,10 +1,13 @@
 package fr.zorg.bungeesk.bukkit.sockets;
 
 import fr.zorg.bungeesk.bukkit.BungeeSK;
+import fr.zorg.bungeesk.bukkit.skript.events.bukkit.BungeePlayerJoinEvent;
 import fr.zorg.bungeesk.bukkit.updater.Commands;
 import fr.zorg.bungeesk.bukkit.updater.Updater;
+import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
 import fr.zorg.bungeesk.common.encryption.AESEncryption;
 import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
@@ -135,6 +138,11 @@ public final class ConnectionClient {
                     case "CONSOLECOMMAND": {
                         Updater.get().getByClass(Commands.class).addCommandToSend(Bukkit.getConsoleSender(), separateDatas[1]);
                         break;
+                    } case "LOGINEVENT": {
+                        String player = separateDatas[1];
+                        String uuid = separateDatas[2];
+                        Event event = new BungeePlayerJoinEvent(new BungeePlayer(player, uuid));
+                        BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
                     }
                 }
             }

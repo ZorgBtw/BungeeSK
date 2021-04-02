@@ -1,6 +1,7 @@
 name: BungeeSK
 authors: [Zorg, BakaAless]
 main: fr.zorg.bungeesk.bukkit.BungeeSK
+website: https://github.com/ZorgBtw/BungeeSK
 version: @version@
 api-version: @apiVersion@
 softdepend: [Skript]

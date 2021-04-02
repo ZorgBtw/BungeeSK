@@ -1,9 +1,11 @@
 package fr.zorg.bungeesk.bungee;
 
+import fr.zorg.bungeesk.bungee.listeners.LoginEvent;
 import fr.zorg.bungeesk.bungee.sockets.Server;
 import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.api.plugin.PluginManager;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -13,7 +15,6 @@ import java.util.logging.Level;
 public class BungeeSK extends Plugin {
 
     public static BungeeSK instance;
-
     private Server server;
 
     @Override
@@ -29,6 +30,9 @@ public class BungeeSK extends Plugin {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        //Starting listeners
+        getProxy().getPluginManager().registerListener(this, new LoginEvent());
     }
 
     @Override
