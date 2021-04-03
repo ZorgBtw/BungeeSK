@@ -4,12 +4,12 @@ import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class BungeePlayerJoinEvent extends Event {
+public class BungeePlayerLeaveEvent extends Event {
 
     public static final HandlerList handlers = new HandlerList();
     private final BungeePlayer bungeePlayer;
 
-    public BungeePlayerJoinEvent(BungeePlayer player) {
+    public BungeePlayerLeaveEvent(BungeePlayer player) {
         this.bungeePlayer = player;
     }
 

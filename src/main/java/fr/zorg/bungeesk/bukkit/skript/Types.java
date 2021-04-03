@@ -42,7 +42,7 @@ public class Types {
                 }));
 
 
-        Classes.registerClass(new ClassInfo<>(BungeePlayer.class, "bungee-player")
+        Classes.registerClass(new ClassInfo<>(BungeePlayer.class, "bungeeplayer")
                 .defaultExpression(new EventValueExpression<>(BungeePlayer.class))
                 .user("bungeeplayer")
                 .name("Bungee player")

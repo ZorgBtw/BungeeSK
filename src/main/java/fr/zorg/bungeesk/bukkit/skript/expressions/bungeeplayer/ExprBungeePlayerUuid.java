@@ -20,7 +20,7 @@ public class ExprBungeePlayerUuid extends SimplePropertyExpression<BungeePlayer,
         register(ExprBungeePlayerUuid.class,
                 String.class,
                 "uuid",
-                "bungee-player");
+                "bungeeplayer");
     }
 
     @Nullable

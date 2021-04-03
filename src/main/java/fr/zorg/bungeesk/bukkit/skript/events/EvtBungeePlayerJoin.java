@@ -14,7 +14,7 @@ public class EvtBungeePlayerJoin {
         Skript.registerEvent("bungee player join", SimpleEvent.class, BungeePlayerJoinEvent.class,
                 "bungee [player] join")
                 .description("When a bungee player joins the network")
-                .examples("on bungee player join:", "\tset {_player} to event-bungee-player")
+                .examples("on bungee player join:", "\tset {_player} to event-bungeeplayer")
                 .since("1.0.0");
 
         EventValues.registerEventValue(BungeePlayerJoinEvent.class, BungeePlayer.class, new Getter<BungeePlayer, BungeePlayerJoinEvent>() {
