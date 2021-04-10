@@ -115,13 +115,12 @@ public final class ClientServer {
                     }
 
                     case "EFFEXECUTECOMMAND": {
-                        if (args.equalsIgnoreCase("bungee")) {
+                        if (args.equalsIgnoreCase("bungee"))
                             BungeeSK.getInstance().getProxy().getPluginManager().dispatchCommand(BungeeSK.getInstance().getProxy().getConsole(), separateDatas[2]);
-                        } else if (args.equalsIgnoreCase("all")) {
+                        else if (args.equalsIgnoreCase("all"))
                             server.writeAll("CONSOLECOMMANDµ" + separateDatas[2]);
-                        } else {
+                        else
                             server.getClient(args).get().write("CONSOLECOMMANDµ" + separateDatas[2]);
-                        }
                         break;
                     }
 

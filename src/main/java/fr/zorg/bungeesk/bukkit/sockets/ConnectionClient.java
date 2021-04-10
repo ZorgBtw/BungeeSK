@@ -51,12 +51,15 @@ public final class ConnectionClient {
     private final BufferedReader reader;
     private final PrintWriter writer;
 
+    private final Map<String, LinkedList<CompletableFuture<String>>> toComplete;
+
     private final AESEncryption encryption;
 
     private ConnectionClient(final Socket socket, final String name, final String password) throws IOException {
         this.socket = socket;
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.writer = new PrintWriter(socket.getOutputStream(), true);
+        this.toComplete = new HashMap<>();
         this.encryption = new AESEncryption(password);
         this.write("name=" + name + "µpassword=" + password);
         this.readThread = new Thread(this::read);
@@ -207,6 +210,10 @@ public final class ConnectionClient {
 
     public void write(final String message) {
         this.writer.println(this.encryption.encrypt(message));
+    }
+
+    public Map<String, LinkedList<CompletableFuture<String>>> getToComplete() {
+        return this.toComplete;
     }
 
     public String getAddress() {
