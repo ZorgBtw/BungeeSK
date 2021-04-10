@@ -25,7 +25,6 @@ public class BungeeSK extends JavaPlugin {
         }
         Updater.get().register(new Commands());
 
-
         this.metrics.addCustomChart(new Metrics.SimplePie("skript_version", () -> Skript.getVersion().toString()));
     }
 

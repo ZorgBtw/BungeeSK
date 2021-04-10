@@ -2,6 +2,7 @@ package fr.zorg.bungeesk.bungee.sockets;
 
 import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -123,6 +124,15 @@ public final class ClientServer {
                         }
                         break;
                     }
+
+                    case "EXPRALLBUNGEEPLAYERS": {
+                        final List<String> result = new ArrayList<>();
+                        for (final ProxiedPlayer player : BungeeSK.getInstance().getProxy().getPlayers()) {
+                            result.add(player.getName());
+                            result.add(player.getUniqueId().toString());
+                        }
+                        this.write("ALLBUNGEEPLAYERSµ" + String.join("$", result));
+                    }
                 }
 
             }
@@ -142,8 +152,9 @@ public final class ClientServer {
     public void disconnect() {
         try {
             if (!this.identified) {
-                if (this.name != null)
+                if (this.name != null) {
                     this.writer.println("ALREADY_CONNECTED");
+                }
                 else
                     this.writer.println("WRONG_PASSWORD");
             } else

@@ -34,7 +34,7 @@ public class CondClientConnected extends Condition {
 
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        invert = matchedPattern == 1;
+        invert = (matchedPattern == 1);
         return true;
     }
 

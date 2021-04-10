@@ -9,7 +9,7 @@ public class LoginEvent implements Listener {
 
     @EventHandler
     public void onLogin(PostLoginEvent e) {
-        String[] data = {e.getPlayer().toString(),
+        String[] data = {e.getPlayer().getName(),
                          e.getPlayer().getUniqueId().toString()};
         BungeeSK.getInstance().getServer().writeAll("LoginEventµ" + String.join("µ", data));
     }

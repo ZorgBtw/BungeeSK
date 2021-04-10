@@ -23,7 +23,7 @@ public class BungeeSK extends Plugin {
     public void onEnable() {
         instance = this;
         pm = getProxy().getPluginManager();
-        this.getLogger().log(Level.INFO, ChatColor.GOLD + "BungeeSK has been succesfully started !");
+        this.getLogger().log(Level.INFO, ChatColor.GOLD + "BungeeSK has been successfully started !");
         BungeeConfig.get().load();
 
         registerListeners();

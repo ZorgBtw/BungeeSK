@@ -13,9 +13,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 public final class ConnectionClient {
@@ -153,6 +152,26 @@ public final class ConnectionClient {
                         Event event = new BungeePlayerLeaveEvent(new BungeePlayer(player, uuid));
                         BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
                         break;
+                    }
+                    case "ALLBUNGEEPLAYERS": {
+                        final LinkedList<CompletableFuture<String>> completableFutures = this.toComplete.get("ALLBUNGEEPLAYERS");
+                        if (completableFutures != null && completableFutures.size() > 0) {
+                            final CompletableFuture<String> complete = completableFutures.poll();
+                            final StringBuilder builder = new StringBuilder();
+                            for (int i = 0; i < received.size(); i++) {
+                                if (i != 0) {
+                                    if (i % 2 == 0)
+                                        builder.append("^");
+                                    else
+                                        builder.append("$");
+                                }
+                                builder.append(received.get(i));
+                            }
+                            complete.complete(builder.toString());
+                            if (completableFutures.size() == 0)
+                                this.toComplete.remove("ALLBUNGEEPLAYERS", completableFutures);
+                            break;
+                        }
                     }
                 }
             }
