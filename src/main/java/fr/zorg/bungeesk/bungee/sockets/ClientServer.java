@@ -10,9 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 
 public final class ClientServer {
@@ -126,11 +124,22 @@ public final class ClientServer {
 
                     case "EXPRALLBUNGEEPLAYERS": {
                         final List<String> result = new ArrayList<>();
+                        StringBuilder builder = new StringBuilder();
+                        builder.append("ALLBUNGEEPLAYERSµ");
+                        Object lastPlayer = BungeeSK.getInstance().getProxy().getPlayers().toArray()[BungeeSK.getInstance().getProxy().getPlayers().size() - 1];
                         for (final ProxiedPlayer player : BungeeSK.getInstance().getProxy().getPlayers()) {
-                            result.add(player.getName());
-                            result.add(player.getUniqueId().toString());
+                            builder.append(player.getName()).append("$").append(player.getUniqueId().toString());
+                            if (!player.equals(lastPlayer)) builder.append("^");
                         }
-                        this.write("ALLBUNGEEPLAYERSµ" + String.join("$", result));
+                        this.write(builder.toString());
+                        break;
+                    }
+
+                    case "EXPRBUNGEEPLAYERSERVER": {
+                        net.md_5.bungee.api.connection.Server playerServer = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.split("\\$")[1])).getServer();
+                        if (playerServer == null) break;
+                        this.write("PLAYERSERVERµ" + args + "^" + playerServer.getInfo().getName());
+                        break;
                     }
                 }
 
@@ -153,8 +162,7 @@ public final class ClientServer {
             if (!this.identified) {
                 if (this.name != null) {
                     this.writer.println("ALREADY_CONNECTED");
-                }
-                else
+                } else
                     this.writer.println("WRONG_PASSWORD");
             } else
                 this.write("DISCONNECT");

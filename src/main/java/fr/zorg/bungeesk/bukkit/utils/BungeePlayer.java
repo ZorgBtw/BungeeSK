@@ -5,7 +5,6 @@ public class BungeePlayer {
     private final String player;
     private final String uuid;
 
-
     public BungeePlayer(String player, String uuid) {
         this.player = player;
         this.uuid = uuid;
@@ -17,6 +16,10 @@ public class BungeePlayer {
 
     public String getUuid() {
         return this.uuid;
+    }
+
+    public String getData() {
+        return this.player + "$" + this.uuid;
     }
 
 }

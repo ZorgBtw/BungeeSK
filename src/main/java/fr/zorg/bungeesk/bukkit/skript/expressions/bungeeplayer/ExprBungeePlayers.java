@@ -58,7 +58,7 @@ public class ExprBungeePlayers extends SimpleExpression<BungeePlayer> {
             return null;
         }
         List<BungeePlayer> players = new ArrayList<>();
-        if (result.toString().equals("")) return null;
+        if (result.equals("")) return null;
         for (String player : result.split("\\^")) {
             String name = player.split("\\$")[0];
             String uuid = player.split("\\$")[1];

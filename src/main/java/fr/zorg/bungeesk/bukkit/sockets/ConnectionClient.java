@@ -159,20 +159,25 @@ public final class ConnectionClient {
                     case "ALLBUNGEEPLAYERS": {
                         final LinkedList<CompletableFuture<String>> completableFutures = this.toComplete.get("ALLBUNGEEPLAYERS");
                         if (completableFutures != null && completableFutures.size() > 0) {
-                            final CompletableFuture<String> complete = completableFutures.poll();
-                            final StringBuilder builder = new StringBuilder();
-                            for (int i = 0; i < received.size(); i++) {
-                                if (i != 0) {
-                                    if (i % 2 == 0)
-                                        builder.append("^");
-                                    else
-                                        builder.append("$");
-                                }
-                                builder.append(received.get(i));
-                            }
+                            CompletableFuture<String> complete = completableFutures.poll();
+                            StringBuilder builder = new StringBuilder();
+                            builder.append(separateDatas[1]).append("^");
                             complete.complete(builder.toString());
                             if (completableFutures.size() == 0)
                                 this.toComplete.remove("ALLBUNGEEPLAYERS", completableFutures);
+                            break;
+                        }
+                    }
+                    case "PLAYERSERVER": {
+                        String[] dataArray = separateDatas[1].split("\\^");
+                        String playerData = dataArray[0];
+                        String server = dataArray[1];
+                        final LinkedList<CompletableFuture<String>> completableFutures = this.toComplete.get("EXPRBUNGEEPLAYERSERVERµ" + playerData);
+                        if (completableFutures != null && completableFutures.size() > 0) {
+                            final CompletableFuture<String> complete = completableFutures.poll();
+                            complete.complete(server);
+                            if (completableFutures.size() == 0)
+                                this.toComplete.remove("EXPRBUNGEEPLAYERSERVERµ" + playerData, completableFutures);
                             break;
                         }
                     }
@@ -186,8 +191,7 @@ public final class ConnectionClient {
     public void disconnect() {
         try {
             this.writer.println("DISCONNECT");
-        } catch (final Exception ignored) {
-        }
+        } catch (final Exception ignored) { }
         this.forceDisconnect();
     }
 
