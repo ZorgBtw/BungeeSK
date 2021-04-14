@@ -50,6 +50,7 @@ public class ExprBungeePlayerServer extends SimplePropertyExpression<BungeePlaye
         } catch (InterruptedException | ExecutionException | TimeoutException interruptedException) {
             return null;
         }
+        if (result.equals("NONE")) return null;
         return result;
     }
 

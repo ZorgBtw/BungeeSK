@@ -140,7 +140,10 @@ public final class ClientServer {
 
                     case "EXPRBUNGEEPLAYERSERVER": {
                         net.md_5.bungee.api.connection.Server playerServer = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.split("\\$")[1])).getServer();
-                        if (playerServer == null) break;
+                        if (playerServer == null) {
+                            this.write("PLAYERSERVERµ" + args + "^NONE");
+                            break;
+                        }
                         this.write("PLAYERSERVERµ" + args + "^" + playerServer.getInfo().getName());
                         break;
                     }

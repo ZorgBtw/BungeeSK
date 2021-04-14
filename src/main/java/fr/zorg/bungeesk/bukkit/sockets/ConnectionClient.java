@@ -165,8 +165,8 @@ public final class ConnectionClient {
                             complete.complete(builder.toString());
                             if (completableFutures.size() == 0)
                                 this.toComplete.remove("ALLBUNGEEPLAYERS", completableFutures);
-                            break;
                         }
+                        break;
                     }
                     case "PLAYERSERVER": {
                         String[] dataArray = separateDatas[1].split("\\^");
@@ -178,8 +178,8 @@ public final class ConnectionClient {
                             complete.complete(server);
                             if (completableFutures.size() == 0)
                                 this.toComplete.remove("EXPRBUNGEEPLAYERSERVERµ" + playerData, completableFutures);
-                            break;
                         }
+                        break;
                     }
                 }
             }
@@ -191,7 +191,8 @@ public final class ConnectionClient {
     public void disconnect() {
         try {
             this.writer.println("DISCONNECT");
-        } catch (final Exception ignored) { }
+        } catch (final Exception ignored) {
+        }
         this.forceDisconnect();
     }
 
