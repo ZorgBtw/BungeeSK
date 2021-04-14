@@ -123,7 +123,10 @@ public final class ClientServer {
                     }
 
                     case "EXPRALLBUNGEEPLAYERS": {
-                        final List<String> result = new ArrayList<>();
+                        if (BungeeSK.getInstance().getProxy().getPlayers().size() < 1) {
+                            this.write("ALLBUNGEEPLAYERSµNONE");
+                            break;
+                        }
                         StringBuilder builder = new StringBuilder();
                         builder.append("ALLBUNGEEPLAYERSµ");
                         Object lastPlayer = BungeeSK.getInstance().getProxy().getPlayers().toArray()[BungeeSK.getInstance().getProxy().getPlayers().size() - 1];
