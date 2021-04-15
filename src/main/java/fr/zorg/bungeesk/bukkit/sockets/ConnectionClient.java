@@ -143,24 +143,24 @@ public final class ConnectionClient {
                         break;
                     }
                     case "LOGINEVENT": {
-                        String player = separateDatas[1];
-                        String uuid = separateDatas[2];
-                        Event event = new BungeePlayerJoinEvent(new BungeePlayer(player, uuid));
+                        final String player = separateDatas[1];
+                        final String uuid = separateDatas[2];
+                        final Event event = new BungeePlayerJoinEvent(new BungeePlayer(player, uuid));
                         BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
                         break;
                     }
                     case "LEAVEEVENT": {
-                        String player = separateDatas[1];
-                        String uuid = separateDatas[2];
-                        Event event = new BungeePlayerLeaveEvent(new BungeePlayer(player, uuid));
+                        final String player = separateDatas[1];
+                        final String uuid = separateDatas[2];
+                        final Event event = new BungeePlayerLeaveEvent(new BungeePlayer(player, uuid));
                         BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
                         break;
                     }
                     case "ALLBUNGEEPLAYERS": {
                         final LinkedList<CompletableFuture<String>> completableFutures = this.toComplete.get("ALLBUNGEEPLAYERS");
                         if (completableFutures != null && completableFutures.size() > 0) {
-                            CompletableFuture<String> complete = completableFutures.poll();
-                            StringBuilder builder = new StringBuilder();
+                            final CompletableFuture<String> complete = completableFutures.poll();
+                            final StringBuilder builder = new StringBuilder();
                             builder.append(separateDatas[1]).append("^");
                             complete.complete(builder.toString());
                             if (completableFutures.size() == 0)
@@ -169,9 +169,9 @@ public final class ConnectionClient {
                         break;
                     }
                     case "PLAYERSERVER": {
-                        String[] dataArray = separateDatas[1].split("\\^");
-                        String playerData = dataArray[0];
-                        String server = dataArray[1];
+                        final String[] dataArray = separateDatas[1].split("\\^");
+                        final String playerData = dataArray[0];
+                        final String server = dataArray[1];
                         final LinkedList<CompletableFuture<String>> completableFutures = this.toComplete.get("EXPRBUNGEEPLAYERSERVERµ" + playerData);
                         if (completableFutures != null && completableFutures.size() > 0) {
                             final CompletableFuture<String> complete = completableFutures.poll();
@@ -181,9 +181,9 @@ public final class ConnectionClient {
                         }
                         break;
                     } case "ISCONNECTED": {
-                        String[] dataArray = separateDatas[1].split("\\^");
-                        String playerData = dataArray[0];
-                        String state = dataArray[1];
+                        final String[] dataArray = separateDatas[1].split("\\^");
+                        final String playerData = dataArray[0];
+                        final String state = dataArray[1];
                         final LinkedList<CompletableFuture<String>> completableFutures = this.toComplete.get("ISCONNECTEDµ" + playerData);
                         if (completableFutures != null && completableFutures.size() > 0) {
                             final CompletableFuture<String> complete = completableFutures.poll();
