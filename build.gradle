@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'fr.zorg'
-version '1.0'
+version '0.0.1'
 
 def mcVersion = '1.16'
 def subVersion = '.5'
