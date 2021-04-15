@@ -18,9 +18,9 @@ import org.jetbrains.annotations.Nullable;
 @Since("1.0.0")
 @Examples("command /isconnected:\n" +
         "\ttrigger:\n" +
-        "\t\tif {connection} is not connected:\n" +
+        "\t\tif client is not connected:\n" +
         "\t\t\tsend \"Not working !\"\n" +
-        "\t\tif {connection} is connected:\n" +
+        "\t\tif client is connected:\n" +
         "\t\t\tsend \"Working as well !\"")
 public class CondClientConnected extends Condition {
 
@@ -41,9 +41,8 @@ public class CondClientConnected extends Condition {
     @Override
     public boolean check(Event e) {
         boolean isConn = ConnectionClient.get() != null && ConnectionClient.get().isConnected();
-        if (invert) {
+        if (invert)
             return !isConn;
-        }
         return isConn;
     }
 
