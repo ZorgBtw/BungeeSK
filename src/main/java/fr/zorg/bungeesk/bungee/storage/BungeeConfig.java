@@ -11,6 +11,10 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Level;
 
 public class BungeeConfig {
@@ -26,6 +30,8 @@ public class BungeeConfig {
     private int port = 100;
     private String password = Utils.randomString(10);
     private boolean sendFilesAuto = false;
+    private boolean whitelistIp = true;
+    private List<String> authorizedIp = Collections.singletonList("127.0.0.1");
 
     private transient File file;
     private transient Configuration config;
@@ -77,5 +83,13 @@ public class BungeeConfig {
 
     public boolean isSendFilesAutoEnabled() {
         return this.sendFilesAuto;
+    }
+
+    public boolean isWhitelistIp() {
+        return this.whitelistIp;
+    }
+
+    public List<String> getAuthorizedIp() {
+        return this.authorizedIp;
     }
 }

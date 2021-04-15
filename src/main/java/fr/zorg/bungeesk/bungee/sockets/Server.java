@@ -1,5 +1,6 @@
 package fr.zorg.bungeesk.bungee.sockets;
 
+import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
 import fr.zorg.bungeesk.common.encryption.AESEncryption;
 import fr.zorg.bungeesk.common.utils.Utils;
 
@@ -34,6 +35,11 @@ public final class Server {
         while (!this.servSocket.isClosed()) {
             try {
                 final ClientServer client = new ClientServer(this.servSocket.accept());
+                if (BungeeConfig.get().isWhitelistIp()) {
+                    final Socket clientSocket = client.getSocket();
+                    if (!BungeeConfig.get().getAuthorizedIp().contains(clientSocket.getInetAddress().getHostAddress()))
+                        client.forceDisconnect();
+                }
             } catch (IOException ignored) {
             }
         }
