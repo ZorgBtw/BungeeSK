@@ -3,8 +3,6 @@ package fr.zorg.bungeesk.bukkit.sockets;
 import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.skript.events.bukkit.BungeePlayerJoinEvent;
 import fr.zorg.bungeesk.bukkit.skript.events.bukkit.BungeePlayerLeaveEvent;
-import fr.zorg.bungeesk.bukkit.skript.events.bukkit.ClientConnectEvent;
-import fr.zorg.bungeesk.bukkit.skript.events.bukkit.ClientDisconnectEvent;
 import fr.zorg.bungeesk.bukkit.updater.Commands;
 import fr.zorg.bungeesk.bukkit.updater.Updater;
 import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
@@ -85,21 +83,16 @@ public final class ConnectionClient {
                 final String header = separateDatas[0];
                 final List<String> received = new ArrayList<>(Arrays.asList(separateDatas).subList(1, separateDatas.length));
                 switch (header.toUpperCase()) {
-                    case "CONNECTED_SUCCESSFULLY": {
-                        Event event = new ClientConnectEvent();
-                        BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
-                        break;
-                    }
                     case "ALREADY_CONNECTED": {
                         BungeeSK.getInstance().getLogger().log(Level.WARNING, "§6Trying to connect to §c"
-                                + this.getAddress()
+                                + this.socket.getInetAddress().getHostAddress()
                                 + " §6and returned failure: §cServer already connected under this name !");
                         this.disconnect();
                         break;
                     }
                     case "WRONG_PASSWORD": {
                         BungeeSK.getInstance().getLogger().log(Level.WARNING, "§6Trying to connect to §c"
-                                + this.getAddress()
+                                + this.socket.getInetAddress().getHostAddress()
                                 + " §6and returned failure: §cWrong password !");
                         this.disconnect();
                         break;
@@ -187,8 +180,7 @@ public final class ConnectionClient {
                                 this.toComplete.remove("EXPRBUNGEEPLAYERSERVERµ" + playerData, completableFutures);
                         }
                         break;
-                    }
-                    case "ISCONNECTED": {
+                    } case "ISCONNECTED": {
                         String[] dataArray = separateDatas[1].split("\\^");
                         String playerData = dataArray[0];
                         String state = dataArray[1];
@@ -198,17 +190,6 @@ public final class ConnectionClient {
                             complete.complete(state);
                             if (completableFutures.size() == 0)
                                 this.toComplete.remove("ISCONNECTEDµ" + playerData, completableFutures);
-                        }
-                        break;
-                    }
-                    case "GETPLAYER": {
-                        String player = separateDatas[1].split("\\$")[0];
-                        final LinkedList<CompletableFuture<String>> completableFutures = this.toComplete.get("GETPLAYERµ" + player);
-                        if (completableFutures != null && completableFutures.size() > 0) {
-                            final CompletableFuture<String> complete = completableFutures.poll();
-                            complete.complete(separateDatas[1]);
-                            if (completableFutures.size() == 0)
-                                this.toComplete.remove("GETPLAYERµ" + player, completableFutures);
                         }
                         break;
                     }
@@ -234,8 +215,6 @@ public final class ConnectionClient {
                 this.reader.close();
                 this.writer.close();
                 this.readThread.interrupt();
-                Event event = new ClientDisconnectEvent();
-                BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
             }
         } catch (IOException e) {
             e.printStackTrace();
