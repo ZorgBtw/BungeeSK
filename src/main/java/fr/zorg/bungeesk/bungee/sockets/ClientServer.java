@@ -82,6 +82,7 @@ public final class ClientServer {
                                 + this.name
                                 + " §6with adress §a"
                                 + this.socket.getInetAddress().getHostAddress());
+                        this.write("CONNECTED_SUCCESSFULLYµ");
 
                         if (BungeeConfig.get().isSendFilesAutoEnabled())
                             this.sendFiles();

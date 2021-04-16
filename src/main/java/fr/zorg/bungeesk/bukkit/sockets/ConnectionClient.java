@@ -3,6 +3,8 @@ package fr.zorg.bungeesk.bukkit.sockets;
 import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.skript.events.bukkit.BungeePlayerJoinEvent;
 import fr.zorg.bungeesk.bukkit.skript.events.bukkit.BungeePlayerLeaveEvent;
+import fr.zorg.bungeesk.bukkit.skript.events.bukkit.ClientConnectEvent;
+import fr.zorg.bungeesk.bukkit.skript.events.bukkit.ClientDisconnectEvent;
 import fr.zorg.bungeesk.bukkit.updater.Commands;
 import fr.zorg.bungeesk.bukkit.updater.Updater;
 import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
@@ -83,16 +85,21 @@ public final class ConnectionClient {
                 final String header = separateDatas[0];
                 final List<String> received = new ArrayList<>(Arrays.asList(separateDatas).subList(1, separateDatas.length));
                 switch (header.toUpperCase()) {
+                    case "CONNECTED_SUCCESSFULLY": {
+                        Event event = new ClientConnectEvent();
+                        BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
+                        break;
+                    }
                     case "ALREADY_CONNECTED": {
                         BungeeSK.getInstance().getLogger().log(Level.WARNING, "§6Trying to connect to §c"
-                                + this.socket.getInetAddress().getHostAddress()
+                                + this.getAddress()
                                 + " §6and returned failure: §cServer already connected under this name !");
                         this.disconnect();
                         break;
                     }
                     case "WRONG_PASSWORD": {
                         BungeeSK.getInstance().getLogger().log(Level.WARNING, "§6Trying to connect to §c"
-                                + this.socket.getInetAddress().getHostAddress()
+                                + this.getAddress()
                                 + " §6and returned failure: §cWrong password !");
                         this.disconnect();
                         break;
@@ -227,6 +234,8 @@ public final class ConnectionClient {
                 this.reader.close();
                 this.writer.close();
                 this.readThread.interrupt();
+                Event event = new ClientDisconnectEvent();
+                BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
             }
         } catch (IOException e) {
             e.printStackTrace();

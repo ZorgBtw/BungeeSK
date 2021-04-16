@@ -26,8 +26,4 @@ public class BungeePlayerLeaveEvent extends Event {
         return this.bungeePlayer;
     }
 
-    public String getUuid() {
-        return this.bungeePlayer.getUuid();
-    }
-
 }
