@@ -156,6 +156,14 @@ public final class ClientServer {
                         this.write("ISCONNECTEDµ" + args + "^FALSE");
                         break;
 
+                    } case "GETPLAYER": {
+                        ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(args);
+                        if (player != null && player.getUniqueId() != null) {
+                            this.write("GETPLAYERµ" + args + "$" + player.getUniqueId().toString());
+                            break;
+                        }
+                        this.write("GETPLAYERµ" + args + "$NONE");
+                        break;
                     }
                 }
 

@@ -180,7 +180,8 @@ public final class ConnectionClient {
                                 this.toComplete.remove("EXPRBUNGEEPLAYERSERVERµ" + playerData, completableFutures);
                         }
                         break;
-                    } case "ISCONNECTED": {
+                    }
+                    case "ISCONNECTED": {
                         String[] dataArray = separateDatas[1].split("\\^");
                         String playerData = dataArray[0];
                         String state = dataArray[1];
@@ -190,6 +191,17 @@ public final class ConnectionClient {
                             complete.complete(state);
                             if (completableFutures.size() == 0)
                                 this.toComplete.remove("ISCONNECTEDµ" + playerData, completableFutures);
+                        }
+                        break;
+                    }
+                    case "GETPLAYER": {
+                        String player = separateDatas[1].split("\\$")[0];
+                        final LinkedList<CompletableFuture<String>> completableFutures = this.toComplete.get("GETPLAYERµ" + player);
+                        if (completableFutures != null && completableFutures.size() > 0) {
+                            final CompletableFuture<String> complete = completableFutures.poll();
+                            complete.complete(separateDatas[1]);
+                            if (completableFutures.size() == 0)
+                                this.toComplete.remove("GETPLAYERµ" + player, completableFutures);
                         }
                         break;
                     }
