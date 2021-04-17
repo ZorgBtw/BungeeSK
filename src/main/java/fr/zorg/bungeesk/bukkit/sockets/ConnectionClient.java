@@ -3,6 +3,7 @@ package fr.zorg.bungeesk.bukkit.sockets;
 import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.skript.events.bukkit.BungeePlayerJoinEvent;
 import fr.zorg.bungeesk.bukkit.skript.events.bukkit.BungeePlayerLeaveEvent;
+import fr.zorg.bungeesk.bukkit.skript.events.bukkit.ServerSwitchEvent;
 import fr.zorg.bungeesk.bukkit.updater.Commands;
 import fr.zorg.bungeesk.bukkit.updater.Updater;
 import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
@@ -191,6 +192,13 @@ public final class ConnectionClient {
                             if (completableFutures.size() == 0)
                                 this.toComplete.remove("ISCONNECTEDµ" + playerData, completableFutures);
                         }
+                        break;
+                    } case "SERVERSWITCHEVENT": {
+                        String player = separateDatas[1].split("\\^")[0];
+                        String server = separateDatas[1].split("\\^")[1];
+                        BungeePlayer bungeePlayer = new BungeePlayer(player.split("\\$")[0], player.split("\\$")[1]);
+                        Event event = new ServerSwitchEvent(bungeePlayer, server);
+                        BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
                         break;
                     }
                 }

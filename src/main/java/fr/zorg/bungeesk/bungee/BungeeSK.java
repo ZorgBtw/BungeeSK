@@ -2,6 +2,7 @@ package fr.zorg.bungeesk.bungee;
 
 import fr.zorg.bungeesk.bungee.listeners.LeaveEvent;
 import fr.zorg.bungeesk.bungee.listeners.LoginEvent;
+import fr.zorg.bungeesk.bungee.listeners.ServSwitchEvent;
 import fr.zorg.bungeesk.bungee.sockets.Server;
 import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
 import net.md_5.bungee.api.ChatColor;
@@ -17,16 +18,19 @@ public class BungeeSK extends Plugin {
 
     public static BungeeSK instance;
     private Server server;
+    private PluginManager pm;
 
     @Override
     public void onEnable() {
         instance = this;
+        pm = getProxy().getPluginManager();
 
         this.getLogger().log(Level.INFO, ChatColor.GOLD + "BungeeSK has been successfully started !");
         BungeeConfig.get().load();
 
-        this.getProxy().getPluginManager().registerListener(this, new LoginEvent());
-        this.getProxy().getPluginManager().registerListener(this, new LeaveEvent());
+        pm.registerListener(this, new LoginEvent());
+        pm.registerListener(this, new LeaveEvent());
+        pm.registerListener(this, new ServSwitchEvent());
 
         final File file = new File(this.getDataFolder().getAbsolutePath(), "common-skript");
         if (!file.exists())

@@ -47,6 +47,7 @@ public class EffExecuteCommand extends Effect {
 
     @Override
     protected void execute(Event e) {
+        assert ConnectionClient.get() != null;
         String server = null;
         switch (this.pattern) {
             case 0:

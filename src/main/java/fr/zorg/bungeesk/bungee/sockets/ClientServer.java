@@ -98,9 +98,8 @@ public final class ClientServer {
 
                 final String header = separateDatas[0];
                 String args = null;
-                if (separateDatas.length > 1) {
+                if (separateDatas.length > 1)
                     args = separateDatas[1];
-                }
 
                 switch (header.toUpperCase()) {
                     case "DISCONNECT": {
@@ -157,7 +156,8 @@ public final class ClientServer {
                         this.write("ISCONNECTEDµ" + args + "^FALSE");
                         break;
 
-                    } case "GETPLAYER": {
+                    }
+                    case "GETPLAYER": {
                         ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(args);
                         if (player != null && player.getUniqueId() != null) {
                             this.write("GETPLAYERµ" + args + "$" + player.getUniqueId().toString());
