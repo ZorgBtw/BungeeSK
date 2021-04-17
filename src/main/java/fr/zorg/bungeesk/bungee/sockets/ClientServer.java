@@ -2,6 +2,7 @@ package fr.zorg.bungeesk.bungee.sockets;
 
 import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.Nullable;
 
@@ -164,6 +165,14 @@ public final class ClientServer {
                             break;
                         }
                         this.write("GETPLAYERµ" + args + "$NONE");
+                        break;
+                    }
+                    case "SENDPLAYERMESSAGE": {
+                        final String message = args.split("\\^")[1];
+                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.split("\\^")[0].split("\\$")[1]));
+                        if (player != null && player.isConnected()) {
+                            player.sendMessage(TextComponent.fromLegacyText(message));
+                        }
                         break;
                     }
                 }

@@ -181,7 +181,23 @@ public final class ConnectionClient {
                                 this.toComplete.remove("EXPRBUNGEEPLAYERSERVERµ" + playerData, completableFutures);
                         }
                         break;
-                    } case "ISCONNECTED": {
+                    }
+                    case "GETPLAYER": {
+                        final String player = separateDatas[1].split("\\$")[0];
+                        final LinkedList<CompletableFuture<String>> completableFutures = this.toComplete.get("GETPLAYERµ" + player);
+                        if (completableFutures != null && completableFutures.size() > 0) {
+                            final CompletableFuture<String> complete = completableFutures.poll();
+                            complete.complete(separateDatas[1]);
+                            if (completableFutures.size() != 0) {
+                                break;
+                            }
+                            this.toComplete.remove("GETPLAYERµ" + player, completableFutures);
+                            break;
+                        }
+                        break;
+                    }
+
+                    case "ISCONNECTED": {
                         String[] dataArray = separateDatas[1].split("\\^");
                         String playerData = dataArray[0];
                         String state = dataArray[1];
@@ -193,7 +209,8 @@ public final class ConnectionClient {
                                 this.toComplete.remove("ISCONNECTEDµ" + playerData, completableFutures);
                         }
                         break;
-                    } case "SERVERSWITCHEVENT": {
+                    }
+                    case "SERVERSWITCHEVENT": {
                         String player = separateDatas[1].split("\\^")[0];
                         String server = separateDatas[1].split("\\^")[1];
                         BungeePlayer bungeePlayer = new BungeePlayer(player.split("\\$")[0], player.split("\\$")[1]);
@@ -203,9 +220,11 @@ public final class ConnectionClient {
                     }
                 }
             }
-        } catch (IOException e) {
+        } catch (
+                IOException e) {
             this.forceDisconnect();
         }
+
     }
 
     public void disconnect() {
