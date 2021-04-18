@@ -51,6 +51,7 @@ public final class ConnectionClient {
     private final Thread readThread;
     private final BufferedReader reader;
     private final PrintWriter writer;
+    private final char lineBreaker;
 
     private final Map<String, LinkedList<CompletableFuture<String>>> toComplete;
 
@@ -60,9 +61,11 @@ public final class ConnectionClient {
         this.socket = socket;
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.writer = new PrintWriter(socket.getOutputStream(), true);
+        final char[] dataSet = {'Ð', 'ℋ', 'ℱ'};
+        this.lineBreaker = dataSet[new Random().nextInt(dataSet.length)];
         this.toComplete = new HashMap<>();
         this.encryption = new AESEncryption(password);
-        this.write("name=" + name + "µpassword=" + password);
+        this.write("name=" + name + "µpassword=" + password + "µlinebreaker=" + this.lineBreaker);
         this.readThread = new Thread(this::read);
         this.readThread.setDaemon(true);
         this.readThread.start();
@@ -79,7 +82,7 @@ public final class ConnectionClient {
                 }
 
                 final String data = this.encryption.decrypt(rawData);
-                final String[] separateDatas = data.split("µ");
+                final String[] separateDatas = data.split(String.valueOf(this.lineBreaker));
 
                 final String header = separateDatas[0];
                 final List<String> received = new ArrayList<>(Arrays.asList(separateDatas).subList(1, separateDatas.length));
@@ -173,25 +176,25 @@ public final class ConnectionClient {
                         String[] dataArray = separateDatas[1].split("\\^");
                         String playerData = dataArray[0];
                         String server = dataArray[1];
-                        final LinkedList<CompletableFuture<String>> completableFutures = this.toComplete.get("EXPRBUNGEEPLAYERSERVERµ" + playerData);
+                        final LinkedList<CompletableFuture<String>> completableFutures = this.toComplete.get("EXPRBUNGEEPLAYERSERVER" + this.lineBreaker + playerData);
                         if (completableFutures != null && completableFutures.size() > 0) {
                             final CompletableFuture<String> complete = completableFutures.poll();
                             complete.complete(server);
                             if (completableFutures.size() == 0)
-                                this.toComplete.remove("EXPRBUNGEEPLAYERSERVERµ" + playerData, completableFutures);
+                                this.toComplete.remove("EXPRBUNGEEPLAYERSERVER" + this.lineBreaker + playerData, completableFutures);
                         }
                         break;
                     }
                     case "GETPLAYER": {
                         final String player = separateDatas[1].split("\\$")[0];
-                        final LinkedList<CompletableFuture<String>> completableFutures = this.toComplete.get("GETPLAYERµ" + player);
+                        final LinkedList<CompletableFuture<String>> completableFutures = this.toComplete.get("GETPLAYER" + this.lineBreaker + player);
                         if (completableFutures != null && completableFutures.size() > 0) {
                             final CompletableFuture<String> complete = completableFutures.poll();
                             complete.complete(separateDatas[1]);
                             if (completableFutures.size() != 0) {
                                 break;
                             }
-                            this.toComplete.remove("GETPLAYERµ" + player, completableFutures);
+                            this.toComplete.remove("GETPLAYER" + this.lineBreaker + player, completableFutures);
                             break;
                         }
                         break;
@@ -201,12 +204,12 @@ public final class ConnectionClient {
                         String[] dataArray = separateDatas[1].split("\\^");
                         String playerData = dataArray[0];
                         String state = dataArray[1];
-                        final LinkedList<CompletableFuture<String>> completableFutures = this.toComplete.get("ISCONNECTEDµ" + playerData);
+                        final LinkedList<CompletableFuture<String>> completableFutures = this.toComplete.get("ISCONNECTED" + this.lineBreaker + playerData);
                         if (completableFutures != null && completableFutures.size() > 0) {
                             final CompletableFuture<String> complete = completableFutures.poll();
                             complete.complete(state);
                             if (completableFutures.size() == 0)
-                                this.toComplete.remove("ISCONNECTEDµ" + playerData, completableFutures);
+                                this.toComplete.remove("ISCONNECTED" + this.lineBreaker + playerData, completableFutures);
                         }
                         break;
                     }

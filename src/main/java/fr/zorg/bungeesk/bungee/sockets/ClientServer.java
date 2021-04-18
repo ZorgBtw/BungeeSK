@@ -21,6 +21,7 @@ public final class ClientServer {
     private final Thread readThread;
     private final BufferedReader reader;
     private final PrintWriter writer;
+    private char lineBreaker;
 
     private boolean identified;
 
@@ -51,7 +52,7 @@ public final class ClientServer {
                             break;
                         }
                         String[] datas = data.split("µ");
-                        if (datas.length != 2) {
+                        if (datas.length != 3) {
                             this.disconnect();
                             break;
                         }
@@ -76,6 +77,12 @@ public final class ClientServer {
                             this.disconnect();
                             break;
                         }
+                        if (datas[2].startsWith("linebreaker=")) {
+                            this.lineBreaker = datas[2].substring(12).charAt(0);
+                        } else {
+                            this.disconnect();
+                            break;
+                        }
 
                         this.identified = true;
                         server.addClient(this);
@@ -83,7 +90,7 @@ public final class ClientServer {
                                 + this.name
                                 + " §6with adress §a"
                                 + this.socket.getInetAddress().getHostAddress());
-                        this.write("CONNECTED_SUCCESSFULLYµ");
+                        this.write("CONNECTED_SUCCESSFULLY" + this.lineBreaker);
 
                         if (BungeeConfig.get().isSendFilesAutoEnabled())
                             this.sendFiles();
@@ -95,7 +102,7 @@ public final class ClientServer {
                     continue;
                 }
 
-                final String[] separateDatas = data.split("µ");
+                final String[] separateDatas = data.split(String.valueOf(this.lineBreaker));
 
                 final String header = separateDatas[0];
                 String args = null;
@@ -117,19 +124,19 @@ public final class ClientServer {
                         if (args.equalsIgnoreCase("bungee"))
                             BungeeSK.getInstance().getProxy().getPluginManager().dispatchCommand(BungeeSK.getInstance().getProxy().getConsole(), separateDatas[2]);
                         else if (args.equalsIgnoreCase("all"))
-                            server.writeAll("CONSOLECOMMANDµ" + separateDatas[2]);
+                            server.writeAll("CONSOLECOMMAND" + this.lineBreaker + separateDatas[2]);
                         else
-                            server.getClient(args).get().write("CONSOLECOMMANDµ" + separateDatas[2]);
+                            server.getClient(args).get().write("CONSOLECOMMAND" + this.lineBreaker + separateDatas[2]);
                         break;
                     }
 
                     case "EXPRALLBUNGEEPLAYERS": {
                         if (BungeeSK.getInstance().getProxy().getPlayers().size() < 1) {
-                            this.write("ALLBUNGEEPLAYERSµNONE");
+                            this.write("ALLBUNGEEPLAYERS" + this.lineBreaker + "NONE");
                             break;
                         }
                         StringBuilder builder = new StringBuilder();
-                        builder.append("ALLBUNGEEPLAYERSµ");
+                        builder.append("ALLBUNGEEPLAYERS").append(this.lineBreaker);
                         Object lastPlayer = BungeeSK.getInstance().getProxy().getPlayers().toArray()[BungeeSK.getInstance().getProxy().getPlayers().size() - 1];
                         for (final ProxiedPlayer player : BungeeSK.getInstance().getProxy().getPlayers()) {
                             builder.append(player.getName()).append("$").append(player.getUniqueId().toString());
@@ -142,29 +149,29 @@ public final class ClientServer {
                     case "EXPRBUNGEEPLAYERSERVER": {
                         net.md_5.bungee.api.connection.Server playerServer = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.split("\\$")[1])).getServer();
                         if (playerServer == null) {
-                            this.write("PLAYERSERVERµ" + args + "^NONE");
+                            this.write("PLAYERSERVER" + this.lineBreaker + args + "^NONE");
                             break;
                         }
-                        this.write("PLAYERSERVERµ" + args + "^" + playerServer.getInfo().getName());
+                        this.write("PLAYERSERVER" + this.lineBreaker + args + "^" + playerServer.getInfo().getName());
                         break;
                     }
                     case "ISCONNECTED": {
                         ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.split("\\$")[1]));
                         if (player != null && player.isConnected()) {
-                            this.write("ISCONNECTEDµ" + args + "^TRUE");
+                            this.write("ISCONNECTED" + this.lineBreaker + args + "^TRUE");
                             break;
                         }
-                        this.write("ISCONNECTEDµ" + args + "^FALSE");
+                        this.write("ISCONNECTED" + this.lineBreaker + args + "^FALSE");
                         break;
 
                     }
                     case "GETPLAYER": {
                         ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(args);
                         if (player != null && player.getUniqueId() != null) {
-                            this.write("GETPLAYERµ" + args + "$" + player.getUniqueId().toString());
+                            this.write("GETPLAYER" + this.lineBreaker + args + "$" + player.getUniqueId().toString());
                             break;
                         }
-                        this.write("GETPLAYERµ" + args + "$NONE");
+                        this.write("GETPLAYER" + this.lineBreaker + args + "$NONE");
                         break;
                     }
                     case "SENDPLAYERMESSAGE": {
@@ -188,7 +195,7 @@ public final class ClientServer {
         final List<String> result = BungeeSK.getInstance().filesToString();
         result.add("END_SKRIPTS");
         final String toString = Arrays.toString(result.toArray(new String[0])).substring(1);
-        this.write("SEND_SKRIPTSµ" + toString.substring(0, toString.length() - 1));
+        this.write("SEND_SKRIPTS" + this.lineBreaker + toString.substring(0, toString.length() - 1));
     }
 
     public void disconnect() {
