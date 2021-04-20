@@ -3,6 +3,7 @@ package fr.zorg.bungeesk.bungee.sockets;
 import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.Nullable;
 
@@ -132,7 +133,6 @@ public final class ClientServer {
                     }
 
                     case "ALLBUNGEEPLAYERS": {
-                        System.out.println("aa");
                         if (BungeeSK.getInstance().getProxy().getPlayers().size() < 1) {
                             this.write("ALLBUNGEEPLAYERSµNONE");
                             break;
@@ -178,8 +178,17 @@ public final class ClientServer {
                     case "SENDPLAYERMESSAGE": {
                         final String message = args.split("\\^")[1];
                         final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.split("\\^")[0].split("\\$")[1]));
-                        if (player != null && player.isConnected()) {
+                        if (player != null && player.isConnected())
                             player.sendMessage(TextComponent.fromLegacyText(message));
+                        break;
+                    }
+                    case "SENDTOSERV": {
+                        final String[] dataArray = args.split("\\^");
+                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(dataArray[0].split("\\$")[1]));
+                        if (player != null && player.isConnected()) {
+                            final ServerInfo toSend = BungeeSK.getInstance().getProxy().getServerInfo(dataArray[1]);
+                            if (toSend != null)
+                                player.connect(toSend);
                         }
                         break;
                     }
@@ -273,7 +282,7 @@ public final class ClientServer {
     }
 
 
-    }
+}
 
 
 
