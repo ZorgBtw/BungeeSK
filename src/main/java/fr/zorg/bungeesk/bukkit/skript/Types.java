@@ -71,38 +71,5 @@ public class Types {
                     }
 
                 }));
-
-
-        Classes.registerClass(new ClassInfo<>(PendingConnection.class, "pinginfo")
-                .defaultExpression(new EventValueExpression<>(PendingConnection.class))
-                .user("pinginfo")
-                .name("Ping info")
-                .description("Represents a ping information waiting to be sent")
-                .since("1.0.0")
-                .parser(new Parser<PendingConnection>() {
-
-                    @Override
-                    public String getVariableNamePattern() {
-                        return ".+";
-                    }
-
-                    @Override
-                    public PendingConnection parse(final String id, final ParseContext context) {
-                        return null;
-                    }
-
-                    @Override
-                    public String toString(final PendingConnection connection, final int arg1) {
-                        return connection.toString();
-                    }
-
-                    @Override
-                    public String toVariableNameString(final PendingConnection connection) {
-                        return connection.toString();
-                    }
-
-                }));
-
-
     }
 }
