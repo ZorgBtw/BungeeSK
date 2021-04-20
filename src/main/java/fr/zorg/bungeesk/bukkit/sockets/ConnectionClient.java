@@ -147,12 +147,12 @@ public final class ConnectionClient {
                         break;
                     }
                     case "LOGINEVENT": {
-                        Event event = new BungeePlayerJoinEvent(new BungeePlayer(separateDatas[1], separateDatas[2]));
+                        final Event event = new BungeePlayerJoinEvent(new BungeePlayer(separateDatas[1], separateDatas[2]));
                         BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
                         break;
                     }
                     case "LEAVEEVENT": {
-                        Event event = new BungeePlayerLeaveEvent(new BungeePlayer(separateDatas[1], separateDatas[2]));
+                        final Event event = new BungeePlayerLeaveEvent(new BungeePlayer(separateDatas[1], separateDatas[2]));
                         BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
                         break;
                     }
@@ -161,7 +161,7 @@ public final class ConnectionClient {
                         break;
                     }
                     case "PLAYERSERVER": {
-                        String[] dataArray = separateDatas[1].split("\\^");
+                        final String[] dataArray = separateDatas[1].split("\\^");
                         this.putFuture("PLAYERSERVERµ" + dataArray[0], dataArray[1]);
                         break;
                     }
@@ -172,17 +172,19 @@ public final class ConnectionClient {
                     }
 
                     case "ISCONNECTED": {
-                        String[] dataArray = separateDatas[1].split("\\^");
+                        final String[] dataArray = separateDatas[1].split("\\^");
                         this.putFuture("ISCONNECTEDµ" + dataArray[0], dataArray[1]);
                         break;
                     }
                     case "SERVERSWITCHEVENT": {
-                        String[] dataArray = separateDatas[1].split("\\^");
-                        String playerData = dataArray[0];
-                        String server = dataArray[1];
-                        BungeePlayer bungeePlayer = new BungeePlayer(playerData.split("\\$")[0], playerData.split("\\$")[1]);
-                        Event event = new ServerSwitchEvent(bungeePlayer, server);
+                        final String[] dataArray = separateDatas[1].split("\\^");
+                        final BungeePlayer bungeePlayer = new BungeePlayer(dataArray[0].split("\\$")[0], dataArray[1].split("\\$")[1]);
+                        final Event event = new ServerSwitchEvent(bungeePlayer, dataArray[1]);
                         BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
+                        break;
+                    }
+                    case "ALLBUNGEESERVERS": {
+                        this.putFuture("ALLBUNGEESERVERSµ", separateDatas[1]);
                         break;
                     }
                 }

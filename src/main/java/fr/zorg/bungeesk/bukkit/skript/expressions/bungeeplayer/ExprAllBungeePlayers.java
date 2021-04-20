@@ -16,22 +16,17 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 @Name("All of the bungee players")
 @Description("Returns every bungee player on the network")
 @Examples("loop all bungee players:\n" +
         "\tsend \"%loop-value%\" is connected !")
 @Since("1.0.0")
-public class ExprBungeePlayers extends SimpleExpression<BungeePlayer> {
+public class ExprAllBungeePlayers extends SimpleExpression<BungeePlayer> {
 
     static {
-        Skript.registerExpression(ExprBungeePlayers.class, BungeePlayer.class, ExpressionType.SIMPLE,
+        Skript.registerExpression(ExprAllBungeePlayers.class, BungeePlayer.class, ExpressionType.SIMPLE,
                 "[(all [[of] the]|the)] bungee players");
     }
 

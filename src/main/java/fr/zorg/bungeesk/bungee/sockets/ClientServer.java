@@ -192,6 +192,14 @@ public final class ClientServer {
                         }
                         break;
                     }
+                    case "ALLBUNGEESERVERS": {
+                        final Map<String, ServerInfo> servers = BungeeSK.getInstance().getProxy().getServers();
+                        final StringBuilder builder = new StringBuilder("ALLBUNGEESERVERSµ");
+                        servers.forEach((s, serverInfo) -> {
+                            builder.append(s).append("^");
+                        });
+                        this.write(builder.toString());
+                    }
                 }
 
             }
