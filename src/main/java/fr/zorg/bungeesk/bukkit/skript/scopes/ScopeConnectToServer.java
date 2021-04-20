@@ -35,27 +35,23 @@ public class ScopeConnectToServer extends EffectSection {
 
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        if (checkIfCondition()) {
-            return false;
-        }
-        if (!hasSection()) {
-            return false;
-        }
+        if (checkIfCondition() || !hasSection()) return false;
         loadSection(true);
         SectionNode topNode = (SectionNode) SkriptLogger.getNode();
 
         return true;
     }
 
-    @Override
-    public String toString(@Nullable Event e, boolean debug) {
-        return "create new bungee connection";
-    }
 
     @Override
     protected void execute(Event e) {
         settings = new ClientSettings();
         runSection(e);
+    }
+
+    @Override
+    public String toString(@Nullable Event e, boolean debug) {
+        return "create new bungee connection";
     }
 
 }

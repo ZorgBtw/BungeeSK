@@ -43,20 +43,8 @@ public class ExprBungeePlayers extends SimpleExpression<BungeePlayer> {
     @Override
     protected @Nullable BungeePlayer[] get(Event e) {
         assert ConnectionClient.get() != null;
-        CompletableFuture<String> future = new CompletableFuture<>();
-        new Thread(() -> {
-            LinkedList<CompletableFuture<String>> completableFutures = ConnectionClient.get().getToComplete().get("ALLBUNGEEPLAYERS");
-            if (completableFutures == null) completableFutures = new LinkedList<>();
-            completableFutures.add(future);
-            ConnectionClient.get().getToComplete().put("ALLBUNGEEPLAYERS", completableFutures);
-            ConnectionClient.get().write("EXPRALLBUNGEEPLAYERS");
-        }).start();
-        String result;
-        try {
-            result = future.get(1, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException interruptedException) {
-            return null;
-        }
+        String result = ConnectionClient.get().future("ALLBUNGEEPLAYERSµ");
+
         List<BungeePlayer> players = new ArrayList<>();
         if (result.equals("NONE^")) return null;
         for (String player : result.split("\\^")) {

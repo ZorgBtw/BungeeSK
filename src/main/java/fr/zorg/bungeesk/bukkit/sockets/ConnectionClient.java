@@ -16,6 +16,9 @@ import java.io.*;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 public final class ConnectionClient {
@@ -51,7 +54,6 @@ public final class ConnectionClient {
     private final Thread readThread;
     private final BufferedReader reader;
     private final PrintWriter writer;
-    private final char lineBreaker;
 
     private final Map<String, LinkedList<CompletableFuture<String>>> toComplete;
 
@@ -61,11 +63,9 @@ public final class ConnectionClient {
         this.socket = socket;
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.writer = new PrintWriter(socket.getOutputStream(), true);
-        final char[] dataSet = {'Ð', 'ℋ', 'ℱ'};
-        this.lineBreaker = dataSet[new Random().nextInt(dataSet.length)];
         this.toComplete = new HashMap<>();
         this.encryption = new AESEncryption(password);
-        this.write("name=" + name + "µpassword=" + password + "µlinebreaker=" + this.lineBreaker);
+        this.write("name=" + name + "µpassword=" + password);
         this.readThread = new Thread(this::read);
         this.readThread.setDaemon(true);
         this.readThread.start();
@@ -82,7 +82,7 @@ public final class ConnectionClient {
                 }
 
                 final String data = this.encryption.decrypt(rawData);
-                final String[] separateDatas = data.split(String.valueOf(this.lineBreaker));
+                final String[] separateDatas = data.split("µ");
 
                 final String header = separateDatas[0];
                 final List<String> received = new ArrayList<>(Arrays.asList(separateDatas).subList(1, separateDatas.length));
@@ -147,76 +147,40 @@ public final class ConnectionClient {
                         break;
                     }
                     case "LOGINEVENT": {
-                        String player = separateDatas[1];
-                        String uuid = separateDatas[2];
-                        Event event = new BungeePlayerJoinEvent(new BungeePlayer(player, uuid));
+                        Event event = new BungeePlayerJoinEvent(new BungeePlayer(separateDatas[1], separateDatas[2]));
                         BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
                         break;
                     }
                     case "LEAVEEVENT": {
-                        String player = separateDatas[1];
-                        String uuid = separateDatas[2];
-                        Event event = new BungeePlayerLeaveEvent(new BungeePlayer(player, uuid));
+                        Event event = new BungeePlayerLeaveEvent(new BungeePlayer(separateDatas[1], separateDatas[2]));
                         BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
                         break;
                     }
                     case "ALLBUNGEEPLAYERS": {
-                        final LinkedList<CompletableFuture<String>> completableFutures = this.toComplete.get("ALLBUNGEEPLAYERS");
-                        if (completableFutures != null && completableFutures.size() > 0) {
-                            CompletableFuture<String> complete = completableFutures.poll();
-                            StringBuilder builder = new StringBuilder();
-                            builder.append(separateDatas[1]).append("^");
-                            complete.complete(builder.toString());
-                            if (completableFutures.size() == 0)
-                                this.toComplete.remove("ALLBUNGEEPLAYERS", completableFutures);
-                        }
+                        this.putFuture("ALLBUNGEEPLAYERSµ", separateDatas[1] + "^");
                         break;
                     }
                     case "PLAYERSERVER": {
                         String[] dataArray = separateDatas[1].split("\\^");
-                        String playerData = dataArray[0];
-                        String server = dataArray[1];
-                        final LinkedList<CompletableFuture<String>> completableFutures = this.toComplete.get("EXPRBUNGEEPLAYERSERVER" + this.lineBreaker + playerData);
-                        if (completableFutures != null && completableFutures.size() > 0) {
-                            final CompletableFuture<String> complete = completableFutures.poll();
-                            complete.complete(server);
-                            if (completableFutures.size() == 0)
-                                this.toComplete.remove("EXPRBUNGEEPLAYERSERVER" + this.lineBreaker + playerData, completableFutures);
-                        }
+                        this.putFuture("PLAYERSERVERµ" + dataArray[0], dataArray[1]);
                         break;
                     }
                     case "GETPLAYER": {
                         final String player = separateDatas[1].split("\\$")[0];
-                        final LinkedList<CompletableFuture<String>> completableFutures = this.toComplete.get("GETPLAYER" + this.lineBreaker + player);
-                        if (completableFutures != null && completableFutures.size() > 0) {
-                            final CompletableFuture<String> complete = completableFutures.poll();
-                            complete.complete(separateDatas[1]);
-                            if (completableFutures.size() != 0) {
-                                break;
-                            }
-                            this.toComplete.remove("GETPLAYER" + this.lineBreaker + player, completableFutures);
-                            break;
-                        }
+                        this.putFuture("GETPLAYERµ" + player, separateDatas[1]);
                         break;
                     }
 
                     case "ISCONNECTED": {
                         String[] dataArray = separateDatas[1].split("\\^");
-                        String playerData = dataArray[0];
-                        String state = dataArray[1];
-                        final LinkedList<CompletableFuture<String>> completableFutures = this.toComplete.get("ISCONNECTED" + this.lineBreaker + playerData);
-                        if (completableFutures != null && completableFutures.size() > 0) {
-                            final CompletableFuture<String> complete = completableFutures.poll();
-                            complete.complete(state);
-                            if (completableFutures.size() == 0)
-                                this.toComplete.remove("ISCONNECTED" + this.lineBreaker + playerData, completableFutures);
-                        }
+                        this.putFuture("ISCONNECTEDµ" + dataArray[0], dataArray[1]);
                         break;
                     }
                     case "SERVERSWITCHEVENT": {
-                        String player = separateDatas[1].split("\\^")[0];
-                        String server = separateDatas[1].split("\\^")[1];
-                        BungeePlayer bungeePlayer = new BungeePlayer(player.split("\\$")[0], player.split("\\$")[1]);
+                        String[] dataArray = separateDatas[1].split("\\^");
+                        String playerData = dataArray[0];
+                        String server = dataArray[1];
+                        BungeePlayer bungeePlayer = new BungeePlayer(playerData.split("\\$")[0], playerData.split("\\$")[1]);
                         Event event = new ServerSwitchEvent(bungeePlayer, server);
                         BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
                         break;
@@ -263,6 +227,30 @@ public final class ConnectionClient {
         return this.toComplete;
     }
 
+    public void putFuture(final String key, final String value) {
+        LinkedList<CompletableFuture<String>> future = this.toComplete.get(key);
+        if (future != null && future.size() > 0) {
+            future.poll().complete(value);
+            if (future.size() == 0) this.toComplete.remove(key, future);
+        }
+    }
+
+    public String future(final String value) {
+        LinkedList<CompletableFuture<String>> futureList = new LinkedList<>();
+        if (this.toComplete.containsKey(value)) futureList = this.toComplete.get(value);
+        final CompletableFuture<String> future = new CompletableFuture<>();
+        futureList.add(future);
+        this.toComplete.put(value, futureList);
+        this.write(value);
+        String result;
+        try {
+            result = future.get(1, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            return null;
+        }
+        return result;
+    }
+
     public String getAddress() {
         return this.socket.getInetAddress().getHostAddress();
     }
@@ -270,5 +258,4 @@ public final class ConnectionClient {
     public int getPort() {
         return this.socket.getPort();
     }
-
 }

@@ -45,21 +45,7 @@ public class CondBungeePlayerConnected extends Condition {
     @Override
     public boolean check(Event e) {
         assert ConnectionClient.get() != null;
-        CompletableFuture<String> future = new CompletableFuture<>();
-        String data = player.getSingle(e).getData();
-        new Thread(() -> {
-            LinkedList<CompletableFuture<String>> completableFutures = ConnectionClient.get().getToComplete().get("ISCONNECTEDµ" + data);
-            if (completableFutures == null) completableFutures = new LinkedList<>();
-            completableFutures.add(future);
-            ConnectionClient.get().getToComplete().put("ISCONNECTEDµ" + data, completableFutures);
-            ConnectionClient.get().write("ISCONNECTEDµ" + data);
-        }).start();
-        String result;
-        try {
-            result = future.get(1, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException interruptedException) {
-            return false;
-        }
+        String result = ConnectionClient.get().future("ISCONNECTEDµ" + player.getSingle(e).getData());
         if (negate) {
             return (result.equals("FALSE"));
         }

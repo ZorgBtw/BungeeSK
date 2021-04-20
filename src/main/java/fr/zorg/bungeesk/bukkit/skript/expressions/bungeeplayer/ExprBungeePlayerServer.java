@@ -35,21 +35,8 @@ public class ExprBungeePlayerServer extends SimplePropertyExpression<BungeePlaye
     @Override
     public String convert(BungeePlayer player) {
         assert ConnectionClient.get() != null;
-        CompletableFuture<String> future = new CompletableFuture<>();
-        String playerData = player.getData();
-        new Thread(() -> {
-            LinkedList<CompletableFuture<String>> completableFutures = ConnectionClient.get().getToComplete().get("EXPRBUNGEEPLAYERSERVERµ" + playerData);
-            if (completableFutures == null) completableFutures = new LinkedList<>();
-            completableFutures.add(future);
-            ConnectionClient.get().getToComplete().put("EXPRBUNGEEPLAYERSERVERµ" + playerData, completableFutures);
-            ConnectionClient.get().write("EXPRBUNGEEPLAYERSERVERµ" + playerData);
-        }).start();
-        String result;
-        try {
-            result = future.get(1, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException interruptedException) {
-            return null;
-        }
+        String result = ConnectionClient.get().future("PLAYERSERVERµ" + player.getData());
+
         if (result.equals("NONE")) return null;
         return result;
     }

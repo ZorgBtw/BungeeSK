@@ -11,7 +11,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 public final class ClientServer {
@@ -21,15 +26,17 @@ public final class ClientServer {
     private final Thread readThread;
     private final BufferedReader reader;
     private final PrintWriter writer;
-    private char lineBreaker;
+    private final Map<String, LinkedList<CompletableFuture<String>>> toComplete;
+
 
     private boolean identified;
 
     public ClientServer(final Socket socket) throws IOException {
         this.socket = socket;
         this.identified = false;
-        this.reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+        this.reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream(), StandardCharsets.UTF_8));
         this.writer = new PrintWriter(this.socket.getOutputStream(), true);
+        this.toComplete = new HashMap<>();
 
         this.readThread = new Thread(this::read);
         this.readThread.setDaemon(true);
@@ -52,7 +59,7 @@ public final class ClientServer {
                             break;
                         }
                         String[] datas = data.split("µ");
-                        if (datas.length != 3) {
+                        if (datas.length != 2) {
                             this.disconnect();
                             break;
                         }
@@ -77,12 +84,6 @@ public final class ClientServer {
                             this.disconnect();
                             break;
                         }
-                        if (datas[2].startsWith("linebreaker=")) {
-                            this.lineBreaker = datas[2].substring(12).charAt(0);
-                        } else {
-                            this.disconnect();
-                            break;
-                        }
 
                         this.identified = true;
                         server.addClient(this);
@@ -90,7 +91,7 @@ public final class ClientServer {
                                 + this.name
                                 + " §6with adress §a"
                                 + this.socket.getInetAddress().getHostAddress());
-                        this.write("CONNECTED_SUCCESSFULLY" + this.lineBreaker);
+                        this.write("CONNECTED_SUCCESSFULLYµ");
 
                         if (BungeeConfig.get().isSendFilesAutoEnabled())
                             this.sendFiles();
@@ -102,7 +103,7 @@ public final class ClientServer {
                     continue;
                 }
 
-                final String[] separateDatas = data.split(String.valueOf(this.lineBreaker));
+                final String[] separateDatas = data.split("µ");
 
                 final String header = separateDatas[0];
                 String args = null;
@@ -124,19 +125,19 @@ public final class ClientServer {
                         if (args.equalsIgnoreCase("bungee"))
                             BungeeSK.getInstance().getProxy().getPluginManager().dispatchCommand(BungeeSK.getInstance().getProxy().getConsole(), separateDatas[2]);
                         else if (args.equalsIgnoreCase("all"))
-                            server.writeAll("CONSOLECOMMAND" + this.lineBreaker + separateDatas[2]);
+                            server.writeAll("CONSOLECOMMANDµ" + separateDatas[2]);
                         else
-                            server.getClient(args).get().write("CONSOLECOMMAND" + this.lineBreaker + separateDatas[2]);
+                            server.getClient(args).get().write("CONSOLECOMMANDµ" + separateDatas[2]);
                         break;
                     }
 
-                    case "EXPRALLBUNGEEPLAYERS": {
+                    case "ALLBUNGEEPLAYERS": {
+                        System.out.println("aa");
                         if (BungeeSK.getInstance().getProxy().getPlayers().size() < 1) {
-                            this.write("ALLBUNGEEPLAYERS" + this.lineBreaker + "NONE");
+                            this.write("ALLBUNGEEPLAYERSµNONE");
                             break;
                         }
-                        StringBuilder builder = new StringBuilder();
-                        builder.append("ALLBUNGEEPLAYERS").append(this.lineBreaker);
+                        StringBuilder builder = new StringBuilder("ALLBUNGEEPLAYERSµ");
                         Object lastPlayer = BungeeSK.getInstance().getProxy().getPlayers().toArray()[BungeeSK.getInstance().getProxy().getPlayers().size() - 1];
                         for (final ProxiedPlayer player : BungeeSK.getInstance().getProxy().getPlayers()) {
                             builder.append(player.getName()).append("$").append(player.getUniqueId().toString());
@@ -146,32 +147,32 @@ public final class ClientServer {
                         break;
                     }
 
-                    case "EXPRBUNGEEPLAYERSERVER": {
+                    case "PLAYERSERVER": {
                         net.md_5.bungee.api.connection.Server playerServer = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.split("\\$")[1])).getServer();
                         if (playerServer == null) {
-                            this.write("PLAYERSERVER" + this.lineBreaker + args + "^NONE");
+                            this.write("PLAYERSERVERµ" + args + "^NONE");
                             break;
                         }
-                        this.write("PLAYERSERVER" + this.lineBreaker + args + "^" + playerServer.getInfo().getName());
+                        this.write("PLAYERSERVERµ" + args + "^" + playerServer.getInfo().getName());
                         break;
                     }
                     case "ISCONNECTED": {
                         ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.split("\\$")[1]));
                         if (player != null && player.isConnected()) {
-                            this.write("ISCONNECTED" + this.lineBreaker + args + "^TRUE");
+                            this.write("ISCONNECTEDµ" + args + "^TRUE");
                             break;
                         }
-                        this.write("ISCONNECTED" + this.lineBreaker + args + "^FALSE");
+                        this.write("ISCONNECTEDµ" + args + "^FALSE");
                         break;
 
                     }
                     case "GETPLAYER": {
                         ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(args);
                         if (player != null && player.getUniqueId() != null) {
-                            this.write("GETPLAYER" + this.lineBreaker + args + "$" + player.getUniqueId().toString());
+                            this.write("GETPLAYERµ" + args + "$" + player.getUniqueId().toString());
                             break;
                         }
-                        this.write("GETPLAYER" + this.lineBreaker + args + "$NONE");
+                        this.write("GETPLAYERµ" + args + "$NONE");
                         break;
                     }
                     case "SENDPLAYERMESSAGE": {
@@ -195,7 +196,7 @@ public final class ClientServer {
         final List<String> result = BungeeSK.getInstance().filesToString();
         result.add("END_SKRIPTS");
         final String toString = Arrays.toString(result.toArray(new String[0])).substring(1);
-        this.write("SEND_SKRIPTS" + this.lineBreaker + toString.substring(0, toString.length() - 1));
+        this.write("SEND_SKRIPTSµ" + toString.substring(0, toString.length() - 1));
     }
 
     public void disconnect() {
@@ -243,5 +244,36 @@ public final class ClientServer {
         return this.socket != null && this.socket.isConnected() && !this.socket.isClosed();
     }
 
-}
+    public Map<String, LinkedList<CompletableFuture<String>>> getToComplete() {
+        return this.toComplete;
+    }
+
+    public void putFuture(final String key, final String value) {
+        LinkedList<CompletableFuture<String>> future = this.toComplete.get(key);
+        if (future != null && future.size() > 0) {
+            future.poll().complete(value);
+            if (future.size() == 0) this.toComplete.remove(key, future);
+        }
+    }
+
+    public String future(final String value) {
+        LinkedList<CompletableFuture<String>> futureList = new LinkedList<>();
+        if (this.toComplete.containsKey(value)) futureList = this.toComplete.get(value);
+        final CompletableFuture<String> future = new CompletableFuture<>();
+        futureList.add(future);
+        this.toComplete.put(value, futureList);
+        this.write(value);
+        String result;
+        try {
+            result = future.get(1, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            return null;
+        }
+        return result;
+    }
+
+
+    }
+
+
 
