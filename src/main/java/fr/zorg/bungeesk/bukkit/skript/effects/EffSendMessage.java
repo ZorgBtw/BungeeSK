@@ -39,7 +39,7 @@ public class EffSendMessage extends Effect {
     }
 
     public String toString(@Nullable Event e, boolean debug) {
-        return "send message to a bungee player";
+        return "send bungee message " + message.toString(e, debug) + " to " + player.toString(e, debug);
     }
 
 }

@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 @Description("Make bungee or spigot execute command")
 @Since("1.0.0")
 @Examples({"make bungee console execute command \"alert This is an alert !\"",
-           "make server \"hub\" execute command \"say Hi everyone !\""})
+        "make server \"hub\" execute command \"say Hi everyone !\""})
 
 public class EffExecuteCommand extends Effect {
 
@@ -65,7 +65,11 @@ public class EffExecuteCommand extends Effect {
 
     @Override
     public String toString(@Nullable Event e, boolean debug) {
-        return null;
+        if (this.pattern == 0)
+            return "make bungeecord execute command " + this.command.toString(e, debug);
+        if (this.pattern == 1)
+            return "make server " + this.server.toString(e, debug) + " execute command " + this.command.toString(e, debug);
+        return "make all servers execute console command " + this.command.toString(e, debug);
     }
 
 }

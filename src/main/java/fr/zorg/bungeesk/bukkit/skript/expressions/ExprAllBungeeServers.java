@@ -50,7 +50,7 @@ public class ExprAllBungeeServers extends SimpleExpression<String> {
 
     @Override
     public String toString(@Nullable Event e, boolean debug) {
-        return "bungee servers";
+        return "all bungee servers";
     }
 
 }

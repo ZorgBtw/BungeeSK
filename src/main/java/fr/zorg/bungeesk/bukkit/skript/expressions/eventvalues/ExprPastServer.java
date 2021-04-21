@@ -48,7 +48,7 @@ public class ExprPastServer extends SimpleExpression<String> {
 
     @Override
     public String toString(@Nullable Event e, boolean debug) {
-        return "past server";
+        return "past server of " + ((ServerSwitchEvent) e).getPlayer().getPlayer();
     }
 
 }

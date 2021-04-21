@@ -35,6 +35,6 @@ public class EffRetrieveScripts extends Effect {
 
     @Override
     public String toString(@Nullable Event e, boolean debug) {
-        return null;
+        return "retrieve every scripts from the bungeecord";
     }
 }
