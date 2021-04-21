@@ -1,13 +1,20 @@
 package fr.zorg.bungeesk.bukkit.skript.expressions.client;
 
+import ch.njol.skript.doc.Description;
+import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
+import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
-import fr.zorg.bungeesk.bukkit.skript.scopes.ScopeConnectToServer;
 import fr.zorg.bungeesk.bukkit.sockets.ClientSettings;
 import org.bukkit.event.Event;
 import ch.njol.skript.classes.Changer.ChangeMode;
 import org.jetbrains.annotations.Nullable;
 
+@Name("Address of connection")
+@Description("Set the address of a connection")
+@Since("1.0.0")
+@Examples("set address of {_connection} to \"127.0.0.1\"")
 public class ExprAddress extends SimplePropertyExpression<ClientSettings, String> {
 
     static {

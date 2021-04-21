@@ -1,18 +1,21 @@
 package fr.zorg.bungeesk.bukkit;
 
-import ch.njol.skript.Skript;
-import ch.njol.skript.SkriptAddon;
+import java.io.IOException;
+
+import fr.zorg.bungeesk.bukkit.updater.Commands;
+import fr.zorg.bungeesk.bukkit.updater.Updater;
 import fr.zorg.bungeesk.bukkit.utils.Metrics;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.IOException;
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAddon;
 
 public class BungeeSK extends JavaPlugin {
 
     private Metrics metrics;
 
     @Override
-    public void onLoad() {
+    public void onEnable() {
         this.metrics = new Metrics(this, 10655);
         final SkriptAddon addon = Skript.registerAddon(this);
         try {
@@ -20,13 +23,18 @@ public class BungeeSK extends JavaPlugin {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        Updater.get().register(new Commands());
+
+        this.metrics.addCustomChart(new Metrics.SimplePie("skript_version", () -> Skript.getVersion().toString()));
+    }
+
+    @Override
+    public void onDisable() {
+        Updater.get().stop();
     }
 
     public static BungeeSK getInstance() {
         return JavaPlugin.getPlugin(BungeeSK.class);
     }
 
-    public Metrics getMetrics() {
-        return this.metrics;
-    }
 }

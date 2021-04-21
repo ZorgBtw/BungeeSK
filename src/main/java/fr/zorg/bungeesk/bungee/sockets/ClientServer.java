@@ -1,6 +1,10 @@
 package fr.zorg.bungeesk.bungee.sockets;
 
 import fr.zorg.bungeesk.bungee.BungeeSK;
+import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -8,21 +12,32 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 public final class ClientServer {
 
-    //Big thank to @BakaAless (https://github.com/BakaAless) for this code in its entirety !
     private final Socket socket;
     private String name;
     private final Thread readThread;
     private final BufferedReader reader;
     private final PrintWriter writer;
+    private final Map<String, LinkedList<CompletableFuture<String>>> toComplete;
+
+
+    private boolean identified;
 
     public ClientServer(final Socket socket) throws IOException {
         this.socket = socket;
-        this.reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+        this.identified = false;
+        this.reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream(), StandardCharsets.UTF_8));
         this.writer = new PrintWriter(this.socket.getOutputStream(), true);
+        this.toComplete = new HashMap<>();
 
         this.readThread = new Thread(this::read);
         this.readThread.setDaemon(true);
@@ -33,14 +48,18 @@ public final class ClientServer {
         try {
             reader:
             while (this.isConnected()) {
-                String data = reader.readLine();
-                if (data == null) continue;
+                String rawData = reader.readLine();
+                if (rawData == null) continue;
                 final Server server = BungeeSK.getInstance().getServer();
 
+                final String data = BungeeSK.getInstance().getServer().encryption.decrypt(rawData);
                 if (this.name == null) {
                     if (!server.isClient(socket)) {
-                        if (!data.contains("µ")) continue;
-                        String[] datas = data.split("\\µ");
+                        if (!data.contains("µ")) {
+                            this.disconnect();
+                            break;
+                        }
+                        String[] datas = data.split("µ");
                         if (datas.length != 2) {
                             this.disconnect();
                             break;
@@ -66,15 +85,17 @@ public final class ClientServer {
                             this.disconnect();
                             break;
                         }
+
+                        this.identified = true;
                         server.addClient(this);
-
-
-                        BungeeSK.getInstance().getLogger().log(Level.INFO, "§3New server connected under name §a"
+                        BungeeSK.getInstance().getLogger().log(Level.INFO, "§6New server connected under name §a"
                                 + this.name
-                                + " §3with adress §a"
-                                + this.socket.getInetAddress().getHostAddress()
-                                + ":"
-                                + this.socket.getPort() );
+                                + " §6with adress §a"
+                                + this.socket.getInetAddress().getHostAddress());
+                        this.write("CONNECTED_SUCCESSFULLYµ");
+
+                        if (BungeeConfig.get().isSendFilesAutoEnabled())
+                            this.sendFiles();
 
                     } else {
                         this.disconnect();
@@ -83,28 +104,124 @@ public final class ClientServer {
                     continue;
                 }
 
-                switch (data.toUpperCase()) {
-                    case "AA":
-                        BungeeSK.getInstance().getLogger().log(Level.INFO, "aa received, bb sent");
-                        write("bb");
+                final String[] separateDatas = data.split("µ");
 
-                    case "DISCONNECT":
+                final String header = separateDatas[0];
+                String args = null;
+                if (separateDatas.length > 1)
+                    args = separateDatas[1];
+
+                switch (header.toUpperCase()) {
+                    case "DISCONNECT": {
                         this.forceDisconnect();
                         break reader;
+                    }
 
+                    case "RETRIEVE_SKRIPTS": {
+                        this.sendFiles();
+                        break;
+                    }
+
+                    case "EFFEXECUTECOMMAND": {
+                        if (args.equalsIgnoreCase("bungee"))
+                            BungeeSK.getInstance().getProxy().getPluginManager().dispatchCommand(BungeeSK.getInstance().getProxy().getConsole(), separateDatas[2]);
+                        else if (args.equalsIgnoreCase("all"))
+                            server.writeAll("CONSOLECOMMANDµ" + separateDatas[2]);
+                        else
+                            server.getClient(args).get().write("CONSOLECOMMANDµ" + separateDatas[2]);
+                        break;
+                    }
+
+                    case "ALLBUNGEEPLAYERS": {
+                        if (BungeeSK.getInstance().getProxy().getPlayers().size() < 1) {
+                            this.write("ALLBUNGEEPLAYERSµNONE");
+                            break;
+                        }
+                        final StringBuilder builder = new StringBuilder("ALLBUNGEEPLAYERSµ");
+                        final Object lastPlayer = BungeeSK.getInstance().getProxy().getPlayers().toArray()[BungeeSK.getInstance().getProxy().getPlayers().size() - 1];
+                        for (final ProxiedPlayer player : BungeeSK.getInstance().getProxy().getPlayers()) {
+                            builder.append(player.getName()).append("$").append(player.getUniqueId().toString());
+                            if (!player.equals(lastPlayer)) builder.append("^");
+                        }
+                        this.write(builder.toString());
+                        break;
+                    }
+
+                    case "PLAYERSERVER": {
+                        final net.md_5.bungee.api.connection.Server playerServer = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.split("\\$")[1])).getServer();
+                        if (playerServer == null) {
+                            this.write("PLAYERSERVERµ" + args + "^NONE");
+                            break;
+                        }
+                        this.write("PLAYERSERVERµ" + args + "^" + playerServer.getInfo().getName());
+                        break;
+                    }
+                    case "ISCONNECTED": {
+                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.split("\\$")[1]));
+                        if (player != null && player.isConnected()) {
+                            this.write("ISCONNECTEDµ" + args + "^TRUE");
+                            break;
+                        }
+                        this.write("ISCONNECTEDµ" + args + "^FALSE");
+                        break;
+                    }
+                    case "GETPLAYER": {
+                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(args);
+                        if (player != null && player.getUniqueId() != null) {
+                            this.write("GETPLAYERµ" + args + "$" + player.getUniqueId().toString());
+                            break;
+                        }
+                        this.write("GETPLAYERµ" + args + "$NONE");
+                        break;
+                    }
+                    case "SENDPLAYERMESSAGE": {
+                        final String message = args.split("\\^")[1];
+                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.split("\\^")[0].split("\\$")[1]));
+                        if (player != null && player.isConnected())
+                            player.sendMessage(TextComponent.fromLegacyText(message));
+                        break;
+                    }
+                    case "SENDTOSERV": {
+                        final String[] dataArray = args.split("\\^");
+                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(dataArray[0].split("\\$")[1]));
+                        if (player != null && player.isConnected()) {
+                            final ServerInfo toSend = BungeeSK.getInstance().getProxy().getServerInfo(dataArray[1]);
+                            if (toSend != null)
+                                player.connect(toSend);
+                        }
+                        break;
+                    }
+                    case "ALLBUNGEESERVERS": {
+                        final Map<String, ServerInfo> servers = BungeeSK.getInstance().getProxy().getServers();
+                        final StringBuilder builder = new StringBuilder("ALLBUNGEESERVERSµ");
+                        servers.forEach((s, serverInfo) -> builder.append(s).append("^"));
+                        this.write(builder.toString());
+                        break;
+                    }
                 }
-
             }
         } catch (IOException e) {
             this.forceDisconnect();
         }
 
+    }
 
+    private void sendFiles() {
+        final List<String> result = BungeeSK.getInstance().filesToString();
+        result.add("END_SKRIPTS");
+        final String toString = String.join("™", result.toArray(new String[0]));
+        this.write("SEND_SKRIPTSµ" + toString);
     }
 
     public void disconnect() {
         try {
-            this.writer.println("DISCONNECT");
+            if (!this.identified) {
+                if (this.name != null) {
+                    this.writer.println("ALREADY_CONNECTED");
+                } else
+                    this.writer.println("WRONG_PASSWORD");
+            } else
+                this.write("DISCONNECT");
         } catch (final Exception ignored) {
         }
         this.forceDisconnect();
@@ -117,7 +234,7 @@ public final class ClientServer {
                 this.reader.close();
                 this.writer.close();
                 this.readThread.interrupt();
-                BungeeSK.getInstance().getServer().removeClient(this.getName());
+                BungeeSK.getInstance().getServer().removeClient(this);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -129,7 +246,7 @@ public final class ClientServer {
     }
 
     public void write(final String message) {
-        this.writer.println(message);
+        this.writer.println(BungeeSK.getInstance().getServer().encryption.encrypt(message));
     }
 
     @Nullable
@@ -141,5 +258,36 @@ public final class ClientServer {
         return this.socket != null && this.socket.isConnected() && !this.socket.isClosed();
     }
 
+    public Map<String, LinkedList<CompletableFuture<String>>> getToComplete() {
+        return this.toComplete;
+    }
+
+    public void putFuture(final String key, final String value) {
+        LinkedList<CompletableFuture<String>> future = this.toComplete.get(key);
+        if (future != null && future.size() > 0) {
+            future.poll().complete(value);
+            if (future.size() == 0) this.toComplete.remove(key, future);
+        }
+    }
+
+    public String future(final String value) {
+        LinkedList<CompletableFuture<String>> futureList = new LinkedList<>();
+        if (this.toComplete.containsKey(value)) futureList = this.toComplete.get(value);
+        final CompletableFuture<String> future = new CompletableFuture<>();
+        futureList.add(future);
+        this.toComplete.put(value, futureList);
+        this.write(value);
+        String result;
+        try {
+            result = future.get(1, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            return null;
+        }
+        return result;
+    }
+
+
 }
+
+
 
