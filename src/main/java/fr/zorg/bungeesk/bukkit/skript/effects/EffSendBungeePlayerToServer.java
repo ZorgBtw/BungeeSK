@@ -42,7 +42,7 @@ public class EffSendBungeePlayerToServer extends Effect {
 
     @Override
     public String toString(@Nullable Event e, boolean debug) {
-        return "send bungee player " + player.getSingle(e).getPlayer() + " to server " + server.getSingle(e);
+        return "send bungee player " + player.toString(e, debug) + " to server " + server.toString(e, debug);
     }
 
 }

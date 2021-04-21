@@ -62,7 +62,7 @@ public class ExprBungeePlayerFromString extends SimpleExpression<BungeePlayer> {
 
     @Override
     public String toString(@Nullable Event e, boolean debug) {
-        return "bungee player";
+        return "bungee player " + player.toString(e, debug);
     }
 
 }
