@@ -24,5 +24,5 @@ on server start:
 
 ## 📚 Need support or be informed ?
 - [**Discord server**](https://discord.gg/PCnyMDsTRA)
-- Documentions:<br>
+- Documentations:<br>
 <a href="https://docs.skunity.com/syntax/search/addon:bungeesk"> <img src="https://skunity.com/branding/buttons/get_on_docs_3.png" height="75"></img></a>
