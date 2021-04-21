@@ -1,9 +1,7 @@
 package fr.zorg.bungeesk.bukkit.sockets;
 
 import fr.zorg.bungeesk.bukkit.BungeeSK;
-import fr.zorg.bungeesk.bukkit.skript.events.bukkit.BungeePlayerJoinEvent;
-import fr.zorg.bungeesk.bukkit.skript.events.bukkit.BungeePlayerLeaveEvent;
-import fr.zorg.bungeesk.bukkit.skript.events.bukkit.ServerSwitchEvent;
+import fr.zorg.bungeesk.bukkit.skript.events.bukkit.*;
 import fr.zorg.bungeesk.bukkit.updater.Commands;
 import fr.zorg.bungeesk.bukkit.updater.Updater;
 import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
@@ -105,8 +103,14 @@ public final class ConnectionClient {
                         this.disconnect();
                         break;
                     }
+                    case "CONNECTED_SUCCESSFULLY": {
+                        final Event event = new ClientConnectEvent();
+                        BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
+                        break;
+                    }
                     case "SEND_SKRIPTS": {
-                        final String[] flux = received.get(0).split(", ");
+                        final String[] flux = received.get(0).split("™");
+                        System.out.println("flux.length = " + flux.length);
                         final File folder = new File("plugins/Skript/scripts/BungeeSK");
                         if (!folder.exists())
                             folder.mkdirs();
@@ -210,6 +214,8 @@ public final class ConnectionClient {
                 this.socket.close();
                 this.reader.close();
                 this.writer.close();
+                final Event event = new ClientDisconnectEvent();
+                BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
                 this.readThread.interrupt();
             }
         } catch (IOException e) {

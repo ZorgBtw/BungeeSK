@@ -87,9 +87,7 @@ public final class Server {
     }
 
     public void writeAll(final String message) {
-        for (final ClientServer client : this.clients) {
-            client.write(message);
-        }
+        this.clients.forEach(((ClientServer client) -> client.write(message)));
     }
 
     public List<ClientServer> getClients() {

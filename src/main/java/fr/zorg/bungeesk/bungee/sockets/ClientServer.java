@@ -137,8 +137,8 @@ public final class ClientServer {
                             this.write("ALLBUNGEEPLAYERSµNONE");
                             break;
                         }
-                        StringBuilder builder = new StringBuilder("ALLBUNGEEPLAYERSµ");
-                        Object lastPlayer = BungeeSK.getInstance().getProxy().getPlayers().toArray()[BungeeSK.getInstance().getProxy().getPlayers().size() - 1];
+                        final StringBuilder builder = new StringBuilder("ALLBUNGEEPLAYERSµ");
+                        final Object lastPlayer = BungeeSK.getInstance().getProxy().getPlayers().toArray()[BungeeSK.getInstance().getProxy().getPlayers().size() - 1];
                         for (final ProxiedPlayer player : BungeeSK.getInstance().getProxy().getPlayers()) {
                             builder.append(player.getName()).append("$").append(player.getUniqueId().toString());
                             if (!player.equals(lastPlayer)) builder.append("^");
@@ -148,7 +148,7 @@ public final class ClientServer {
                     }
 
                     case "PLAYERSERVER": {
-                        net.md_5.bungee.api.connection.Server playerServer = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.split("\\$")[1])).getServer();
+                        final net.md_5.bungee.api.connection.Server playerServer = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.split("\\$")[1])).getServer();
                         if (playerServer == null) {
                             this.write("PLAYERSERVERµ" + args + "^NONE");
                             break;
@@ -157,17 +157,16 @@ public final class ClientServer {
                         break;
                     }
                     case "ISCONNECTED": {
-                        ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.split("\\$")[1]));
+                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.split("\\$")[1]));
                         if (player != null && player.isConnected()) {
                             this.write("ISCONNECTEDµ" + args + "^TRUE");
                             break;
                         }
                         this.write("ISCONNECTEDµ" + args + "^FALSE");
                         break;
-
                     }
                     case "GETPLAYER": {
-                        ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(args);
+                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(args);
                         if (player != null && player.getUniqueId() != null) {
                             this.write("GETPLAYERµ" + args + "$" + player.getUniqueId().toString());
                             break;
@@ -195,13 +194,11 @@ public final class ClientServer {
                     case "ALLBUNGEESERVERS": {
                         final Map<String, ServerInfo> servers = BungeeSK.getInstance().getProxy().getServers();
                         final StringBuilder builder = new StringBuilder("ALLBUNGEESERVERSµ");
-                        servers.forEach((s, serverInfo) -> {
-                            builder.append(s).append("^");
-                        });
+                        servers.forEach((s, serverInfo) -> builder.append(s).append("^"));
                         this.write(builder.toString());
+                        break;
                     }
                 }
-
             }
         } catch (IOException e) {
             this.forceDisconnect();
@@ -212,8 +209,8 @@ public final class ClientServer {
     private void sendFiles() {
         final List<String> result = BungeeSK.getInstance().filesToString();
         result.add("END_SKRIPTS");
-        final String toString = Arrays.toString(result.toArray(new String[0])).substring(1);
-        this.write("SEND_SKRIPTSµ" + toString.substring(0, toString.length() - 1));
+        final String toString = String.join("™", result.toArray(new String[0]));
+        this.write("SEND_SKRIPTSµ" + toString);
     }
 
     public void disconnect() {
