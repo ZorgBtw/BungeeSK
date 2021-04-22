@@ -37,19 +37,27 @@ public class AESEncryption {
     }
 
     public String encrypt(final String message) {
+        if (this.encrypt == null) {
+            Logger.getAnonymousLogger().log(Level.WARNING, "The Cypher is null. Can't encrypt the following message: " + message + ". A blank message will be send instead.");
+            return "";
+        }
         try {
             return Base64.getEncoder().encodeToString(this.encrypt.doFinal(message.getBytes(StandardCharsets.UTF_8)));
         } catch (IllegalArgumentException | IllegalBlockSizeException | BadPaddingException e) {
-            Logger.getAnonymousLogger().log(Level.SEVERE, "Ooops, something went wrong. Can't encrypt message: " + message + ". A blank message will be send instead.", e);
+            Logger.getAnonymousLogger().log(Level.SEVERE, "Ooops, something went wrong. Can't encrypt the following message: " + message + ". A blank message will be send instead.", e);
         }
-        return message;
+        return "";
     }
 
     public String decrypt(final String message) {
+        if (this.encrypt == null) {
+            Logger.getAnonymousLogger().log(Level.WARNING, "The Cypher is null. Can't decrypt the following message: " + message + ". A blank message will be send instead.");
+            return "";
+        }
         try {
             return new String(this.decrypt.doFinal(Base64.getDecoder().decode(message)), StandardCharsets.UTF_8);
         } catch (IllegalArgumentException | IllegalBlockSizeException | BadPaddingException e) {
-            Logger.getAnonymousLogger().log(Level.SEVERE, "Ooops, something went wrong. Can't decrypt message: " + message);
+            Logger.getAnonymousLogger().log(Level.SEVERE, "Ooops, something went wrong. Can't decrypt the following message: " + message);
         }
         return message;
     }
