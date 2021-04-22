@@ -1,5 +1,9 @@
 package fr.zorg.bungeesk.common.utils;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
+
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -30,5 +34,14 @@ public class Utils {
         for (final T item : original)
             result.add(item);
         return result;
+    }
+
+    public static String getMessage(final String message) {
+        final JsonArray array = new JsonParser().parse(message).getAsJsonArray();
+        final byte[] bytes = new byte[array.size()];
+        for (int index = 0; index < array.size(); index++) {
+            bytes[index] = array.get(index).getAsByte();
+        }
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 }

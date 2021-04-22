@@ -6,12 +6,14 @@ import fr.zorg.bungeesk.bukkit.updater.Commands;
 import fr.zorg.bungeesk.bukkit.updater.Updater;
 import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
 import fr.zorg.bungeesk.common.encryption.AESEncryption;
+import fr.zorg.bungeesk.common.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -59,7 +61,7 @@ public final class ConnectionClient {
 
     private ConnectionClient(final Socket socket, final String name, final String password) throws IOException {
         this.socket = socket;
-        this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
         this.writer = new PrintWriter(socket.getOutputStream(), true);
         this.toComplete = new HashMap<>();
         this.encryption = new AESEncryption(password);
@@ -79,7 +81,7 @@ public final class ConnectionClient {
                     break;
                 }
 
-                final String data = this.encryption.decrypt(rawData);
+                final String data = this.encryption.decrypt(Utils.getMessage(rawData));
                 final String[] separateDatas = data.split("µ");
 
                 final String header = separateDatas[0];
@@ -228,7 +230,7 @@ public final class ConnectionClient {
     }
 
     public void write(final String message) {
-        this.writer.println(this.encryption.encrypt(message));
+        this.writer.println(Arrays.toString(this.encryption.encrypt(message).getBytes(StandardCharsets.UTF_8)));
     }
 
     public Map<String, LinkedList<CompletableFuture<String>>> getToComplete() {
