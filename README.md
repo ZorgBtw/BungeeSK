@@ -1,5 +1,5 @@
 <h2 align="center">BungeeSK</h2> 
-BungeeSk is a Skript addon that allows you to communicate with a bungeecord proxy easily !
+BungeeSK is a Skript addon that allows you to communicate with a bungeecord proxy easily !
 
 <br>
 
@@ -8,7 +8,7 @@ You can download the last available version of BungeeSK by clicking [here](https
 Then you can drop your `BungeeSK.jar` file in your Bungeecord `plugins/` folder and in every Spigot `plugins/` folder too. Make sure you got Skript running on your Spigot servers. (If not, you can download Skript [here](https://github.com/SkriptLang/Skript/releases/latest))
 
 ## 🚀 How to run correctly BungeeSK ?
-First, you will need to connected your Spigot servers (called as clients) to your Bungeecord proxy (call as server).
+First, you will need to connect your Spigot servers (called as clients) to your Bungeecord proxy (call as server).
 Here's an example of code to link everything:
 ```py
 on server start:
@@ -25,5 +25,5 @@ on server start:
 ## 📚 Need support or be informed ?
 - [**Discord server**](https://discord.gg/PCnyMDsTRA)
 - Documentations:<br>
-<a href="http://skripthub.net/docs/?addon=BungeeSK"> <img src="http://skripthub.net/static/addon/ViewTheDocsButton.png" height="75"></img></a>
-<a href="https://docs.skunity.com/syntax/search/addon:bungeesk"> <img src="https://skunity.com/branding/buttons/get_on_docs_3.png" height="75"></img></a>
+<a href="http://skripthub.net/docs/?addon=BungeeSK" target="_blank"> <img src="http://skripthub.net/static/addon/ViewTheDocsButton.png" height="75"></img></a>
+<a href="https://docs.skunity.com/syntax/search/addon:bungeesk" target="_blank"> <img src="https://skunity.com/branding/buttons/get_on_docs_3.png" height="75"></img></a>
