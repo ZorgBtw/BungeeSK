@@ -2,6 +2,7 @@ package fr.zorg.bungeesk.bungee.sockets;
 
 import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
+import fr.zorg.bungeesk.common.utils.Utils;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -51,8 +52,7 @@ public final class ClientServer {
                 String rawData = reader.readLine();
                 if (rawData == null) continue;
                 final Server server = BungeeSK.getInstance().getServer();
-
-                final String data = BungeeSK.getInstance().getServer().encryption.decrypt(rawData);
+                final String data = BungeeSK.getInstance().getServer().encryption.decrypt(Utils.getMessage(rawData));
                 if (this.name == null) {
                     if (!server.isClient(socket)) {
                         if (!data.contains("µ")) {
@@ -217,9 +217,9 @@ public final class ClientServer {
         try {
             if (!this.identified) {
                 if (this.name != null) {
-                    this.writer.println("ALREADY_CONNECTED");
+                    this.writer.println(Arrays.toString("ALREADY_CONNECTED".getBytes(StandardCharsets.UTF_8)));
                 } else
-                    this.writer.println("WRONG_PASSWORD");
+                    this.writer.println(Arrays.toString("WRONG_PASSWORD".getBytes(StandardCharsets.UTF_8)));
             } else
                 this.write("DISCONNECT");
         } catch (final Exception ignored) {
@@ -246,7 +246,7 @@ public final class ClientServer {
     }
 
     public void write(final String message) {
-        this.writer.println(BungeeSK.getInstance().getServer().encryption.encrypt(message));
+        this.writer.println(Arrays.toString(BungeeSK.getInstance().getServer().encryption.encrypt(message).getBytes(StandardCharsets.UTF_8)));
     }
 
     @Nullable
