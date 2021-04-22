@@ -50,9 +50,9 @@ public class AESEncryption {
     }
 
     public String decrypt(final String message) {
-        if (this.encrypt == null) {
-            Logger.getAnonymousLogger().log(Level.WARNING, "The Cypher is null. Can't decrypt the following message: " + message + ". A blank message will be send instead.");
-            return "";
+        if (this.decrypt == null) {
+            Logger.getAnonymousLogger().log(Level.WARNING, "The Cypher is null. Can't decrypt the following message: " + message + ". The raw message will be send instead.");
+            return message;
         }
         try {
             return new String(this.decrypt.doFinal(Base64.getDecoder().decode(message)), StandardCharsets.UTF_8);
