@@ -12,7 +12,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -198,6 +200,13 @@ public final class ClientServer {
                         servers.forEach((s, serverInfo) -> builder.append(s).append("^"));
                         this.write(builder.toString());
                         break;
+                    }
+                    case "CLIENTREALNAME": {
+                        final SocketAddress address = new InetSocketAddress(args.split(":")[0], Integer.parseInt(args.split(":")[1]));
+                        final String finalArgs = args;
+                        BungeeSK.getInstance().getProxy().getServers().forEach((s, serverInfo) -> {
+                            if (serverInfo.getSocketAddress().equals(address)) this.write("CLIENTREALNAMEµ" + finalArgs + "^" + s);
+                        });
                     }
                 }
             }
