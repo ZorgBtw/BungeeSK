@@ -198,6 +198,10 @@ public final class ConnectionClient {
                         this.putFuture("CLIENTREALNAMEµ" + separateDatas[1].split("\\^")[0], separateDatas[1].split("\\^")[1]);
                         break;
                     }
+                    case "ALLBUNGEEPLAYERSONSERVER": {
+                        final String server = separateDatas[1].split("\\^")[0];
+                        this.putFuture("ALLBUNGEEPLAYERSONSERVERµ" + server, separateDatas[1]);
+                    }
                 }
             }
         } catch (IOException e) {

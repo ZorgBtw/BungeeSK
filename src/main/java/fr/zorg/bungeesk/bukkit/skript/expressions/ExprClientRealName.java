@@ -54,7 +54,7 @@ public class ExprClientRealName extends SimpleExpression<String> {
 
     @Override
     public String toString(@Nullable Event e, boolean debug) {
-            return "server with";
+            return "client's real name on the bungeecord";
     }
 
 }

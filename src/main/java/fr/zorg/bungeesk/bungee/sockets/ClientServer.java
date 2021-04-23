@@ -205,8 +205,25 @@ public final class ClientServer {
                         final SocketAddress address = new InetSocketAddress(args.split(":")[0], Integer.parseInt(args.split(":")[1]));
                         final String finalArgs = args;
                         BungeeSK.getInstance().getProxy().getServers().forEach((s, serverInfo) -> {
-                            if (serverInfo.getSocketAddress().equals(address)) this.write("CLIENTREALNAMEµ" + finalArgs + "^" + s);
+                            if (serverInfo.getSocketAddress().equals(address))
+                                this.write("CLIENTREALNAMEµ" + finalArgs + "^" + s);
                         });
+                        break;
+                    }
+                    case "ALLBUNGEEPLAYERSONSERVER": {
+                        final ServerInfo bungeeServ = BungeeSK.getInstance().getProxy().getServerInfo(args);
+                        if (bungeeServ == null || bungeeServ.getPlayers().toArray().length == 0) {
+                            this.write("ALLBUNGEEPLAYERSONSERVERµ" + args + "^NONE");
+                            break;
+                        }
+                        final StringBuilder builder = new StringBuilder("ALLBUNGEEPLAYERSONSERVERµ" + args + "^");
+                        final Object lastPlayer = bungeeServ.getPlayers().toArray()[bungeeServ.getPlayers().size() - 1];
+                        for (final ProxiedPlayer player : BungeeSK.getInstance().getProxy().getPlayers()) {
+                            builder.append(player.getName()).append("$").append(player.getUniqueId().toString());
+                            if (!player.equals(lastPlayer)) builder.append("^");
+                        }
+                        this.write(builder.toString());
+                        break;
                     }
                 }
             }
