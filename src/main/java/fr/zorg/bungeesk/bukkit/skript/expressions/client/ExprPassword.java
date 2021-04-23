@@ -47,10 +47,6 @@ public class ExprPassword extends SimplePropertyExpression<ClientSettings, Strin
     public void change(Event e, Object[] delta, ChangeMode mode) {
         for (final ClientSettings clientSettings : getExpr().getArray(e)) {
             final String password = (String) delta[0];
-            if (password.contains("µ")) {
-                BungeeSK.getInstance().getLogger().log(Level.SEVERE, "Password of a connection must not contain the µ character");
-                return;
-            }
             clientSettings.setPassword(password);
         }
     }

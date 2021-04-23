@@ -68,10 +68,6 @@ public class BungeeConfig {
         } catch (final IOException | IllegalAccessException e) {
             e.printStackTrace();
         }
-        if (this.password.contains("µ")) {
-            BungeeSK.getInstance().getLogger().log(Level.SEVERE, "Password must not contain the µ character.");
-            //Disable plugin without errors
-        }
     }
 
     public int getPort() {

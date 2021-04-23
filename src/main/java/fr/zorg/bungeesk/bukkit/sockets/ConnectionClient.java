@@ -182,6 +182,7 @@ public final class ConnectionClient {
                         this.putFuture("ISCONNECTEDµ" + dataArray[0], dataArray[1]);
                         break;
                     }
+
                     case "SERVERSWITCHEVENT": {
                         final String[] dataArray = separateDatas[1].split("\\^");
                         final BungeePlayer bungeePlayer = new BungeePlayer(dataArray[0].split("\\$")[0], dataArray[1].split("\\$")[1]);
@@ -195,8 +196,7 @@ public final class ConnectionClient {
                     }
                 }
             }
-        } catch (
-                IOException e) {
+        } catch (IOException e) {
             this.forceDisconnect();
         }
 
