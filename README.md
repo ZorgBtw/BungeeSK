@@ -16,7 +16,7 @@ on server start:
 		create new bungee connection: #Creation of a new Bungeecord connection
 			set address of connection to "127.0.0.1" #Use this IP if the Bungeecord is on the same machine
 			set port of connection to 100 #This port as to be opened if the specified client is not hosted on the same machine as the server
-			set password of connected to "Strong password" #Complete your password here, this has to be the same as the one in the Bungeecord config
+			set password of connection to "Strong password" #Complete your password here, this has to be the same as the one in the Bungeecord config
 			set name of connection to "hub" #Name has to be unique, if the same name is already connected, the connection will end
 		start new connection with last created connection #Sending connection request to the server
 	wait 30 seconds #Waiting 30 seconds between 2 connection tries, it's recommended to not decrease this value
