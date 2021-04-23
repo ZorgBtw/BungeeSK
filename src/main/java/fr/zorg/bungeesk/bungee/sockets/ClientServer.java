@@ -12,7 +12,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -52,8 +54,8 @@ public final class ClientServer {
                 String rawData = reader.readLine();
                 if (rawData == null) continue;
                 final Server server = BungeeSK.getInstance().getServer();
-                final String data = BungeeSK.getInstance().getServer().encryption.decrypt(Utils.getMessage(rawData));
                 if (this.name == null) {
+                    final String data = BungeeSK.getInstance().getServer().encryption.decrypt(Utils.getMessage(rawData), false);
                     if (!server.isClient(socket)) {
                         if (!data.contains("µ")) {
                             this.disconnect();
@@ -104,6 +106,7 @@ public final class ClientServer {
                     continue;
                 }
 
+                final String data = BungeeSK.getInstance().getServer().encryption.decrypt(Utils.getMessage(rawData));
                 final String[] separateDatas = data.split("µ");
 
                 final String header = separateDatas[0];
@@ -195,6 +198,30 @@ public final class ClientServer {
                         final Map<String, ServerInfo> servers = BungeeSK.getInstance().getProxy().getServers();
                         final StringBuilder builder = new StringBuilder("ALLBUNGEESERVERSµ");
                         servers.forEach((s, serverInfo) -> builder.append(s).append("^"));
+                        this.write(builder.toString());
+                        break;
+                    }
+                    case "CLIENTREALNAME": {
+                        final SocketAddress address = new InetSocketAddress(args.split(":")[0], Integer.parseInt(args.split(":")[1]));
+                        final String finalArgs = args;
+                        BungeeSK.getInstance().getProxy().getServers().forEach((s, serverInfo) -> {
+                            if (serverInfo.getSocketAddress().equals(address))
+                                this.write("CLIENTREALNAMEµ" + finalArgs + "^" + s);
+                        });
+                        break;
+                    }
+                    case "ALLBUNGEEPLAYERSONSERVER": {
+                        final ServerInfo bungeeServ = BungeeSK.getInstance().getProxy().getServerInfo(args);
+                        if (bungeeServ == null || bungeeServ.getPlayers().toArray().length == 0) {
+                            this.write("ALLBUNGEEPLAYERSONSERVERµ" + args + "^NONE");
+                            break;
+                        }
+                        final StringBuilder builder = new StringBuilder("ALLBUNGEEPLAYERSONSERVERµ" + args + "^");
+                        final Object lastPlayer = bungeeServ.getPlayers().toArray()[bungeeServ.getPlayers().size() - 1];
+                        for (final ProxiedPlayer player : BungeeSK.getInstance().getProxy().getPlayers()) {
+                            builder.append(player.getName()).append("$").append(player.getUniqueId().toString());
+                            if (!player.equals(lastPlayer)) builder.append("^");
+                        }
                         this.write(builder.toString());
                         break;
                     }

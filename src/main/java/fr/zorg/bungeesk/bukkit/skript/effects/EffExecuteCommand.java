@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 @Description("Make bungee or spigot execute command")
 @Since("1.0.0")
 @Examples({"make bungee console execute command \"alert This is an alert !\"",
-        "make server \"hub\" execute command \"say Hi everyone !\""})
+        "make server \"hub\" console execute command \"say Hi everyone !\""})
 
 public class EffExecuteCommand extends Effect {
 

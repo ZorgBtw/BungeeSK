@@ -9,6 +9,7 @@ import fr.zorg.bungeesk.common.encryption.AESEncryption;
 import fr.zorg.bungeesk.common.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
@@ -64,7 +65,7 @@ public final class ConnectionClient {
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
         this.writer = new PrintWriter(socket.getOutputStream(), true);
         this.toComplete = new HashMap<>();
-        this.encryption = new AESEncryption(password);
+        this.encryption = new AESEncryption(password, BungeeSK.getInstance().getLogger());
         this.write("name=" + name + "µpassword=" + password);
         this.readThread = new Thread(this::read);
         this.readThread.setDaemon(true);
@@ -107,12 +108,11 @@ public final class ConnectionClient {
                     }
                     case "CONNECTED_SUCCESSFULLY": {
                         final Event event = new ClientConnectEvent();
-                        BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
+                        Bukkit.getScheduler().runTask(BungeeSK.getInstance(), () -> Bukkit.getPluginManager().callEvent(event));
                         break;
                     }
                     case "SEND_SKRIPTS": {
                         final String[] flux = received.get(0).split("™");
-                        System.out.println("flux.length = " + flux.length);
                         final File folder = new File("plugins/Skript/scripts/BungeeSK");
                         if (!folder.exists())
                             folder.mkdirs();
@@ -154,12 +154,12 @@ public final class ConnectionClient {
                     }
                     case "LOGINEVENT": {
                         final Event event = new BungeePlayerJoinEvent(new BungeePlayer(separateDatas[1], separateDatas[2]));
-                        BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
+                        Bukkit.getScheduler().runTask(BungeeSK.getInstance(), () -> Bukkit.getPluginManager().callEvent(event));
                         break;
                     }
                     case "LEAVEEVENT": {
                         final Event event = new BungeePlayerLeaveEvent(new BungeePlayer(separateDatas[1], separateDatas[2]));
-                        BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
+                        Bukkit.getScheduler().runTask(BungeeSK.getInstance(), () -> Bukkit.getPluginManager().callEvent(event));
                         break;
                     }
                     case "ALLBUNGEEPLAYERS": {
@@ -182,21 +182,29 @@ public final class ConnectionClient {
                         this.putFuture("ISCONNECTEDµ" + dataArray[0], dataArray[1]);
                         break;
                     }
+
                     case "SERVERSWITCHEVENT": {
                         final String[] dataArray = separateDatas[1].split("\\^");
                         final BungeePlayer bungeePlayer = new BungeePlayer(dataArray[0].split("\\$")[0], dataArray[1].split("\\$")[1]);
                         final Event event = new ServerSwitchEvent(bungeePlayer, dataArray[1]);
-                        BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
+                        Bukkit.getScheduler().runTask(BungeeSK.getInstance(), () -> Bukkit.getPluginManager().callEvent(event));
                         break;
                     }
                     case "ALLBUNGEESERVERS": {
                         this.putFuture("ALLBUNGEESERVERSµ", separateDatas[1]);
                         break;
                     }
+                    case "CLIENTREALNAME": {
+                        this.putFuture("CLIENTREALNAMEµ" + separateDatas[1].split("\\^")[0], separateDatas[1].split("\\^")[1]);
+                        break;
+                    }
+                    case "ALLBUNGEEPLAYERSONSERVER": {
+                        final String server = separateDatas[1].split("\\^")[0];
+                        this.putFuture("ALLBUNGEEPLAYERSONSERVERµ" + server, separateDatas[1]);
+                    }
                 }
             }
-        } catch (
-                IOException e) {
+        } catch (IOException e) {
             this.forceDisconnect();
         }
 
@@ -204,7 +212,7 @@ public final class ConnectionClient {
 
     public void disconnect() {
         try {
-            this.writer.println("DISCONNECT");
+            this.writer.println(Arrays.toString("DISCONNECT".getBytes(StandardCharsets.UTF_8)));
         } catch (final Exception ignored) {
         }
         this.forceDisconnect();
@@ -217,7 +225,7 @@ public final class ConnectionClient {
                 this.reader.close();
                 this.writer.close();
                 final Event event = new ClientDisconnectEvent();
-                BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
+                Bukkit.getScheduler().runTask(BungeeSK.getInstance(), () -> Bukkit.getPluginManager().callEvent(event));
                 this.readThread.interrupt();
             }
         } catch (IOException e) {

@@ -1,5 +1,6 @@
 package fr.zorg.bungeesk.bungee.sockets;
 
+import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
 import fr.zorg.bungeesk.common.encryption.AESEncryption;
 import fr.zorg.bungeesk.common.utils.Utils;
@@ -22,7 +23,7 @@ public final class Server {
         this.password = passwd;
         this.clients = new ArrayList<>();
         this.servSocket = new ServerSocket(port);
-        this.encryption = new AESEncryption(passwd);
+        this.encryption = new AESEncryption(passwd, BungeeSK.getInstance().getLogger());
 
         this.waitingConnection = new Thread(this::waitForConn);
         this.waitingConnection.setDaemon(true);
