@@ -65,7 +65,7 @@ public final class ConnectionClient {
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
         this.writer = new PrintWriter(socket.getOutputStream(), true);
         this.toComplete = new HashMap<>();
-        this.encryption = new AESEncryption(password);
+        this.encryption = new AESEncryption(password, BungeeSK.getInstance().getLogger());
         this.write("name=" + name + "µpassword=" + password);
         this.readThread = new Thread(this::read);
         this.readThread.setDaemon(true);
