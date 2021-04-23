@@ -204,7 +204,7 @@ public final class ConnectionClient {
 
     public void disconnect() {
         try {
-            this.writer.println("DISCONNECT");
+            this.writer.println(Arrays.toString("DISCONNECT".getBytes(StandardCharsets.UTF_8)));
         } catch (final Exception ignored) {
         }
         this.forceDisconnect();
