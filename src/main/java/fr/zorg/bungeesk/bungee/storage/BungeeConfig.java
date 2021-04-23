@@ -42,6 +42,7 @@ public class BungeeConfig {
 
     public void load() {
         this.file = new File(BungeeSK.getInstance().getDataFolder(), "config.yml");
+        if (!BungeeSK.getInstance().getDataFolder().exists()) BungeeSK.getInstance().getDataFolder().mkdir();
         if (!this.file.exists()) {
             try (final InputStream in = BungeeSK.getInstance().getResourceAsStream("config.yml")) {
                 Files.copy(in, this.file.toPath());
