@@ -56,7 +56,7 @@ public class AESEncryption {
     }
 
     public String decrypt(final String message, final boolean sendError) {
-        if (message.equals("ALREADY_CONNECTED") || message.equals("WRONG_PASSWORD"))
+        if (message.equals("ALREADY_CONNECTED") || message.equals("WRONG_PASSWORD") || message.equals("DISCONNECT"))
             return message;
         if (this.decrypt == null) {
             if (sendError)
