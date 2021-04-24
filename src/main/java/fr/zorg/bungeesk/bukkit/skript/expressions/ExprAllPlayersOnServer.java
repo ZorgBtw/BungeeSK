@@ -45,7 +45,7 @@ public class ExprAllPlayersOnServer extends SimpleExpression<BungeePlayer> {
     protected BungeePlayer[] get(Event e) {
         assert ConnectionClient.get() != null;
         String result = ConnectionClient.get().future("ALLBUNGEEPLAYERSONSERVERµ" + server.getSingle(e));
-        result = result.replace("lobby^", "");
+        result = result.replace(server.getSingle(e), "");
         List<BungeePlayer> players = new ArrayList<>();
         if (result.equals("NONE")) return null;
         for (String player : result.split("\\^")) {
