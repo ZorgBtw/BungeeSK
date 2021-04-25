@@ -16,6 +16,8 @@ import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Name("All of the bungee players on specific server")
@@ -47,8 +49,8 @@ public class ExprAllPlayersOnServer extends SimpleExpression<BungeePlayer> {
         String result = ConnectionClient.get().future("ALLBUNGEEPLAYERSONSERVERµ" + server.getSingle(e));
         result = result.replace(server.getSingle(e), "");
         List<BungeePlayer> players = new ArrayList<>();
-        if (result.equals("NONE")) return null;
-        for (String player : result.split("\\^")) {
+        if (result.equals("^NONE")) return Collections.emptyList().toArray(new BungeePlayer[0]);
+        for (String player : result.replaceFirst("\\^", "").split("\\^")) {
             String name = player.split("\\$")[0];
             String uuid = player.split("\\$")[1];
             players.add(new BungeePlayer(name, uuid));
