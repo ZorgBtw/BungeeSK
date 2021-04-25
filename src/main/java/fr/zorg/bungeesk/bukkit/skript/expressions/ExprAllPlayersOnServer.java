@@ -49,7 +49,7 @@ public class ExprAllPlayersOnServer extends SimpleExpression<BungeePlayer> {
         String result = ConnectionClient.get().future("ALLBUNGEEPLAYERSONSERVERµ" + server.getSingle(e));
         result = result.replace(server.getSingle(e), "");
         List<BungeePlayer> players = new ArrayList<>();
-        if (result.equals("^NONE")) return Collections.emptyList().toArray(new BungeePlayer[0]);
+        if (result.equals("^NONE")) return new BungeePlayer[0];
         for (String player : result.replaceFirst("\\^", "").split("\\^")) {
             String name = player.split("\\$")[0];
             String uuid = player.split("\\$")[1];
