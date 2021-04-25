@@ -218,7 +218,7 @@ public final class ClientServer {
                         }
                         final StringBuilder builder = new StringBuilder("ALLBUNGEEPLAYERSONSERVERµ" + args + "^");
                         final Object lastPlayer = bungeeServ.getPlayers().toArray()[bungeeServ.getPlayers().size() - 1];
-                        for (final ProxiedPlayer player : BungeeSK.getInstance().getProxy().getPlayers()) {
+                        for (final ProxiedPlayer player : bungeeServ.getPlayers()) {
                             builder.append(player.getName()).append("$").append(player.getUniqueId().toString());
                             if (!player.equals(lastPlayer)) builder.append("^");
                         }
