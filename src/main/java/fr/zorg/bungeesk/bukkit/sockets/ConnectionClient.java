@@ -201,6 +201,11 @@ public final class ConnectionClient {
                     case "ALLBUNGEEPLAYERSONSERVER": {
                         final String server = separateDatas[1].split("\\^")[0];
                         this.putFuture("ALLBUNGEEPLAYERSONSERVERµ" + server, separateDatas[1]);
+                        break;
+                    }
+                    case "BROADCAST": {
+                        Bukkit.getScheduler().runTask(BungeeSK.getInstance(), () -> Bukkit.broadcastMessage(separateDatas[1]));
+                        break;
                     }
                 }
             }

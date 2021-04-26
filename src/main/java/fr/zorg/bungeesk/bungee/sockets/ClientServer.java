@@ -159,6 +159,7 @@ public final class ClientServer {
                         this.write("PLAYERSERVERµ" + args + "^" + playerServer.getInfo().getName());
                         break;
                     }
+
                     case "ISCONNECTED": {
                         final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.split("\\$")[1]));
                         if (player != null && player.isConnected()) {
@@ -223,6 +224,11 @@ public final class ClientServer {
                             if (!player.equals(lastPlayer)) builder.append("^");
                         }
                         this.write(builder.toString());
+                        break;
+                    }
+                    case "BROADCASTTOSERV": {
+                        if (!server.getClient(separateDatas[1]).isPresent()) break;
+                        server.getClient(separateDatas[1]).get().write("BROADCASTµ" + separateDatas[2]);
                         break;
                     }
                 }
