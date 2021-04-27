@@ -27,6 +27,7 @@ dependencies {
         exclude group: 'com.sk89q.worldguard', module: 'worldguard-legacy'
         exclude group: 'net.milkbowl.vault', module: 'Vault'
     }
+    compile group: 'commons-io', name: 'commons-io', version: '2.8.0'
 }
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
@@ -35,4 +36,10 @@ processResources {
     filter ReplaceTokens, tokens: [
             'version': project.property("version"),
     ]
+}
+
+jar {
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
