@@ -27,7 +27,7 @@ public class BungeeConfig {
         return instance;
     }
 
-    private int port = 100;
+    private int port = 20000;
     private String password = Utils.randomString(10);
     private boolean sendFilesAuto = false;
     private boolean whitelistIp = true;
