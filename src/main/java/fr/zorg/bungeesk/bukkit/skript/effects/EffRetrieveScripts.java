@@ -9,6 +9,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
+import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +31,9 @@ public class EffRetrieveScripts extends Effect {
 
     @Override
     protected void execute(Event e) {
-        ConnectionClient.get().write("RETRIEVE_SKRIPTSµ");
+        if (BungeeSK.isClientConnected()) {
+            ConnectionClient.get().write("RETRIEVE_SKRIPTSµ");
+        }
     }
 
     @Override

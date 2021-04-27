@@ -5,6 +5,7 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
+import fr.zorg.bungeesk.bukkit.BungeeSK;
 import org.jetbrains.annotations.Nullable;
 import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
 import org.bukkit.event.Event;
@@ -34,8 +35,9 @@ public class EffSendMessage extends Effect {
     }
 
     protected void execute(final Event e) {
-        assert ConnectionClient.get() != null;
-        ConnectionClient.get().write("SENDPLAYERMESSAGEµ" + player.getSingle(e).getData() + "^" + message.getSingle(e));
+        if (BungeeSK.isClientConnected()) {
+            ConnectionClient.get().write("SENDPLAYERMESSAGEµ" + player.getSingle(e).getData() + "^" + message.getSingle(e));
+        }
     }
 
     public String toString(@Nullable Event e, boolean debug) {

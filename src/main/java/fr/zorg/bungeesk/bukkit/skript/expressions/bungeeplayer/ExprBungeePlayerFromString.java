@@ -10,6 +10,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
 import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
 import org.bukkit.event.Event;
@@ -44,10 +45,12 @@ public class ExprBungeePlayerFromString extends SimpleExpression<BungeePlayer> {
 
     @Override
     protected BungeePlayer[] get(Event e) {
-        assert ConnectionClient.get() != null;
-        String result = ConnectionClient.get().future("GETPLAYERµ" + player.getSingle(e));
-        if (result.split("\\$")[1].equals("NONE")) return null;
-        return new BungeePlayer[] { new BungeePlayer(result.split("\\$")[0], result.split("\\$")[1]) };
+        if (BungeeSK.isClientConnected()) {
+            String result = ConnectionClient.get().future("GETPLAYERµ" + player.getSingle(e));
+            if (result.split("\\$")[1].equals("NONE")) return null;
+            return new BungeePlayer[] { new BungeePlayer(result.split("\\$")[0], result.split("\\$")[1]) };
+        }
+        return new BungeePlayer[0];
     }
 
     @Override

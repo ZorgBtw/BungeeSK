@@ -37,9 +37,11 @@ public class ExprClientRealName extends SimpleExpression<String> {
     @Nullable
     @Override
     protected String[] get(Event e) {
-        assert ConnectionClient.get() != null;
-        final String result = ConnectionClient.get().future("CLIENTREALNAMEµ" + BungeeSK.getInstance().getServer().getIp() + ":" + BungeeSK.getInstance().getServer().getPort());
-        return new String[] { result };
+        if (BungeeSK.isClientConnected()) {
+            final String result = ConnectionClient.get().future("CLIENTREALNAMEµ" + BungeeSK.getInstance().getServer().getIp() + ":" + BungeeSK.getInstance().getServer().getPort());
+            return new String[] { result };
+        }
+        return new String[0];
     }
 
     @Override

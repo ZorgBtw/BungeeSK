@@ -6,6 +6,7 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
 import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
 import org.bukkit.event.Event;
@@ -34,11 +35,13 @@ public class ExprBungeePlayerServer extends SimplePropertyExpression<BungeePlaye
     @Nullable
     @Override
     public String convert(BungeePlayer player) {
-        assert ConnectionClient.get() != null;
-        String result = ConnectionClient.get().future("PLAYERSERVERµ" + player.getData());
+        if (BungeeSK.isClientConnected()) {
+            String result = ConnectionClient.get().future("PLAYERSERVERµ" + player.getData());
 
-        if (result.equals("NONE")) return null;
-        return result;
+            if (result.equals("NONE")) return null;
+            return result;
+        }
+        return null;
     }
 
     @Override

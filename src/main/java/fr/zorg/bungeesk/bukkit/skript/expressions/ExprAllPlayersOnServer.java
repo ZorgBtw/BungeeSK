@@ -10,6 +10,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
 import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
 import org.bukkit.event.Event;
@@ -45,17 +46,19 @@ public class ExprAllPlayersOnServer extends SimpleExpression<BungeePlayer> {
     @Nullable
     @Override
     protected BungeePlayer[] get(Event e) {
-        assert ConnectionClient.get() != null;
-        String result = ConnectionClient.get().future("ALLBUNGEEPLAYERSONSERVERµ" + server.getSingle(e));
-        result = result.replace(server.getSingle(e), "");
-        List<BungeePlayer> players = new ArrayList<>();
-        if (result.equals("^NONE")) return new BungeePlayer[0];
-        for (String player : result.replaceFirst("\\^", "").split("\\^")) {
-            String name = player.split("\\$")[0];
-            String uuid = player.split("\\$")[1];
-            players.add(new BungeePlayer(name, uuid));
+        if (BungeeSK.isClientConnected()) {
+            String result = ConnectionClient.get().future("ALLBUNGEEPLAYERSONSERVERµ" + server.getSingle(e));
+            result = result.replace(server.getSingle(e), "");
+            List<BungeePlayer> players = new ArrayList<>();
+            if (result.equals("^NONE")) return new BungeePlayer[0];
+            for (String player : result.replaceFirst("\\^", "").split("\\^")) {
+                String name = player.split("\\$")[0];
+                String uuid = player.split("\\$")[1];
+                players.add(new BungeePlayer(name, uuid));
+            }
+            return players.toArray(new BungeePlayer[0]);
         }
-        return players.toArray(new BungeePlayer[0]);
+        return new BungeePlayer[0];
     }
 
     @Override

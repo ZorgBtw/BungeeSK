@@ -9,6 +9,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
+import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -36,8 +37,9 @@ public class EffBroadcastMessageToServer extends Effect {
 
     @Override
     protected void execute(Event e) {
-        assert ConnectionClient.get() != null;
-        ConnectionClient.get().write("BROADCASTTOSERVµ" + server.getSingle(e) + "µ" + message.getSingle(e));
+        if (BungeeSK.isClientConnected()) {
+            ConnectionClient.get().write("BROADCASTTOSERVµ" + server.getSingle(e) + "µ" + message.getSingle(e));
+        }
     }
 
     @Override

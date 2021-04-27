@@ -9,6 +9,7 @@ import ch.njol.skript.lang.Condition;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
+import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
 import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
 import org.bukkit.event.Event;
@@ -44,12 +45,14 @@ public class CondBungeePlayerConnected extends Condition {
 
     @Override
     public boolean check(Event e) {
-        assert ConnectionClient.get() != null;
-        String result = ConnectionClient.get().future("ISCONNECTEDµ" + player.getSingle(e).getData());
-        if (negate) {
-            return (result.equals("FALSE"));
+        if (BungeeSK.isClientConnected()) {
+            String result = ConnectionClient.get().future("ISCONNECTEDµ" + player.getSingle(e).getData());
+            if (negate) {
+                return (result.equals("FALSE"));
+            }
+            return (result.equals("TRUE"));
         }
-        return (result.equals("TRUE"));
+        return false;
     }
 
     @Override

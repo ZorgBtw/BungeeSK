@@ -9,6 +9,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
+import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
 import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
 import org.bukkit.event.Event;
@@ -37,7 +38,9 @@ public class EffSendBungeePlayerToServer extends Effect {
 
     @Override
     protected void execute(Event e) {
-        ConnectionClient.get().write("SENDTOSERVµ" + player.getSingle(e).getData() + "^" + server.getSingle(e));
+        if (BungeeSK.isClientConnected()) {
+            ConnectionClient.get().write("SENDTOSERVµ" + player.getSingle(e).getData() + "^" + server.getSingle(e));
+        }
     }
 
     @Override
