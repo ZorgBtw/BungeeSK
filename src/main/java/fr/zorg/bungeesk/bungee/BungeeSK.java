@@ -5,12 +5,18 @@ import fr.zorg.bungeesk.bungee.listeners.LoginEvent;
 import fr.zorg.bungeesk.bungee.listeners.ServSwitchEvent;
 import fr.zorg.bungeesk.bungee.sockets.Server;
 import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
+import fr.zorg.bungeesk.common.utils.Utils;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
+import org.apache.commons.io.FileUtils;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -55,11 +61,10 @@ public class BungeeSK extends Plugin {
         final ArrayList<String> list = new ArrayList<>();
         for (final File file : folder.listFiles(filter)) {
             list.add("newFile:" + file.getName());
-            try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                String line;
-                while ((line = reader.readLine()) != null)
-                    list.add(line);
+            try {
+                list.add(Utils.toBase64(FileUtils.readFileToByteArray(file)));
             } catch (IOException ignored) {
+
             }
             list.add("endFile");
         }

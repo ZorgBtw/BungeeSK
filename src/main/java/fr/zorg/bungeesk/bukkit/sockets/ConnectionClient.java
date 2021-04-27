@@ -7,9 +7,9 @@ import fr.zorg.bungeesk.bukkit.updater.Updater;
 import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
 import fr.zorg.bungeesk.common.encryption.AESEncryption;
 import fr.zorg.bungeesk.common.utils.Utils;
+import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
-import org.bukkit.scheduler.BukkitScheduler;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
@@ -116,35 +116,27 @@ public final class ConnectionClient {
                         final File folder = new File("plugins/Skript/scripts/BungeeSK");
                         if (!folder.exists())
                             folder.mkdirs();
-                        File file = null;
-                        FileWriter fileWriter = null;
-                        PrintWriter writer = null;
+                        String file = null;
+                        byte[] content;
+                        File skript;
                         for (final String line : flux) {
-                            try {
-                                if (line.equals("END_SKRIPTS"))
-                                    break;
-                                if (line.startsWith("newFile:")) {
-                                    file = new File(folder, line.substring(8));
-                                    fileWriter = new FileWriter(file);
-                                    file.createNewFile();
-                                    fileWriter.write("");
-                                    writer = new PrintWriter(fileWriter, true);
-                                    continue;
+                            if (line.equals("endFile")) {
+                                file = null;
+                            } else if (file == null && line.startsWith("newFile:")) {
+                                file = line.substring(8);
+                            } else if (file != null) {
+                                try {
+                                    content = Utils.fromBase64(line);
+                                    skript = new File(folder, file);
+                                    if (skript.exists())
+                                        skript.delete();
+                                    skript.createNewFile();
+                                    FileUtils.writeByteArrayToFile(skript, content);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
-                                if (file == null || writer == null)
-                                    continue;
-                                if (line.equalsIgnoreCase("endFile")) {
-                                    writer.close();
-                                    fileWriter.close();
-                                    file = null;
-                                    fileWriter = null;
-                                    writer = null;
-                                    continue;
-                                }
-                                writer.println(line);
-
-                            } catch (IOException ignored) {
-                            }
+                            } else if (line.equals("END_SKRIPTS"))
+                                break;
                         }
                         break;
                     }
