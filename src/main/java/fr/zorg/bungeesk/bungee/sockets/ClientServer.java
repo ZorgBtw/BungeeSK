@@ -116,6 +116,12 @@ public final class ClientServer {
 
                 switch (header.toUpperCase()) {
                     case "DISCONNECT": {
+                        BungeeSK.getInstance().getLogger().info("§6A server has been disconnected: §a" +
+                                this.getName() +
+                                " §6(§a" +
+                                this.getSocket().getInetAddress().getHostAddress() +
+                                "§6)"
+                        );
                         this.forceDisconnect();
                         break reader;
                     }
