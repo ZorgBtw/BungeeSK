@@ -222,7 +222,7 @@ public final class ConnectionClient {
                 this.reader.close();
                 this.writer.close();
                 final Event event = new ClientDisconnectEvent();
-                Bukkit.getScheduler().runTask(BungeeSK.getInstance(), () -> Bukkit.getPluginManager().callEvent(event));
+                Bukkit.getPluginManager().callEvent(event);
                 this.readThread.interrupt();
             }
         } catch (IOException e) {
