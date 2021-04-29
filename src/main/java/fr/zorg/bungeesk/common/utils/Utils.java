@@ -5,6 +5,7 @@ import com.google.gson.JsonParser;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Random;
 
@@ -34,6 +35,14 @@ public class Utils {
         for (final T item : original)
             result.add(item);
         return result;
+    }
+
+    public static String toBase64(final byte[] input) {
+        return Base64.getEncoder().encodeToString(input);
+    }
+
+    public static byte[] fromBase64(final String input) {
+        return Base64.getDecoder().decode(input);
     }
 
     public static String getMessage(final String message) {

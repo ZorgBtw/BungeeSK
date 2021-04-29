@@ -14,30 +14,37 @@ import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Retrieve scripts")
-@Description("Retrieve every script from the bungee")
-@Since("1.0.0")
-@Examples("retrieve all scripts from bungee")
-public class EffRetrieveScripts extends Effect {
+@Name("Broadcast message to server")
+@Description("Broadcasts a message to a server in the network")
+@Examples("broadcast \"&aHello world !\" to server \"hub\"")
+@Since("1.0.3")
+public class EffBroadcastMessageToServer extends Effect {
 
     static {
-        Skript.registerEffect(EffRetrieveScripts.class, "retrieve all (scripts|skripts) from bungee");
+        Skript.registerEffect(EffBroadcastMessageToServer.class,
+                "broadcast %string% to server %string%");
     }
+
+    private Expression<String> message;
+    private Expression<String> server;
 
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+        message = (Expression<String>) exprs[0];
+        server = (Expression<String>) exprs[1];
         return true;
     }
 
     @Override
     protected void execute(Event e) {
         if (BungeeSK.isClientConnected()) {
-            ConnectionClient.get().write("RETRIEVE_SKRIPTSµ");
+            ConnectionClient.get().write("BROADCASTTOSERVµ" + server.getSingle(e) + "µ" + message.getSingle(e));
         }
     }
 
     @Override
     public String toString(@Nullable Event e, boolean debug) {
-        return "retrieve every scripts from the bungeecord";
+        return "broadcasts message " + message.toString(e, debug) + " to server " + server.toString(e, debug);
     }
+
 }

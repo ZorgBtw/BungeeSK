@@ -116,6 +116,12 @@ public final class ClientServer {
 
                 switch (header.toUpperCase()) {
                     case "DISCONNECT": {
+                        BungeeSK.getInstance().getLogger().info("§6A server has been disconnected: §a" +
+                                this.getName() +
+                                " §6(§a" +
+                                this.getSocket().getInetAddress().getHostAddress() +
+                                "§6)"
+                        );
                         this.forceDisconnect();
                         break reader;
                     }
@@ -159,6 +165,7 @@ public final class ClientServer {
                         this.write("PLAYERSERVERµ" + args + "^" + playerServer.getInfo().getName());
                         break;
                     }
+
                     case "ISCONNECTED": {
                         final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.split("\\$")[1]));
                         if (player != null && player.isConnected()) {
@@ -218,11 +225,16 @@ public final class ClientServer {
                         }
                         final StringBuilder builder = new StringBuilder("ALLBUNGEEPLAYERSONSERVERµ" + args + "^");
                         final Object lastPlayer = bungeeServ.getPlayers().toArray()[bungeeServ.getPlayers().size() - 1];
-                        for (final ProxiedPlayer player : BungeeSK.getInstance().getProxy().getPlayers()) {
+                        for (final ProxiedPlayer player : bungeeServ.getPlayers()) {
                             builder.append(player.getName()).append("$").append(player.getUniqueId().toString());
                             if (!player.equals(lastPlayer)) builder.append("^");
                         }
                         this.write(builder.toString());
+                        break;
+                    }
+                    case "BROADCASTTOSERV": {
+                        if (!server.getClient(separateDatas[1]).isPresent()) break;
+                        server.getClient(separateDatas[1]).get().write("BROADCASTµ" + separateDatas[2]);
                         break;
                     }
                 }

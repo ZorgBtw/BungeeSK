@@ -10,6 +10,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -33,9 +34,11 @@ public class ExprAllBungeeServers extends SimpleExpression<String> {
 
     @Override
     protected @Nullable String[] get(Event e) {
-        assert ConnectionClient.get() != null;
-        final String result = ConnectionClient.get().future("ALLBUNGEESERVERSµ");
-        return result.split("\\^");
+        if (BungeeSK.isClientConnected()) {
+            final String result = ConnectionClient.get().future("ALLBUNGEESERVERSµ");
+            return result.split("\\^");
+        }
+        return new String[0];
     }
 
     @Override

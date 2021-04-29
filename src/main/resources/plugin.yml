@@ -3,5 +3,5 @@ authors: [Zorg, BakaAless]
 main: fr.zorg.bungeesk.bukkit.BungeeSK
 website: https://github.com/ZorgBtw/BungeeSK
 version: @version@
-api-version: @apiVersion@
+api-version: 1.13
 softdepend: [Skript]

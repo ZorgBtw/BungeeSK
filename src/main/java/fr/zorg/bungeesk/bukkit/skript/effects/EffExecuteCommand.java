@@ -9,6 +9,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
+import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -47,20 +48,21 @@ public class EffExecuteCommand extends Effect {
 
     @Override
     protected void execute(Event e) {
-        assert ConnectionClient.get() != null;
-        String server = null;
-        switch (this.pattern) {
-            case 0:
-                server = "Bungee";
-                break;
-            case 1:
-                server = this.server.getSingle(e);
-                break;
-            case 2:
-                server = "All";
-                break;
+        if (BungeeSK.isClientConnected()) {
+            String server = null;
+            switch (this.pattern) {
+                case 0:
+                    server = "Bungee";
+                    break;
+                case 1:
+                    server = this.server.getSingle(e);
+                    break;
+                case 2:
+                    server = "All";
+                    break;
+            }
+            ConnectionClient.get().write("EffExecuteCommandµ" + server + "µ" + command.getSingle(e));
         }
-        ConnectionClient.get().write("EffExecuteCommandµ" + server + "µ" + command.getSingle(e));
     }
 
     @Override
