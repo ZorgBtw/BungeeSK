@@ -78,7 +78,7 @@ public final class ConnectionClient {
 
                 final String rawData = this.reader.readLine();
                 if (rawData == null) {
-                    this.forceDisconnect();
+                    this.disconnect();
                     break;
                 }
 
@@ -202,7 +202,7 @@ public final class ConnectionClient {
                 }
             }
         } catch (IOException e) {
-            this.forceDisconnect();
+            this.disconnect();
         }
 
     }
@@ -210,6 +210,7 @@ public final class ConnectionClient {
     public void disconnect() {
         try {
             this.writer.println(Arrays.toString("DISCONNECT".getBytes(StandardCharsets.UTF_8)));
+            Bukkit.getScheduler().runTask(BungeeSK.getInstance(), () -> Bukkit.getPluginManager().callEvent(new ClientDisconnectEvent()));
         } catch (final Exception ignored) {
         }
         this.forceDisconnect();
@@ -221,8 +222,6 @@ public final class ConnectionClient {
                 this.socket.close();
                 this.reader.close();
                 this.writer.close();
-                final Event event = new ClientDisconnectEvent();
-                Bukkit.getPluginManager().callEvent(event);
                 this.readThread.interrupt();
             }
         } catch (IOException e) {
