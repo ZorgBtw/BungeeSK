@@ -36,8 +36,7 @@ public class BungeeSK extends JavaPlugin {
     @Override
     public void onDisable() {
         Updater.get().stop();
-        if(ConnectionClient.get() != null) {
-            getLogger().info("Disconnecting from connection " + ConnectionClient.get().getAddress() + ":" + ConnectionClient.get().getPort());
+        if(isClientConnected()) {
             ConnectionClient.get().disconnect();
         }
     }

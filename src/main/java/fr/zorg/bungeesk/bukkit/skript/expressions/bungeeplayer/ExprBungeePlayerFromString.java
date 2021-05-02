@@ -47,7 +47,7 @@ public class ExprBungeePlayerFromString extends SimpleExpression<BungeePlayer> {
     protected BungeePlayer[] get(Event e) {
         if (BungeeSK.isClientConnected()) {
             String result = ConnectionClient.get().future("GETPLAYERµ" + player.getSingle(e));
-            if (result.split("\\$")[1].equals("NONE")) return null;
+            if (result.split("\\$")[1].equals("NONE")) return new BungeePlayer[0];
             return new BungeePlayer[] { new BungeePlayer(result.split("\\$")[0], result.split("\\$")[1]) };
         }
         return new BungeePlayer[0];

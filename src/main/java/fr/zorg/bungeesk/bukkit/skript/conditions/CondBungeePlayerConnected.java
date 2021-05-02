@@ -46,11 +46,12 @@ public class CondBungeePlayerConnected extends Condition {
     @Override
     public boolean check(Event e) {
         if (BungeeSK.isClientConnected()) {
-            String result = ConnectionClient.get().future("ISCONNECTEDµ" + player.getSingle(e).getData());
-            if (negate) {
-                return (result.equals("FALSE"));
+            if (player.getSingle(e) == null) {
+                return negate;
             }
-            return (result.equals("TRUE"));
+            String result = ConnectionClient.get().future("ISCONNECTEDµ" + player.getSingle(e).getData());
+            if (negate) return (result.equals("^FALSE"));
+            return (result.equals("^TRUE"));
         }
         return false;
     }
