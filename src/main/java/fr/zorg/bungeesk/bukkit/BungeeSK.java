@@ -49,11 +49,11 @@ public class BungeeSK extends JavaPlugin {
 
 
     public static boolean isClientConnected() {
-        if (ConnectionClient.get() == null) {
-            logger.log(Level.WARNING, "BungeeSK client is not connected to any server !");
-            return false;
+        if (ConnectionClient.get() != null && ConnectionClient.get().isConnected()) {
+            return true;
         }
-        return true;
+        logger.log(Level.WARNING, "BungeeSK client is not connected to any server !");
+        return false;
     }
 
 }
