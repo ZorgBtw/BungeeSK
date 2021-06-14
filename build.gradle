@@ -5,14 +5,13 @@ plugins {
 }
 
 group 'fr.zorg'
-version '1.0.4'
+version '1.1.0'
 
-def mcVersion = '1.16'
-def subVersion = '.5'
+def mcVersion = '1.17'
+def subVersion = ''
 
 repositories {
     mavenCentral()
-    jcenter()
     maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
     maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
     maven { url = 'https://jitpack.io' }
@@ -22,12 +21,12 @@ repositories {
 dependencies {
     compileOnly group: 'org.spigotmc', name: 'spigot-api', version: mcVersion + subVersion + '-R0.1-SNAPSHOT'
     compileOnly group: 'net.md-5', name: 'bungeecord-api', version: mcVersion + '-R0.1-SNAPSHOT'
-    implementation group: 'org.jetbrains', name: 'annotations', version: '16.0.2'
-    implementation (group: 'com.github.SkriptLang', name: 'Skript', version: '2.5.3') {
+    compileOnly group: 'org.jetbrains', name: 'annotations', version: '16.0.2'
+    compileOnly (group: 'com.github.SkriptLang', name: 'Skript', version: '2.6-alpha1') {
         exclude group: 'com.sk89q.worldguard', module: 'worldguard-legacy'
         exclude group: 'net.milkbowl.vault', module: 'Vault'
     }
-    compile group: 'commons-io', name: 'commons-io', version: '2.8.0'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.8.0'
 }
 
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
@@ -38,8 +37,14 @@ processResources {
     ]
 }
 
+configurations {
+    implementation {
+        canBeResolved = true
+    }
+}
+
 jar {
     from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.implementation.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
