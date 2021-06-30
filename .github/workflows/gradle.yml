@@ -16,8 +16,8 @@ jobs:
           java-package: jdk
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-      - name: Build with Gradle
-        run: ./gradlew clean build
+      - name: Build with Gradle, using shadowJar
+        run: ./gradlew clean shadowJar
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
