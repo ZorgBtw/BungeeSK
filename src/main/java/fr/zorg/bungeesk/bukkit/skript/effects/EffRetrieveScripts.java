@@ -32,7 +32,7 @@ public class EffRetrieveScripts extends Effect {
     @Override
     protected void execute(Event e) {
         if (BungeeSK.isClientConnected()) {
-            ConnectionClient.get().write("RETRIEVE_SKRIPTSµ");
+            ConnectionClient.get().write(true, "sendFilesRequest");
         }
     }
 

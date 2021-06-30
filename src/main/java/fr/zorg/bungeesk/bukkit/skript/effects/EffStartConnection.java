@@ -21,12 +21,11 @@ import org.jetbrains.annotations.Nullable;
         "\t\tset address of connection to \"127.0.0.1\"\n" +
         "\t\tset port of connection to 100\n" +
         "\t\tset password of connection to \"abcd\"\n" +
-        "\t\tset name of connection to \"server1\"\n" +
         "\tstart new connection with connection")
 
 public class EffStartConnection extends Effect {
 
-    static  {
+    static {
         Skript.registerEffect(EffStartConnection.class, "start new connection with %bungeeconn%");
     }
 

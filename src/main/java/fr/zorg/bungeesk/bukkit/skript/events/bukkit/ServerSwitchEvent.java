@@ -1,6 +1,7 @@
 package fr.zorg.bungeesk.bukkit.skript.events.bukkit;
 
 import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
+import fr.zorg.bungeesk.bukkit.utils.BungeeServer;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
@@ -8,9 +9,9 @@ public class ServerSwitchEvent extends Event {
 
     public static final HandlerList handlers = new HandlerList();
     private final BungeePlayer player;
-    private final String server;
+    private final BungeeServer server;
 
-    public ServerSwitchEvent(BungeePlayer player, String server) {
+    public ServerSwitchEvent(BungeePlayer player, BungeeServer server) {
         this.player = player;
         this.server = server;
     }
@@ -28,7 +29,7 @@ public class ServerSwitchEvent extends Event {
         return this.player;
     }
 
-    public String getServer() {
+    public BungeeServer getServer() {
         return this.server;
     }
 }

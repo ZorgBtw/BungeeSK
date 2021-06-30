@@ -1,14 +1,12 @@
-package fr.zorg.bungeesk.bukkit.utils;
+package fr.zorg.bungeesk.bungee.utils;
 
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
+import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.config.Configuration;
+import net.md_5.bungee.config.ConfigurationProvider;
+import net.md_5.bungee.config.YamlConfiguration;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -29,6 +27,16 @@ public class Metrics {
 
     private final MetricsBase metricsBase;
 
+    private boolean enabled;
+
+    private String serverUUID;
+
+    private boolean logErrors = false;
+
+    private boolean logSentData;
+
+    private boolean logResponseStatusText;
+
     /**
      * Creates a new Metrics instance.
      *
@@ -36,54 +44,71 @@ public class Metrics {
      * @param serviceId The id of the service. It can be found at <a
      *                  href="https://bstats.org/what-is-my-plugin-id">What is my plugin id?</a>
      */
-    public Metrics(JavaPlugin plugin, int serviceId) {
+    public Metrics(Plugin plugin, int serviceId) {
         this.plugin = plugin;
-        // Get the config file
-        File bStatsFolder = new File(plugin.getDataFolder().getParentFile(), "bStats");
-        File configFile = new File(bStatsFolder, "config.yml");
-        YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
-        if (!config.isSet("serverUuid")) {
-            config.addDefault("enabled", true);
-            config.addDefault("serverUuid", UUID.randomUUID().toString());
-            config.addDefault("logFailedRequests", false);
-            config.addDefault("logSentData", false);
-            config.addDefault("logResponseStatusText", false);
-            // Inform the server owners about bStats
-            config
-                    .options()
-                    .header(
-                            "bStats (https://bStats.org) collects some basic information for plugin authors, like how\n"
-                                    + "many people use their plugin and their total player count. It's recommended to keep bStats\n"
-                                    + "enabled, but if you're not comfortable with this, you can turn this setting off. There is no\n"
-                                    + "performance penalty associated with having metrics enabled, and data sent to bStats is fully\n"
-                                    + "anonymous.")
-                    .copyDefaults(true);
-            try {
-                config.save(configFile);
-            } catch (IOException ignored) {
-            }
+        try {
+            loadConfig();
+        } catch (IOException e) {
+            // Failed to load configuration
+            plugin.getLogger().log(Level.WARNING, "Failed to load bStats config!", e);
+            metricsBase = null;
+            return;
         }
-        // Load the data
-        boolean enabled = config.getBoolean("enabled", true);
-        String serverUUID = config.getString("serverUuid");
-        boolean logErrors = config.getBoolean("logFailedRequests", false);
-        boolean logSentData = config.getBoolean("logSentData", false);
-        boolean logResponseStatusText = config.getBoolean("logResponseStatusText", false);
         metricsBase =
                 new MetricsBase(
-                        "bukkit",
+                        "bungeecord",
                         serverUUID,
                         serviceId,
                         enabled,
                         this::appendPlatformData,
                         this::appendServiceData,
-                        submitDataTask -> Bukkit.getScheduler().runTask(plugin, submitDataTask),
-                        plugin::isEnabled,
+                        null,
+                        () -> true,
                         (message, error) -> this.plugin.getLogger().log(Level.WARNING, message, error),
                         (message) -> this.plugin.getLogger().log(Level.INFO, message),
                         logErrors,
                         logSentData,
                         logResponseStatusText);
+    }
+
+    /**
+     * Loads the bStats configuration.
+     */
+    private void loadConfig() throws IOException {
+        File bStatsFolder = new File(plugin.getDataFolder().getParentFile(), "bStats");
+        bStatsFolder.mkdirs();
+        File configFile = new File(bStatsFolder, "config.yml");
+        if (!configFile.exists()) {
+            writeFile(
+                    configFile,
+                    "# bStats (https://bStats.org) collects some basic information for plugin authors, like how",
+                    "# many people use their plugin and their total player count. It's recommended to keep bStats",
+                    "# enabled, but if you're not comfortable with this, you can turn this setting off. There is no",
+                    "# performance penalty associated with having metrics enabled, and data sent to bStats is fully",
+                    "# anonymous.",
+                    "enabled: true",
+                    "serverUuid: \"" + UUID.randomUUID() + "\"",
+                    "logFailedRequests: false",
+                    "logSentData: false",
+                    "logResponseStatusText: false");
+        }
+        Configuration configuration =
+                ConfigurationProvider.getProvider(YamlConfiguration.class).load(configFile);
+        // Load configuration
+        enabled = configuration.getBoolean("enabled", true);
+        serverUUID = configuration.getString("serverUuid");
+        logErrors = configuration.getBoolean("logFailedRequests", false);
+        logSentData = configuration.getBoolean("logSentData", false);
+        logResponseStatusText = configuration.getBoolean("logResponseStatusText", false);
+    }
+
+    private void writeFile(File file, String... lines) throws IOException {
+        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file))) {
+            for (String line : lines) {
+                bufferedWriter.write(line);
+                bufferedWriter.newLine();
+            }
+        }
     }
 
     /**
@@ -96,10 +121,10 @@ public class Metrics {
     }
 
     private void appendPlatformData(JsonObjectBuilder builder) {
-        builder.appendField("playerAmount", getPlayerAmount());
-        builder.appendField("onlineMode", Bukkit.getOnlineMode() ? 1 : 0);
-        builder.appendField("bukkitVersion", Bukkit.getVersion());
-        builder.appendField("bukkitName", Bukkit.getName());
+        builder.appendField("playerAmount", plugin.getProxy().getOnlineCount());
+        builder.appendField("managedServers", plugin.getProxy().getServers().size());
+        builder.appendField("onlineMode", plugin.getProxy().getConfig().isOnlineMode() ? 1 : 0);
+        builder.appendField("bungeecordVersion", plugin.getProxy().getVersion());
         builder.appendField("javaVersion", System.getProperty("java.version"));
         builder.appendField("osName", System.getProperty("os.name"));
         builder.appendField("osArch", System.getProperty("os.arch"));
@@ -109,21 +134,6 @@ public class Metrics {
 
     private void appendServiceData(JsonObjectBuilder builder) {
         builder.appendField("pluginVersion", plugin.getDescription().getVersion());
-    }
-
-    private int getPlayerAmount() {
-        try {
-            // Around MC 1.8 the return type was changed from an array to a collection,
-            // This fixes java.lang.NoSuchMethodError:
-            // org.bukkit.Bukkit.getOnlinePlayers()Ljava/util/Collection;
-            Method onlinePlayersMethod = Class.forName("org.bukkit.Server").getMethod("getOnlinePlayers");
-            return onlinePlayersMethod.getReturnType().equals(Collection.class)
-                    ? ((Collection<?>) onlinePlayersMethod.invoke(Bukkit.getServer())).size()
-                    : ((Player[]) onlinePlayersMethod.invoke(Bukkit.getServer())).length;
-        } catch (Exception e) {
-            // Just use the new method if the reflection failed
-            return Bukkit.getOnlinePlayers().size();
-        }
     }
 
     public static class MetricsBase {

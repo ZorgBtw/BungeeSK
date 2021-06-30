@@ -7,15 +7,14 @@ import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 
 public class BungeeConfig {
 
@@ -28,7 +27,7 @@ public class BungeeConfig {
     }
 
     private int port = 20000;
-    private String password = Utils.randomString(10);
+    private String password = Utils.randomString(16);
     private boolean sendFilesAuto = false;
     private boolean whitelistIp = true;
     private List<String> authorizedIp = Collections.singletonList("127.0.0.1");
@@ -42,7 +41,8 @@ public class BungeeConfig {
 
     public void load() {
         this.file = new File(BungeeSK.getInstance().getDataFolder(), "config.yml");
-        if (!BungeeSK.getInstance().getDataFolder().exists()) BungeeSK.getInstance().getDataFolder().mkdir();
+        if (!BungeeSK.getInstance().getDataFolder().exists())
+            BungeeSK.getInstance().getDataFolder().mkdir();
         if (!this.file.exists()) {
             try (final InputStream in = BungeeSK.getInstance().getResourceAsStream("config.yml")) {
                 Files.copy(in, this.file.toPath());

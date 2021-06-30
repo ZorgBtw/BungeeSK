@@ -1,9 +1,5 @@
 package fr.zorg.bungeesk.common.utils;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
-
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -41,16 +37,4 @@ public class Utils {
         return Base64.getEncoder().encodeToString(input);
     }
 
-    public static byte[] fromBase64(final String input) {
-        return Base64.getDecoder().decode(input);
-    }
-
-    public static String getMessage(final String message) {
-        final JsonArray array = new JsonParser().parse(message).getAsJsonArray();
-        final byte[] bytes = new byte[array.size()];
-        for (int index = 0; index < array.size(); index++) {
-            bytes[index] = array.get(index).getAsByte();
-        }
-        return new String(bytes, StandardCharsets.UTF_8);
-    }
 }

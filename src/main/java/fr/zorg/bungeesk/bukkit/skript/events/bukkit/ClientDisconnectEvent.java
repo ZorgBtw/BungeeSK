@@ -7,7 +7,8 @@ public class ClientDisconnectEvent extends Event {
 
     public static final HandlerList handlers = new HandlerList();
 
-    public ClientDisconnectEvent() { }
+    public ClientDisconnectEvent() {
+    }
 
     public static HandlerList getHandlerList() {
         return handlers;
