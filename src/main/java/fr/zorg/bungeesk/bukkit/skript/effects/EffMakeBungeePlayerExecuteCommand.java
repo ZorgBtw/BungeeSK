@@ -1,7 +1,9 @@
 package fr.zorg.bungeesk.bukkit.skript.effects;
 
 import ch.njol.skript.Skript;
+import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
+import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
@@ -10,8 +12,6 @@ import ch.njol.util.Kleenean;
 import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
 import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
-import jdk.jfr.Description;
-import jdk.jfr.Name;
 import org.bukkit.event.Event;
 
 @Name("Make BungeePlayer execute command")

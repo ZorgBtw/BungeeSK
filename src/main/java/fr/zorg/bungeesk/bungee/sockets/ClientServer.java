@@ -19,10 +19,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 public final class ClientServer {
@@ -33,7 +29,6 @@ public final class ClientServer {
     private final BufferedReader reader;
     private final PrintWriter writer;
     private final GlobalEncryption encryption;
-    private final Map<String, LinkedList<CompletableFuture<String>>> toComplete;
     private final static Gson gson = new GsonBuilder().create();
     private final String password;
 
@@ -44,7 +39,6 @@ public final class ClientServer {
         this.identified = false;
         this.reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream(), StandardCharsets.UTF_8));
         this.writer = new PrintWriter(this.socket.getOutputStream(), true);
-        this.toComplete = new HashMap<>();
         this.encryption = BungeeSK.getEncryption();
         this.password = BungeeConfig.get().getPassword();
 
@@ -159,7 +153,7 @@ public final class ClientServer {
                         final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("playerUniqueId").getAsString()));
                         final Optional<ServerInfo> optionalServer = BungeeUtils.findServer(args.get("serverAddress").getAsString(), args.get("serverPort").getAsInt());
 
-                        if (player == null || !(player.isConnected()) || optionalServer.isEmpty())
+                        if (player == null || !(player.isConnected()) || !(optionalServer.isPresent()))
                             break;
 
                         player.connect(optionalServer.get());
@@ -218,7 +212,7 @@ public final class ClientServer {
                             case "expressionGetBungeeServerFromAddress": {
                                 final Optional<ServerInfo> optionalServer = BungeeUtils.findServer(args.get("address").getAsString(), args.get("port").getAsInt());
 
-                                if (optionalServer.isEmpty()) {
+                                if (!(optionalServer.isPresent())) {
                                     error = true;
                                     break;
                                 }
@@ -318,7 +312,7 @@ public final class ClientServer {
                             case "expressionGetAllPlayersOnServer": {
                                 final Optional<ServerInfo> optionalServer = BungeeUtils.findServer(args.get("address").getAsString(), args.get("port").getAsInt());
 
-                                if (optionalServer.isEmpty()) {
+                                if (!(optionalServer.isPresent())) {
                                     error = true;
                                     break;
                                 }
@@ -439,34 +433,6 @@ public final class ClientServer {
 
     public boolean isConnected() {
         return this.socket != null && this.socket.isConnected() && !this.socket.isClosed();
-    }
-
-    public Map<String, LinkedList<CompletableFuture<String>>> getToComplete() {
-        return this.toComplete;
-    }
-
-    public void putFuture(final String key, final String value) {
-        LinkedList<CompletableFuture<String>> future = this.toComplete.get(key);
-        if (future != null && future.size() > 0) {
-            future.poll().complete(value);
-            if (future.size() == 0) this.toComplete.remove(key, future);
-        }
-    }
-
-    public String future(final String value) {
-        LinkedList<CompletableFuture<String>> futureList = new LinkedList<>();
-        if (this.toComplete.containsKey(value)) futureList = this.toComplete.get(value);
-        final CompletableFuture<String> future = new CompletableFuture<>();
-        futureList.add(future);
-        this.toComplete.put(value, futureList);
-        this.write(true, value);
-        String result;
-        try {
-            result = future.get(1, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            return null;
-        }
-        return result;
     }
 
     public static Gson getGson() {
