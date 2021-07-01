@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Bungee motd of bungee server")
 @Description("Get the MOTD of a server precised in the Bungeecord config")
-@Examples("broadcast bungee motd of bungee server \"lobby\"")
+@Examples("broadcast bungee motd of bungee server named \"lobby\"")
 @Since("1.1.0")
 public class ExprMOTDOfBungeeServer extends SimplePropertyExpression<BungeeServer, String> {
 

@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("All of the bungee servers")
 @Description("Returns every server in the bungeecord config")
 @Examples("loop all bungee servers:\n" +
-        "\tsend \"%loop-value%\"")
+        "\tsend \"%loop-bungeeserver%\"")
 @Since("1.0.0, 1.1.0: Returns BungeeServer")
 public class ExprAllBungeeServers extends SimpleExpression<BungeeServer> {
 

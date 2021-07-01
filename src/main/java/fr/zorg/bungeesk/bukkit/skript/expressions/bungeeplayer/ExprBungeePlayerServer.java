@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Server of bungee player")
 @Description("Get the server of a player on the network. " +
-        "NOTE: Server can be get only 2 ticks or more after the bungee playar join event")
+        "NOTE: Server can be get only 2 ticks or more after the bungee player join event")
 @Examples("set {_server} to event-bungeeplayer's server\n")
 @Since("1.0.0, 1.1.0: Returns BungeeServer")
 public class ExprBungeePlayerServer extends SimplePropertyExpression<BungeePlayer, BungeeServer> {

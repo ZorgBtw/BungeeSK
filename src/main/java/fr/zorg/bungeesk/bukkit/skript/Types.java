@@ -78,7 +78,7 @@ public class Types {
                 .user("bungeeserver")
                 .name("Bungee player")
                 .description("Represents a player on the network")
-                .since("1.0.0")
+                .since("1.1.0")
                 .parser(new Parser<BungeeServer>() {
 
                     @Override

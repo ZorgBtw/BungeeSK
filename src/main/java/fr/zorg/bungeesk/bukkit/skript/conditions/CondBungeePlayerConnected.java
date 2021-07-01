@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Is bungee player connected")
 @Description("Checks if a bungee player is connected")
 @Since("1.0.0")
-@Examples("broadcast \"God is connected !\" if bungeeplayer named \"Zorg\" is connected")
+@Examples("broadcast \"God is connected !\" if bungee player named \"Zorg\" is connected")
 public class CondBungeePlayerConnected extends Condition {
 
     static {
@@ -45,8 +45,7 @@ public class CondBungeePlayerConnected extends Condition {
                 return negate;
 
             final JsonObject result = ConnectionClient.get().future("expressionGetPlayerConnectionState",
-                    "name", player.getSingle(e).getName(),
-                    "uniqueId", player.getSingle(e).getUuid());
+                    "playerUniqueId", player.getSingle(e).getUuid());
             if (negate)
                 return (result.get("error").getAsBoolean());
             return !(result.get("error").getAsBoolean());

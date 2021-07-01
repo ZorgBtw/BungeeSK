@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Server switch event past server")
 @Description("Gets the server where the player was from in a server switch event")
-@Examples("on server swicth:\n" +
+@Examples("on server switch:\n" +
         "\tbroadcast \"The player was in the %past-server% server !\"")
 @Since("1.0.0 - 1.1.0: Returns bungee server")
 public class ExprPastServer extends SimpleExpression<BungeeServer> {

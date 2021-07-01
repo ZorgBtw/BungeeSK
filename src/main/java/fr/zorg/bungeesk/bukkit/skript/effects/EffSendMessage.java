@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Send message to bungee player")
 @Description("Send a message to a bungee player on the network")
-@Examples("send bungee message \"&6Hello !\" to bungee player \"Zorg_btw\"")
+@Examples("send bungee message \"&6Hello !\" to bungee player named \"Zorg_btw\"")
 @Since("1.0.0")
 public class EffSendMessage extends Effect {
 

@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Bungee port of bungee server")
 @Description("Get the port of a server precised in the Bungeecord config")
-@Examples("broadcast bungee port of bungee server \"lobby\"")
+@Examples("broadcast bungee port of bungee server named \"lobby\"")
 @Since("1.1.0")
 public class ExprPortOfBungeeServer extends SimplePropertyExpression<BungeeServer, Long> {
 

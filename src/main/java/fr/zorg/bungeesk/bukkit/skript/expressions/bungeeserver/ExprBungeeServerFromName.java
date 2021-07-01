@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Bungee server from its name")
 @Description("Get bungee server from its name")
-@Examples("set {_player} to bungee server \"Hub\"")
+@Examples("set {_player} to bungee server named \"Hub\"")
 @Since("1.1.0")
 public class ExprBungeeServerFromName extends SimpleExpression<BungeeServer> {
 

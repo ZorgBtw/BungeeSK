@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("Bungee address of bungee server")
 @Description("Get the address of a server precised in the Bungeecord config")
-@Examples("broadcast bungee address of bungee server \"lobby\"")
+@Examples("broadcast bungee address of bungee server named \"lobby\"")
 @Since("1.1.0")
 public class ExprAddressOfBungeeServer extends SimplePropertyExpression<BungeeServer, String> {
 

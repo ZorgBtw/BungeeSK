@@ -197,13 +197,13 @@ public final class ClientServer {
                         Map<String, Object> toSend = new HashMap<>();
                         toSend.put("uuid", uuid);
                         Map<String, Object> argsMap = new HashMap<>();
-                        boolean notFound = false;
+                        boolean error = false;
                         switch (localAction) {
                             case "expressionGetBungeeServerFromName": {
                                 ServerInfo server = BungeeSK.getInstance().getProxy().getServerInfo(args.get("name").getAsString());
 
                                 if (server == null) {
-                                    notFound = true;
+                                    error = true;
                                     break;
                                 }
 
@@ -219,7 +219,7 @@ public final class ClientServer {
                                 final Optional<ServerInfo> optionalServer = BungeeUtils.findServer(args.get("address").getAsString(), args.get("port").getAsInt());
 
                                 if (optionalServer.isEmpty()) {
-                                    notFound = true;
+                                    error = true;
                                     break;
                                 }
 
@@ -235,7 +235,7 @@ public final class ClientServer {
 
                             case "expressionGetAllBungeeServers": {
                                 if (BungeeSK.getInstance().getProxy().getServers().values().size() == 0) {
-                                    notFound = true;
+                                    error = true;
                                     break;
                                 }
 
@@ -256,7 +256,7 @@ public final class ClientServer {
                                 final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(args.get("name").getAsString());
 
                                 if (player == null) {
-                                    notFound = true;
+                                    error = true;
                                     break;
                                 }
 
@@ -270,7 +270,7 @@ public final class ClientServer {
                                 final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("uniqueId").getAsString()));
 
                                 if (player == null) {
-                                    notFound = true;
+                                    error = true;
                                     break;
                                 }
 
@@ -282,7 +282,7 @@ public final class ClientServer {
 
                             case "expressionGetAllBungeePlayers": {
                                 if (BungeeSK.getInstance().getProxy().getPlayers().size() == 0) {
-                                    notFound = true;
+                                    error = true;
                                     break;
                                 }
 
@@ -300,7 +300,7 @@ public final class ClientServer {
                                 final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("uniqueId").getAsString()));
 
                                 if (player == null) {
-                                    notFound = true;
+                                    error = true;
                                     break;
                                 }
 
@@ -319,7 +319,7 @@ public final class ClientServer {
                                 final Optional<ServerInfo> optionalServer = BungeeUtils.findServer(args.get("address").getAsString(), args.get("port").getAsInt());
 
                                 if (optionalServer.isEmpty()) {
-                                    notFound = true;
+                                    error = true;
                                     break;
                                 }
 
@@ -337,15 +337,26 @@ public final class ClientServer {
                                 break;
                             }
                             case "expressionGetPlayerConnectionState": {
-                                final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("uniqueId").getAsString()));
+                                final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("playerUniqueId").getAsString()));
 
                                 if (player == null || !(player.isConnected())) {
-                                    notFound = true;
+                                    error = true;
                                     break;
                                 }
                             }
+                            case "expressionGetBungeePlayerIP": {
+                                final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("playerUniqueId").getAsString()));
+
+                                if (player == null || !(player.isConnected())) {
+                                    error = true;
+                                    break;
+                                }
+
+                                argsMap.put("address", player.getAddress().getAddress().getHostAddress());
+                                break;
+                            }
                         }
-                        argsMap.put("error", notFound);
+                        argsMap.put("error", error);
                         toSend.put("response", argsMap);
                         this.writeRaw(true, "futureResponse", toSend);
                         break;
