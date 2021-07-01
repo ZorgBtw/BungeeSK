@@ -176,6 +176,19 @@ public final class ClientServer {
                         break;
                     }
 
+                    case "effectMakeBungeePlayerExecuteCommand": {
+                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("playerUniqueId").getAsString()));
+
+                        if (player == null || !(player.isConnected()))
+                            break;
+
+                        String command = args.get("command").getAsString();
+                        if (!command.startsWith("/"))
+                            command = "/" + command;
+                        player.chat(command);
+                        break;
+                    }
+
                     // Futures
 
                     case "futureGet": {
