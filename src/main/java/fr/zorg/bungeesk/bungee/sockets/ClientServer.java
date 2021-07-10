@@ -178,6 +178,7 @@ public final class ClientServer {
                             break;
 
                         String command = args.get("command").getAsString();
+
                         if (!command.startsWith("/"))
                             command = "/" + command;
                         player.chat(command);
@@ -196,6 +197,21 @@ public final class ClientServer {
                             break;
                         }
                         player.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', reason)));
+                        break;
+                    }
+
+                    case "effectSendBungeeCustomMessage": {
+                        final String server = args.get("serverAddress").getAsString() + ":" + args.get("serverPort").getAsInt();
+
+                        final Optional<ServerInfo> optionnalServer = BungeeUtils.findServer(this.address.split(":")[0], Integer.parseInt(this.address.split(":")[1]));
+
+                        if (serv.getClient(server).isPresent() && optionnalServer.isPresent()) {
+                            Map<String, Object> map = new HashMap<>();
+                            map.put("message", args.get("message").getAsString());
+                            map.put("fromServer", BungeeUtils.getBungeeServer(optionnalServer.get()));
+
+                            serv.getClient(server).get().writeRaw(true, "customBungeeMessage", map);
+                        }
                         break;
                     }
 
@@ -314,15 +330,9 @@ public final class ClientServer {
                                     break;
                                 }
 
-                                Map<String, String> map = new HashMap<>();
-                                final ServerInfo server = player.getServer().getInfo();
+                                final Map<String, String> bungeeServ = BungeeUtils.getBungeeServer(player.getServer().getInfo());
 
-                                map.put("name", server.getName());
-                                map.put("address", server.getAddress().getAddress().getHostAddress());
-                                map.put("port", String.valueOf(server.getAddress().getPort()));
-                                map.put("motd", server.getMotd());
-
-                                argsMap.put("server", map);
+                                argsMap.put("server", bungeeServ);
                                 break;
                             }
                             case "expressionGetAllPlayersOnServer": {

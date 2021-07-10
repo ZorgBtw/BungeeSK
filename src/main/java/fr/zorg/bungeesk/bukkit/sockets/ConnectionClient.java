@@ -153,9 +153,21 @@ public final class ConnectionClient {
                                 () -> Bukkit.dispatchCommand(BungeeSK.getInstance().getServer().getConsoleSender(), args.get("command").getAsString()));
                         break;
                     }
+
                     case "broadcastMessage": {
                         Bukkit.getScheduler().runTask(BungeeSK.getInstance(),
                                 () -> Bukkit.broadcastMessage(args.get("message").getAsString()));
+                        break;
+                    }
+
+                    case "customBungeeMessage": {
+                        final JsonObject serverInfos = args.get("fromServer").getAsJsonObject();
+                        final BungeeServer server = new BungeeServer(serverInfos.get("address").getAsString(),
+                                serverInfos.get("port").getAsInt(),
+                                serverInfos.get("name").getAsString(),
+                                serverInfos.get("motd").getAsString());
+                        final Event event = new BungeeMessageReceiveEvent(server, args.get("message").getAsString());
+                        Bukkit.getScheduler().runTask(BungeeSK.getInstance(), () -> Bukkit.getPluginManager().callEvent(event));
                         break;
                     }
 
