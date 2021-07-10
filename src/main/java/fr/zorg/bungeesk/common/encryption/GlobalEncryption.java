@@ -26,7 +26,7 @@ public class GlobalEncryption {
                 || toDecrypt.equals("{\"args\":{\"status\":\"disconnect\"},\"action\":\"connectionInformation\"}"))
             return toDecrypt;
         try {
-            return new String(this.alice.decrypt(Base64.getDecoder().decode(toDecrypt), password.toCharArray()));
+            return new String(this.alice.decrypt(Base64.getDecoder().decode(toDecrypt), password.toCharArray()), StandardCharsets.UTF_8);
         } catch (GeneralSecurityException ex) {
             return "wrongPassword";
         }

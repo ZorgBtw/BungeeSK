@@ -8,6 +8,7 @@ import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
 import fr.zorg.bungeesk.bungee.utils.BungeeUtils;
 import fr.zorg.bungeesk.common.encryption.GlobalEncryption;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -180,6 +181,21 @@ public final class ClientServer {
                         if (!command.startsWith("/"))
                             command = "/" + command;
                         player.chat(command);
+                        break;
+                    }
+
+                    case "effectKickBungeePlayer": {
+                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("playerUniqueId").getAsString()));
+
+                        if (player == null || !(player.isConnected()))
+                            break;
+
+                        final String reason = args.get("reason").getAsString();
+                        if (reason.equalsIgnoreCase("NONE")) {
+                            player.disconnect();
+                            break;
+                        }
+                        player.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', reason)));
                         break;
                     }
 
