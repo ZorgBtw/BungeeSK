@@ -215,6 +215,13 @@ public final class ClientServer {
                         break;
                     }
 
+                    case "effectBroadcastMessageToNetwork": {
+                        final String message = args.get("message").getAsString();
+
+                        BungeeSK.getInstance().getProxy().broadcast(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message)));
+                        break;
+                    }
+
                     // Futures
 
                     case "futureGet": {
