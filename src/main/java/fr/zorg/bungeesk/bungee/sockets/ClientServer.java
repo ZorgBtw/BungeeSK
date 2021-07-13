@@ -9,6 +9,7 @@ import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
 import fr.zorg.bungeesk.bungee.utils.BungeeUtils;
 import fr.zorg.bungeesk.common.encryption.GlobalEncryption;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -219,6 +220,17 @@ public final class ClientServer {
                         final String message = args.get("message").getAsString();
 
                         BungeeSK.getInstance().getProxy().broadcast(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message)));
+                        break;
+                    }
+
+                    case "effectSendActionBar": {
+                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("playerUuid").getAsString()));
+
+                        if (player == null || !(player.isConnected())) {
+                            break;
+                        }
+
+                        player.sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', args.get("message").getAsString())));
                         break;
                     }
 
