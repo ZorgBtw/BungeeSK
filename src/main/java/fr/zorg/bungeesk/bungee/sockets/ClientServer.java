@@ -1,37 +1,40 @@
 package fr.zorg.bungeesk.bungee.sockets;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
-import fr.zorg.bungeesk.common.utils.Utils;
+import fr.zorg.bungeesk.bungee.storage.GlobalVariables;
+import fr.zorg.bungeesk.bungee.utils.BungeeUtils;
+import fr.zorg.bungeesk.common.encryption.GlobalEncryption;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
 public final class ClientServer {
 
     private final Socket socket;
-    private String name;
+    private String address;
     private final Thread readThread;
     private final BufferedReader reader;
     private final PrintWriter writer;
-    private final Map<String, LinkedList<CompletableFuture<String>>> toComplete;
-
+    private final GlobalEncryption encryption;
+    private final static Gson gson = new GsonBuilder().create();
+    private final String password;
 
     private boolean identified;
 
@@ -40,7 +43,8 @@ public final class ClientServer {
         this.identified = false;
         this.reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream(), StandardCharsets.UTF_8));
         this.writer = new PrintWriter(this.socket.getOutputStream(), true);
-        this.toComplete = new HashMap<>();
+        this.encryption = BungeeSK.getEncryption();
+        this.password = BungeeConfig.get().getPassword();
 
         this.readThread = new Thread(this::read);
         this.readThread.setDaemon(true);
@@ -52,49 +56,45 @@ public final class ClientServer {
             reader:
             while (this.isConnected()) {
                 String rawData = reader.readLine();
-                if (rawData == null) continue;
-                final Server server = BungeeSK.getInstance().getServer();
-                if (this.name == null) {
-                    final String data = BungeeSK.getInstance().getServer().encryption.decrypt(Utils.getMessage(rawData), false);
-                    if (!server.isClient(socket)) {
-                        if (!data.contains("µ")) {
+                if (rawData == null)
+                    continue;
+
+
+                final String data = this.encryption.decrypt(rawData, this.password);
+
+                if (data.equals("wrongPassword")) {
+                    this.disconnect();
+                    break reader;
+                }
+
+                final JsonParser jsonParser = new JsonParser();
+                final JsonObject jsonObject = jsonParser.parse(data).getAsJsonObject();
+
+                final String action = jsonObject.get("action").getAsString();
+                final Server serv = BungeeSK.getInstance().getServer();
+                final JsonObject args = jsonObject.get("args").getAsJsonObject();
+
+                if (this.address == null) {
+                    if (!serv.isClient(socket)) {
+                        this.address = args.get("address").getAsString();
+
+                        if (serv.isClient(this.address)) {
                             this.disconnect();
                             break;
                         }
-                        String[] datas = data.split("µ");
-                        if (datas.length != 2) {
-                            this.disconnect();
-                            break;
-                        }
-                        if (datas[0].startsWith("name="))
-                            this.name = datas[0].substring(5);
-                        else {
-                            this.disconnect();
-                            break;
-                        }
-                        if (server.getClient(this.name).isPresent()) {
-                            this.disconnect();
-                            break;
-                        }
-                        String password;
-                        if (datas[1].startsWith("password="))
-                            password = datas[1].substring(9);
-                        else {
-                            this.disconnect();
-                            break;
-                        }
-                        if (!server.isPassword(password)) {
+
+                        if (!serv.isPassword(args.get("password").getAsString())) {
                             this.disconnect();
                             break;
                         }
 
                         this.identified = true;
-                        server.addClient(this);
-                        BungeeSK.getInstance().getLogger().log(Level.INFO, "§6New server connected under name §a"
-                                + this.name
-                                + " §6with adress §a"
-                                + this.socket.getInetAddress().getHostAddress());
-                        this.write("CONNECTED_SUCCESSFULLYµ");
+                        serv.addClient(this);
+
+                        BungeeSK.getInstance().getLogger().log(Level.INFO, "§6New server connected under address §a"
+                                + this.address);
+
+                        this.write(true, "connectionInformation", "status", "connected");
 
                         if (BungeeConfig.get().isSendFilesAutoEnabled())
                             this.sendFiles();
@@ -106,162 +106,373 @@ public final class ClientServer {
                     continue;
                 }
 
-                final String data = BungeeSK.getInstance().getServer().encryption.decrypt(Utils.getMessage(rawData));
-                final String[] separateDatas = data.split("µ");
 
-                final String header = separateDatas[0];
-                String args = null;
-                if (separateDatas.length > 1)
-                    args = separateDatas[1];
+                switch (action) {
 
-                switch (header.toUpperCase()) {
-                    case "DISCONNECT": {
-                        BungeeSK.getInstance().getLogger().info("§6A server has been disconnected: §a" +
-                                this.getName() +
-                                " §6(§a" +
-                                this.getSocket().getInetAddress().getHostAddress() +
-                                "§6)"
-                        );
-                        this.forceDisconnect();
+                    // Connection management
+
+                    case "connectionInformation": {
+                        if (args.get("status").getAsString().equals("disconnect")) {
+                            BungeeSK.getInstance().getLogger().log(Level.INFO, "§6Server disconnected under address §c" + this.address);
+                            this.forceDisconnect();
+                        }
                         break reader;
                     }
 
-                    case "RETRIEVE_SKRIPTS": {
+                    //Global scripts
+
+                    case "sendFilesRequest": {
                         this.sendFiles();
                         break;
                     }
 
-                    case "EFFEXECUTECOMMAND": {
-                        if (args.equalsIgnoreCase("bungee"))
-                            BungeeSK.getInstance().getProxy().getPluginManager().dispatchCommand(BungeeSK.getInstance().getProxy().getConsole(), separateDatas[2]);
-                        else if (args.equalsIgnoreCase("all"))
-                            server.writeAll("CONSOLECOMMANDµ" + separateDatas[2]);
-                        else
-                            server.getClient(args).get().write("CONSOLECOMMANDµ" + separateDatas[2]);
+                    // Global variables
+
+                    case "setGlobalVariable": {
+                        GlobalVariables.get().setVar(args.get("varName").getAsString(), args.get("value").getAsString());
                         break;
                     }
 
-                    case "ALLBUNGEEPLAYERS": {
-                        if (BungeeSK.getInstance().getProxy().getPlayers().size() < 1) {
-                            this.write("ALLBUNGEEPLAYERSµNONE");
-                            break;
-                        }
-                        final StringBuilder builder = new StringBuilder("ALLBUNGEEPLAYERSµ");
-                        final Object lastPlayer = BungeeSK.getInstance().getProxy().getPlayers().toArray()[BungeeSK.getInstance().getProxy().getPlayers().size() - 1];
-                        for (final ProxiedPlayer player : BungeeSK.getInstance().getProxy().getPlayers()) {
-                            builder.append(player.getName()).append("$").append(player.getUniqueId().toString());
-                            if (!player.equals(lastPlayer)) builder.append("^");
-                        }
-                        this.write(builder.toString());
+                    case "deleteGlobalVariable": {
+                        System.out.println("aabbccdd");
+                        System.out.println("args.get(\"varName\").getAsString() = " + args.get("varName").getAsString());
+                        GlobalVariables.get().deleteVar(args.get("varName").getAsString());
                         break;
                     }
 
-                    case "PLAYERSERVER": {
-                        final net.md_5.bungee.api.connection.Server playerServer = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.split("\\$")[1])).getServer();
-                        if (playerServer == null) {
-                            this.write("PLAYERSERVERµ" + args + "^NONE");
-                            break;
-                        }
-                        this.write("PLAYERSERVERµ" + args + "^" + playerServer.getInfo().getName());
+                    // Effects
+
+                    case "effectExecuteCommand": {
+                        final String server = args.get("server").getAsString();
+                        final String command = args.get("command").getAsString();
+                        if (server.equals("bungeecord"))
+                            BungeeSK.getInstance().getProxy().getPluginManager().dispatchCommand(BungeeSK.getInstance().getProxy().getConsole(), command);
+
+                        else if (server.equals("all"))
+                            serv.writeAll(true, "executeConsoleCommand", "command", command);
+
+                        else if (serv.getClient(args.get("server").getAsString()).isPresent())
+                            serv.getClient(args.get("server").getAsString()).get().write(true, "executeConsoleCommand", "command", command);
+
                         break;
                     }
 
-                    case "ISCONNECTED": {
-                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.split("\\$")[1]));
-                        if (player != null && player.isConnected()) {
-                            this.write("ISCONNECTEDµ" + args + "^TRUE");
+                    case "effectBroadcastMessageToServer": {
+                        final String server = args.get("server").getAsString();
+                        final String message = args.get("message").getAsString();
+                        if (serv.getClient(server).isPresent()) {
+                            serv.getClient(server).get().write(true, "broadcastMessage",
+                                    "message", message);
+                        }
+                        break;
+                    }
+
+                    case "effectSendBungeePlayerToServer": {
+                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("playerUniqueId").getAsString()));
+                        final Optional<ServerInfo> optionalServer = BungeeUtils.findServer(args.get("serverAddress").getAsString(), args.get("serverPort").getAsInt());
+
+                        if (player == null || !(player.isConnected()) || !(optionalServer.isPresent()))
+                            break;
+
+                        player.connect(optionalServer.get());
+                        break;
+                    }
+
+                    case "effectSendMessageToBungeePlayer": {
+                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("playerUniqueId").getAsString()));
+
+                        if (player == null || !(player.isConnected()))
+                            break;
+
+                        player.sendMessage(TextComponent.fromLegacyText(args.get("message").getAsString()));
+                        break;
+                    }
+
+                    case "effectMakeBungeePlayerExecuteCommand": {
+                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("playerUniqueId").getAsString()));
+
+                        if (player == null || !(player.isConnected()))
+                            break;
+
+                        String command = args.get("command").getAsString();
+
+                        if (!command.startsWith("/"))
+                            command = "/" + command;
+                        player.chat(command);
+                        break;
+                    }
+
+                    case "effectKickBungeePlayer": {
+                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("playerUniqueId").getAsString()));
+
+                        if (player == null || !(player.isConnected()))
+                            break;
+
+                        final String reason = args.get("reason").getAsString();
+                        if (reason.equalsIgnoreCase("NONE")) {
+                            player.disconnect();
                             break;
                         }
-                        this.write("ISCONNECTEDµ" + args + "^FALSE");
+                        player.disconnect(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', reason)));
                         break;
                     }
-                    case "GETPLAYER": {
-                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(args);
-                        if (player != null && player.getUniqueId() != null) {
-                            this.write("GETPLAYERµ" + args + "$" + player.getUniqueId().toString());
+
+                    case "effectSendBungeeCustomMessage": {
+                        final String server = args.get("serverAddress").getAsString() + ":" + args.get("serverPort").getAsInt();
+
+                        final Optional<ServerInfo> optionnalServer = BungeeUtils.findServer(this.address.split(":")[0], Integer.parseInt(this.address.split(":")[1]));
+
+                        if (serv.getClient(server).isPresent() && optionnalServer.isPresent()) {
+                            Map<String, Object> map = new HashMap<>();
+                            map.put("message", args.get("message").getAsString());
+                            map.put("fromServer", BungeeUtils.getBungeeServer(optionnalServer.get()));
+
+                            serv.getClient(server).get().writeRaw(true, "customBungeeMessage", map);
+                        }
+                        break;
+                    }
+
+                    case "effectBroadcastMessageToNetwork": {
+                        final String message = args.get("message").getAsString();
+
+                        BungeeSK.getInstance().getProxy().broadcast(TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', message)));
+                        break;
+                    }
+
+                    case "effectSendActionBar": {
+                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("playerUuid").getAsString()));
+
+                        if (player == null || !(player.isConnected())) {
                             break;
                         }
-                        this.write("GETPLAYERµ" + args + "$NONE");
+
+                        player.sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', args.get("message").getAsString())));
                         break;
                     }
-                    case "SENDPLAYERMESSAGE": {
-                        final String message = args.split("\\^")[1];
-                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.split("\\^")[0].split("\\$")[1]));
-                        if (player != null && player.isConnected())
-                            player.sendMessage(TextComponent.fromLegacyText(message));
-                        break;
-                    }
-                    case "SENDTOSERV": {
-                        final String[] dataArray = args.split("\\^");
-                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(dataArray[0].split("\\$")[1]));
-                        if (player != null && player.isConnected()) {
-                            final ServerInfo toSend = BungeeSK.getInstance().getProxy().getServerInfo(dataArray[1]);
-                            if (toSend != null)
-                                player.connect(toSend);
-                        }
-                        break;
-                    }
-                    case "ALLBUNGEESERVERS": {
-                        final Map<String, ServerInfo> servers = BungeeSK.getInstance().getProxy().getServers();
-                        final StringBuilder builder = new StringBuilder("ALLBUNGEESERVERSµ");
-                        servers.forEach((s, serverInfo) -> builder.append(s).append("^"));
-                        this.write(builder.toString());
-                        break;
-                    }
-                    case "CLIENTREALNAME": {
-                        final SocketAddress address = new InetSocketAddress(args.split(":")[0], Integer.parseInt(args.split(":")[1]));
-                        final String finalArgs = args;
-                        BungeeSK.getInstance().getProxy().getServers().forEach((s, serverInfo) -> {
-                            if (serverInfo.getSocketAddress().equals(address))
-                                this.write("CLIENTREALNAMEµ" + finalArgs + "^" + s);
-                        });
-                        break;
-                    }
-                    case "ALLBUNGEEPLAYERSONSERVER": {
-                        final ServerInfo bungeeServ = BungeeSK.getInstance().getProxy().getServerInfo(args);
-                        if (bungeeServ == null || bungeeServ.getPlayers().toArray().length == 0) {
-                            this.write("ALLBUNGEEPLAYERSONSERVERµ" + args + "^NONE");
+
+                    case "effectSendBungeePlayerTitle": {
+                        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("playerUuid").getAsString()));
+
+                        if (player == null || !(player.isConnected())) {
                             break;
                         }
-                        final StringBuilder builder = new StringBuilder("ALLBUNGEEPLAYERSONSERVERµ" + args + "^");
-                        final Object lastPlayer = bungeeServ.getPlayers().toArray()[bungeeServ.getPlayers().size() - 1];
-                        for (final ProxiedPlayer player : bungeeServ.getPlayers()) {
-                            builder.append(player.getName()).append("$").append(player.getUniqueId().toString());
-                            if (!player.equals(lastPlayer)) builder.append("^");
+
+                        final Title title = BungeeSK.getInstance().getProxy().createTitle();
+                        if (!args.get("title").getAsString().equalsIgnoreCase("NONE")) {
+                            title.title(TextComponent.fromLegacyText(args.get("title").getAsString()));
                         }
-                        this.write(builder.toString());
+                        if (!args.get("subTitle").getAsString().equalsIgnoreCase("NONE")) {
+                            title.subTitle(TextComponent.fromLegacyText(args.get("subTitle").getAsString()));
+                        }
+                        if (!args.get("time").getAsString().equalsIgnoreCase("NONE")) {
+                            title.stay(args.get("time").getAsInt());
+                        }
+                        if (!args.get("fadeIn").getAsString().equalsIgnoreCase("NONE")) {
+                            title.fadeIn(args.get("fadeIn").getAsInt());
+                        }
+                        if (!args.get("fadeOut").getAsString().equalsIgnoreCase("NONE")) {
+                            title.fadeOut(args.get("fadeOut").getAsInt());
+                        }
+
+
+                        title.send(player);
                         break;
                     }
-                    case "BROADCASTTOSERV": {
-                        if (!server.getClient(separateDatas[1]).isPresent()) break;
-                        server.getClient(separateDatas[1]).get().write("BROADCASTµ" + separateDatas[2]);
+
+                    // Futures
+
+                    case "futureGet": {
+                        final String uuid = args.get("uuid").getAsString();
+                        final String localAction = args.get("action").getAsString();
+                        Map<String, Object> toSend = new HashMap<>();
+                        toSend.put("uuid", uuid);
+                        Map<String, Object> argsMap = new HashMap<>();
+                        boolean error = false;
+                        switch (localAction) {
+                            case "expressionGetBungeeServerFromName": {
+                                ServerInfo server = BungeeSK.getInstance().getProxy().getServerInfo(args.get("name").getAsString());
+
+                                if (server == null) {
+                                    error = true;
+                                    break;
+                                }
+
+                                argsMap.put("name", server.getName());
+                                argsMap.put("address", server.getAddress().getAddress().getHostAddress());
+                                argsMap.put("port", String.valueOf(server.getAddress().getPort()));
+                                argsMap.put("motd", server.getMotd());
+
+                                break;
+                            }
+
+                            case "expressionGetBungeeServerFromAddress": {
+                                final Optional<ServerInfo> optionalServer = BungeeUtils.findServer(args.get("address").getAsString(), args.get("port").getAsInt());
+
+                                if (!(optionalServer.isPresent())) {
+                                    error = true;
+                                    break;
+                                }
+
+                                final ServerInfo server = optionalServer.get();
+
+                                argsMap.put("name", server.getName());
+                                argsMap.put("address", server.getAddress().getAddress().getHostAddress());
+                                argsMap.put("port", String.valueOf(server.getAddress().getPort()));
+                                argsMap.put("motd", server.getMotd());
+
+                                break;
+                            }
+
+                            case "expressionGetAllBungeeServers": {
+                                if (BungeeSK.getInstance().getProxy().getServers().values().size() == 0) {
+                                    error = true;
+                                    break;
+                                }
+
+                                List<Map<String, String>> serverInfos = new ArrayList<>();
+                                for (ServerInfo server : BungeeSK.getInstance().getProxy().getServers().values()) {
+                                    Map<String, String> serverInfo = new HashMap<>();
+                                    serverInfo.put("name", server.getName());
+                                    serverInfo.put("address", server.getAddress().getAddress().getHostAddress());
+                                    serverInfo.put("port", String.valueOf(server.getAddress().getPort()));
+                                    serverInfo.put("motd", server.getMotd());
+                                    serverInfos.add(serverInfo);
+                                }
+                                argsMap.put("servers", serverInfos);
+                                break;
+                            }
+
+                            case "expressionGetBungeePlayerFromName": {
+                                final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(args.get("name").getAsString());
+
+                                if (player == null) {
+                                    error = true;
+                                    break;
+                                }
+
+                                argsMap.put("name", player.getName());
+                                argsMap.put("uniqueId", player.getUniqueId().toString());
+
+                                break;
+                            }
+
+                            case "expressionGetBungeePlayerFromUUID": {
+                                final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("uniqueId").getAsString()));
+
+                                if (player == null) {
+                                    error = true;
+                                    break;
+                                }
+
+                                argsMap.put("name", player.getName());
+                                argsMap.put("uniqueId", player.getUniqueId().toString());
+
+                                break;
+                            }
+
+                            case "expressionGetAllBungeePlayers": {
+                                if (BungeeSK.getInstance().getProxy().getPlayers().size() == 0) {
+                                    error = true;
+                                    break;
+                                }
+
+                                List<Map<String, String>> players = new ArrayList<>();
+                                BungeeSK.getInstance().getProxy().getPlayers().forEach(player -> {
+                                    Map<String, String> playerData = new HashMap<>();
+                                    playerData.put("name", player.getName());
+                                    playerData.put("uniqueId", player.getUniqueId().toString());
+                                    players.add(playerData);
+                                });
+                                argsMap.put("players", players);
+                                break;
+                            }
+                            case "expressionGetServerOfBungeePlayer": {
+                                final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("uniqueId").getAsString()));
+
+                                if (player == null) {
+                                    error = true;
+                                    break;
+                                }
+
+                                final Map<String, String> bungeeServ = BungeeUtils.getBungeeServer(player.getServer().getInfo());
+
+                                argsMap.put("server", bungeeServ);
+                                break;
+                            }
+                            case "expressionGetAllPlayersOnServer": {
+                                final Optional<ServerInfo> optionalServer = BungeeUtils.findServer(args.get("address").getAsString(), args.get("port").getAsInt());
+
+                                if (!(optionalServer.isPresent())) {
+                                    error = true;
+                                    break;
+                                }
+
+                                final ServerInfo server = optionalServer.get();
+
+                                List<Map<String, String>> players = new ArrayList<>();
+                                server.getPlayers().forEach(player -> {
+                                    Map<String, String> playerData = new HashMap<>();
+                                    playerData.put("name", player.getName());
+                                    playerData.put("uniqueId", player.getUniqueId().toString());
+                                    players.add(playerData);
+                                });
+
+                                argsMap.put("players", players);
+                                break;
+                            }
+                            case "expressionGetPlayerConnectionState": {
+                                final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("playerUniqueId").getAsString()));
+
+                                if (player == null || !(player.isConnected())) {
+                                    error = true;
+                                    break;
+                                }
+                            }
+                            case "expressionGetBungeePlayerIP": {
+                                final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("playerUniqueId").getAsString()));
+
+                                if (player == null || !(player.isConnected())) {
+                                    error = true;
+                                    break;
+                                }
+
+                                argsMap.put("address", player.getAddress().getAddress().getHostAddress());
+                                break;
+                            }
+                            case "getGlobalVariable": {
+                                argsMap.put("varName", args.get("varName").getAsString());
+                                argsMap.put("value", GlobalVariables.get().getVar(args.get("varName").getAsString()));
+                                break;
+                            }
+                        }
+                        argsMap.put("error", error);
+                        toSend.put("response", argsMap);
+                        this.writeRaw(true, "futureResponse", toSend);
                         break;
                     }
                 }
             }
         } catch (IOException e) {
+            e.printStackTrace();
             this.forceDisconnect();
         }
 
     }
 
     private void sendFiles() {
-        final List<String> result = BungeeSK.getInstance().filesToString();
-        result.add("END_SKRIPTS");
-        final String toString = String.join("™", result.toArray(new String[0]));
-        this.write("SEND_SKRIPTSµ" + toString);
+        final Map<String, String[]> files = BungeeSK.getInstance().filesToString();
+        this.writeRaw(true, "sendFiles", files);
     }
 
     public void disconnect() {
-        try {
-            if (!this.identified) {
-                if (this.name != null) {
-                    this.writer.println(Arrays.toString("ALREADY_CONNECTED".getBytes(StandardCharsets.UTF_8)));
-                } else
-                    this.writer.println(Arrays.toString("WRONG_PASSWORD".getBytes(StandardCharsets.UTF_8)));
-            } else
-                this.write("DISCONNECT");
-        } catch (final Exception ignored) {
+        if (!this.identified) {
+            if (this.address != null) {
+                this.write(false, "connectionInformation", "status", "alreadyConnected");
+            } else {
+                this.write(false, "connectionInformation", "status", "wrongPassword");
+            }
+        } else {
+            this.write(false, "connectionInformation", "status", "disconnect");
         }
         this.forceDisconnect();
     }
@@ -269,10 +480,10 @@ public final class ClientServer {
     public void forceDisconnect() {
         if (!this.socket.isClosed()) {
             try {
-                this.socket.close();
                 this.reader.close();
                 this.writer.close();
                 this.readThread.interrupt();
+                this.socket.close();
                 BungeeSK.getInstance().getServer().removeClient(this);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -284,48 +495,44 @@ public final class ClientServer {
         return this.socket;
     }
 
-    public void write(final String message) {
-        this.writer.println(Arrays.toString(BungeeSK.getInstance().getServer().encryption.encrypt(message).getBytes(StandardCharsets.UTF_8)));
+
+    public void write(final boolean encryption, final String action, final String... args) {
+        final Map<String, Object> map = new HashMap<>();
+        map.put("action", action);
+        final Map<String, String> argsMap = new HashMap<>();
+        for (int i = 0; i < args.length; i = i + 2) {
+            argsMap.put(args[i], args[i + 1]);
+        }
+        map.put("args", argsMap);
+        if (encryption) {
+            this.writer.println(this.encryption.encrypt(gson.toJson(map), this.password));
+            return;
+        }
+        this.writer.println(gson.toJson(map));
     }
 
-    @Nullable
-    public String getName() {
-        return this.name;
+    public void writeRaw(final boolean encryption, final String action, final Map<?, ?> argsMap) {
+        final Map<String, Object> map = new HashMap<>();
+        map.put("action", action);
+        map.put("args", argsMap);
+        if (encryption) {
+            this.writer.println(this.encryption.encrypt(gson.toJson(map), this.password));
+            return;
+        }
+        this.writer.println(gson.toJson(map));
+    }
+
+    public String getAddress() {
+        return this.address;
     }
 
     public boolean isConnected() {
         return this.socket != null && this.socket.isConnected() && !this.socket.isClosed();
     }
 
-    public Map<String, LinkedList<CompletableFuture<String>>> getToComplete() {
-        return this.toComplete;
+    public static Gson getGson() {
+        return gson;
     }
-
-    public void putFuture(final String key, final String value) {
-        LinkedList<CompletableFuture<String>> future = this.toComplete.get(key);
-        if (future != null && future.size() > 0) {
-            future.poll().complete(value);
-            if (future.size() == 0) this.toComplete.remove(key, future);
-        }
-    }
-
-    public String future(final String value) {
-        LinkedList<CompletableFuture<String>> futureList = new LinkedList<>();
-        if (this.toComplete.containsKey(value)) futureList = this.toComplete.get(value);
-        final CompletableFuture<String> future = new CompletableFuture<>();
-        futureList.add(future);
-        this.toComplete.put(value, futureList);
-        this.write(value);
-        String result;
-        try {
-            result = future.get(1, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            return null;
-        }
-        return result;
-    }
-
-
 }
 
 

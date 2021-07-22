@@ -4,7 +4,6 @@ public final class ClientSettings {
 
     private String address;
     private Long port;
-    private String name;
     private String password;
 
     public String getAddress() {
@@ -21,14 +20,6 @@ public final class ClientSettings {
 
     public void setPort(final Long port) {
         this.port = port;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
     }
 
     public String getPassword() {

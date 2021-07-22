@@ -10,45 +10,44 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
+import com.google.gson.JsonObject;
 import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
 import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.LinkedList;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-@Name("Bungee player from string")
+@Name("Bungee player from name")
 @Description("Get bungee player from his name")
-@Examples("set {_player} to bungee player \"Zorg\"")
-@Since("1.0.0")
-public class ExprBungeePlayerFromString extends SimpleExpression<BungeePlayer> {
+@Examples("set {_player} to bungee player named \"Zorg\"")
+@Since("1.0.0, 1.1.0: Add of 'named'")
+public class ExprBungeePlayerFromName extends SimpleExpression<BungeePlayer> {
 
     static {
-        Skript.registerExpression(ExprBungeePlayerFromString.class,
+        Skript.registerExpression(ExprBungeePlayerFromName.class,
                 BungeePlayer.class,
                 ExpressionType.SIMPLE,
-                "bungee[ ]player %string%");
+                "bungee[ ]player (with name|named) %string%");
     }
 
     private Expression<String> player;
 
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        player = (Expression<String>) exprs[0];
+        this.player = (Expression<String>) exprs[0];
         return true;
     }
 
     @Override
     protected BungeePlayer[] get(Event e) {
         if (BungeeSK.isClientConnected()) {
-            String result = ConnectionClient.get().future("GETPLAYERµ" + player.getSingle(e));
-            if (result.split("\\$")[1].equals("NONE")) return null;
-            return new BungeePlayer[] { new BungeePlayer(result.split("\\$")[0], result.split("\\$")[1]) };
+            final JsonObject result = ConnectionClient.get().future("expressionGetBungeePlayerFromName",
+                    "name", this.player.getSingle(e));
+
+            if (result.get("error").getAsBoolean())
+                return new BungeePlayer[0];
+
+            return new BungeePlayer[]{new BungeePlayer(result.get("name").getAsString(), result.get("uniqueId").getAsString())};
         }
         return new BungeePlayer[0];
     }
@@ -65,7 +64,7 @@ public class ExprBungeePlayerFromString extends SimpleExpression<BungeePlayer> {
 
     @Override
     public String toString(@Nullable Event e, boolean debug) {
-        return "bungee player " + player.toString(e, debug);
+        return "bungee player named " + this.player.toString(e, debug);
     }
 
 }

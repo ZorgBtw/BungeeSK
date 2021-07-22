@@ -11,34 +11,41 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
+import fr.zorg.bungeesk.bukkit.utils.BungeeServer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Broadcast message to server")
 @Description("Broadcasts a message to a server in the network")
-@Examples("broadcast \"&aHello world !\" to server \"hub\"")
-@Since("1.0.3")
+@Examples("broadcast \"&aHello world !\" to bungee server named \"hub\"")
+@Since("1.0.3 - 1.1.0: Usage of BungeeServer type")
 public class EffBroadcastMessageToServer extends Effect {
 
     static {
         Skript.registerEffect(EffBroadcastMessageToServer.class,
-                "broadcast %string% to server %string%");
+                "broadcast %string% to %bungeeserver%");
     }
 
     private Expression<String> message;
-    private Expression<String> server;
+    private Expression<BungeeServer> server;
 
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        message = (Expression<String>) exprs[0];
-        server = (Expression<String>) exprs[1];
+        this.message = (Expression<String>) exprs[0];
+        this.server = (Expression<BungeeServer>) exprs[1];
         return true;
     }
 
     @Override
     protected void execute(Event e) {
         if (BungeeSK.isClientConnected()) {
-            ConnectionClient.get().write("BROADCASTTOSERVµ" + server.getSingle(e) + "µ" + message.getSingle(e));
+
+            if (this.server.getSingle(e) == null)
+                return;
+
+            ConnectionClient.get().write(true, "effectBroadcastMessageToServer",
+                    "server", this.server.getSingle(e).getAddress() + ":" + this.server.getSingle(e).getPort(),
+                    "message", message.getSingle(e));
         }
     }
 

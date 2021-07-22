@@ -5,19 +5,19 @@ import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
-import fr.zorg.bungeesk.bukkit.BungeeSK;
-import org.jetbrains.annotations.Nullable;
-import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
-import org.bukkit.event.Event;
+import ch.njol.skript.lang.Effect;
+import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
+import fr.zorg.bungeesk.bukkit.BungeeSK;
+import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
 import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
-import ch.njol.skript.lang.Expression;
-import ch.njol.skript.lang.Effect;
+import org.bukkit.event.Event;
+import org.jetbrains.annotations.Nullable;
 
 @Name("Send message to bungee player")
 @Description("Send a message to a bungee player on the network")
-@Examples("send bungee message \"&6Hello !\" to bungee player \"Zorg_btw\"")
+@Examples("send bungee message \"&6Hello !\" to bungee player named \"Zorg_btw\"")
 @Since("1.0.0")
 public class EffSendMessage extends Effect {
 
@@ -36,7 +36,12 @@ public class EffSendMessage extends Effect {
 
     protected void execute(final Event e) {
         if (BungeeSK.isClientConnected()) {
-            ConnectionClient.get().write("SENDPLAYERMESSAGEµ" + player.getSingle(e).getData() + "^" + message.getSingle(e));
+            if (this.player.getSingle(e) == null)
+                return;
+
+            ConnectionClient.get().write(true, "effectSendMessageToBungeePlayer",
+                    "playerUniqueId", this.player.getSingle(e).getUuid(),
+                    "message", this.message.getSingle(e));
         }
     }
 

@@ -7,16 +7,12 @@ import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import ch.njol.util.coll.CollectionUtils;
-import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.sockets.ClientSettings;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.logging.Level;
-
 @Name("Password of connection")
-@Description("Set the password to connect to a bungeecord server." +
-        "NOTE: The password must not contain the 'µ' character")
+@Description("Set the password to connect to a bungeecord server.")
 @Since("1.0.0")
 @Examples("set password of {_connection} to \"abdc123\"")
 public class ExprPassword extends SimplePropertyExpression<ClientSettings, String> {

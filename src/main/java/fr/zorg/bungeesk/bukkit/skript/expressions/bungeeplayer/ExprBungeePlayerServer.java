@@ -6,40 +6,48 @@ import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
 import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
+import com.google.gson.JsonObject;
 import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
 import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
+import fr.zorg.bungeesk.bukkit.utils.BungeeServer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.LinkedList;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 @Name("Server of bungee player")
 @Description("Get the server of a player on the network. " +
-        "NOTE: Server can be get only 2 ticks or more after the bungee playar join event")
+        "NOTE: Server can be get only 2 ticks or more after the bungee player join event")
 @Examples("set {_server} to event-bungeeplayer's server\n")
-@Since("1.0.0")
-public class ExprBungeePlayerServer extends SimplePropertyExpression<BungeePlayer, String> {
+@Since("1.0.0, 1.1.0: Returns BungeeServer")
+public class ExprBungeePlayerServer extends SimplePropertyExpression<BungeePlayer, BungeeServer> {
 
     static {
         register(ExprBungeePlayerServer.class,
-                String.class,
+                BungeeServer.class,
                 "server",
                 "bungeeplayer");
     }
 
     @Nullable
     @Override
-    public String convert(BungeePlayer player) {
+    public BungeeServer convert(BungeePlayer player) {
         if (BungeeSK.isClientConnected()) {
-            String result = ConnectionClient.get().future("PLAYERSERVERµ" + player.getData());
+            if (player == null)
+                return null;
 
-            if (result.equals("NONE")) return null;
-            return result;
+            final JsonObject result = ConnectionClient.get().future("expressionGetServerOfBungeePlayer",
+                    "uniqueId", player.getUuid());
+
+            if (result.get("error").getAsBoolean())
+                return null;
+
+            final JsonObject jsonObject = result.get("server").getAsJsonObject();
+
+            return new BungeeServer(
+                    jsonObject.get("address").getAsString(),
+                    jsonObject.get("port").getAsInt(),
+                    jsonObject.get("name").getAsString(),
+                    jsonObject.get("motd").getAsString());
         }
         return null;
     }
@@ -50,8 +58,8 @@ public class ExprBungeePlayerServer extends SimplePropertyExpression<BungeePlaye
     }
 
     @Override
-    public Class<? extends String> getReturnType() {
-        return String.class;
+    public Class<? extends BungeeServer> getReturnType() {
+        return BungeeServer.class;
     }
 
     @Override

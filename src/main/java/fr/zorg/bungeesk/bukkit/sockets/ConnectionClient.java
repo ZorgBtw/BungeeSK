@@ -1,13 +1,14 @@
 package fr.zorg.bungeesk.bukkit.sockets;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.skript.events.bukkit.*;
-import fr.zorg.bungeesk.bukkit.updater.Commands;
-import fr.zorg.bungeesk.bukkit.updater.Updater;
 import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
-import fr.zorg.bungeesk.common.encryption.AESEncryption;
-import fr.zorg.bungeesk.common.utils.Utils;
-import org.apache.commons.io.FileUtils;
+import fr.zorg.bungeesk.bukkit.utils.BungeeServer;
+import fr.zorg.bungeesk.common.encryption.GlobalEncryption;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -15,7 +16,9 @@ import org.jetbrains.annotations.Nullable;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -35,16 +38,11 @@ public final class ConnectionClient {
 
         if (instance != null) {
             instance.disconnect();
-            try {
-                instance.finalize();
-                instance = null;
-            } catch (final Throwable throwable) {
-                throwable.printStackTrace();
-            }
+            instance = null;
         }
         try {
             final Socket socket = new Socket(settings.getAddress(), settings.getPort().intValue());
-            instance = new ConnectionClient(socket, settings.getName(), settings.getPassword());
+            instance = new ConnectionClient(socket, settings.getPassword());
         } catch (Exception e) {
             BungeeSK.getInstance().getLogger().log(Level.SEVERE, "BungeeSK couldn't find server with this address/port !");
         }
@@ -55,18 +53,23 @@ public final class ConnectionClient {
     private final Thread readThread;
     private final BufferedReader reader;
     private final PrintWriter writer;
+    private final String address;
+    private final String password;
+    private final static Gson gson = new GsonBuilder().create();
 
-    private final Map<String, LinkedList<CompletableFuture<String>>> toComplete;
+    private final Map<UUID, CompletableFuture<JsonObject>> toComplete;
 
-    private final AESEncryption encryption;
+    private final GlobalEncryption encryption;
 
-    private ConnectionClient(final Socket socket, final String name, final String password) throws IOException {
+    private ConnectionClient(final Socket socket, final String password) throws IOException {
         this.socket = socket;
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
         this.writer = new PrintWriter(socket.getOutputStream(), true);
         this.toComplete = new HashMap<>();
-        this.encryption = new AESEncryption(password, BungeeSK.getInstance().getLogger());
-        this.write("name=" + name + "µpassword=" + password);
+        this.address = socket.getInetAddress().toString() + ":" + BungeeSK.getInstance().getServer().getPort();
+        this.password = password;
+        this.encryption = BungeeSK.getEncryption();
+        this.write(true, "connectionRequest", "address", this.address.substring(1), "password", this.password);
         this.readThread = new Thread(this::read);
         this.readThread.setDaemon(true);
         this.readThread.start();
@@ -82,121 +85,123 @@ public final class ConnectionClient {
                     break;
                 }
 
-                final String data = this.encryption.decrypt(Utils.getMessage(rawData));
-                final String[] separateDatas = data.split("µ");
+                final String data = this.encryption.decrypt(rawData, this.password);
 
-                final String header = separateDatas[0];
-                final List<String> received = new ArrayList<>(Arrays.asList(separateDatas).subList(1, separateDatas.length));
-                switch (header.toUpperCase()) {
-                    case "ALREADY_CONNECTED": {
-                        BungeeSK.getInstance().getLogger().log(Level.WARNING, "§6Trying to connect to §c"
-                                + this.socket.getInetAddress().getHostAddress()
-                                + " §6and returned failure: §cServer already connected under this name !");
-                        this.disconnect();
-                        break;
-                    }
-                    case "WRONG_PASSWORD": {
-                        BungeeSK.getInstance().getLogger().log(Level.WARNING, "§6Trying to connect to §c"
-                                + this.socket.getInetAddress().getHostAddress()
-                                + " §6and returned failure: §cWrong password !");
-                        this.disconnect();
-                        break;
-                    }
-                    case "DISCONNECT": {
-                        this.disconnect();
-                        break;
-                    }
-                    case "CONNECTED_SUCCESSFULLY": {
-                        final Event event = new ClientConnectEvent();
-                        Bukkit.getScheduler().runTask(BungeeSK.getInstance(), () -> Bukkit.getPluginManager().callEvent(event));
-                        break;
-                    }
-                    case "SEND_SKRIPTS": {
-                        final String[] flux = received.get(0).split("™");
-                        final File folder = new File("plugins/Skript/scripts/BungeeSK");
-                        if (!folder.exists())
-                            folder.mkdirs();
-                        String file = null;
-                        byte[] content;
-                        File skript;
-                        for (final String line : flux) {
-                            if (line.equals("endFile")) {
-                                file = null;
-                            } else if (file == null && line.startsWith("newFile:")) {
-                                file = line.substring(8);
-                            } else if (file != null) {
-                                try {
-                                    content = Utils.fromBase64(line);
-                                    skript = new File(folder, file);
-                                    if (skript.exists())
-                                        skript.delete();
-                                    skript.createNewFile();
-                                    FileUtils.writeByteArrayToFile(skript, content);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            } else if (line.equals("END_SKRIPTS"))
-                                break;
+                final JsonObject jsonObject = new JsonParser().parse(data).getAsJsonObject();
+                final String action = jsonObject.get("action").getAsString();
+                final JsonObject args = jsonObject.get("args").getAsJsonObject();
+
+
+                switch (action) {
+
+                    // Connection
+
+                    case "connectionInformation": {
+                        if (args.get("status").getAsString().equals("wrongPassword")) {
+                            this.forceDisconnect();
+                            BungeeSK.getInstance().getLogger().log(Level.WARNING, "§6Trying to connect to §c"
+                                    + this.socket.getInetAddress().getHostAddress()
+                                    + " §6and returned failure: §cWrong password !");
+                        } else if (args.get("status").getAsString().equals("alreadyConnected")) {
+                            BungeeSK.getInstance().getLogger().log(Level.WARNING, "§6Trying to connect to §c"
+                                    + this.socket.getInetAddress().getHostAddress()
+                                    + " §6and returned failure: §cServer already connected under this address !");
+                            this.forceDisconnect();
+                        } else if (args.get("status").getAsString().equals("disconnect")) {
+                            this.disconnect();
+                        } else if (args.get("status").getAsString().equals("connected")) {
+                            Bukkit.getScheduler().runTask(BungeeSK.getInstance(), () -> Bukkit.getPluginManager().callEvent(new ClientConnectEvent()));
                         }
                         break;
                     }
-                    case "CONSOLECOMMAND": {
-                        Updater.get().getByClass(Commands.class).addCommandToSend(Bukkit.getConsoleSender(), separateDatas[1]);
-                        break;
-                    }
-                    case "LOGINEVENT": {
-                        final Event event = new BungeePlayerJoinEvent(new BungeePlayer(separateDatas[1], separateDatas[2]));
-                        Bukkit.getScheduler().runTask(BungeeSK.getInstance(), () -> Bukkit.getPluginManager().callEvent(event));
-                        break;
-                    }
-                    case "LEAVEEVENT": {
-                        final Event event = new BungeePlayerLeaveEvent(new BungeePlayer(separateDatas[1], separateDatas[2]));
-                        Bukkit.getScheduler().runTask(BungeeSK.getInstance(), () -> Bukkit.getPluginManager().callEvent(event));
-                        break;
-                    }
-                    case "ALLBUNGEEPLAYERS": {
-                        this.putFuture("ALLBUNGEEPLAYERSµ", separateDatas[1] + "^");
-                        break;
-                    }
-                    case "PLAYERSERVER": {
-                        final String[] dataArray = separateDatas[1].split("\\^");
-                        this.putFuture("PLAYERSERVERµ" + dataArray[0], dataArray[1]);
-                        break;
-                    }
-                    case "GETPLAYER": {
-                        final String player = separateDatas[1].split("\\$")[0];
-                        this.putFuture("GETPLAYERµ" + player, separateDatas[1]);
+
+                    // Global scripts
+
+                    case "sendFiles": {
+                        final File folder = new File("plugins/Skript/scripts/BungeeSK");
+                        if (!folder.exists())
+                            folder.mkdirs();
+
+                        args.entrySet().forEach(fileArg -> {
+                            try {
+                                File file = new File(folder, fileArg.getKey());
+                                if (file.exists())
+                                    file.delete();
+                                file.createNewFile();
+                                BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file));
+                                fileArg.getValue().getAsJsonArray().forEach(jsonElement -> {
+                                    try {
+                                        bufferedWriter.write(jsonElement.getAsString());
+                                        bufferedWriter.newLine();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                });
+                                bufferedWriter.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+                        });
                         break;
                     }
 
-                    case "ISCONNECTED": {
-                        final String[] dataArray = separateDatas[1].split("\\^");
-                        this.putFuture("ISCONNECTEDµ" + dataArray[0], dataArray[1]);
+                    // Executables
+
+                    case "executeConsoleCommand": {
+                        Bukkit.getScheduler().runTask(BungeeSK.getInstance(),
+                                () -> Bukkit.dispatchCommand(BungeeSK.getInstance().getServer().getConsoleSender(), args.get("command").getAsString()));
                         break;
                     }
 
-                    case "SERVERSWITCHEVENT": {
-                        final String[] dataArray = separateDatas[1].split("\\^");
-                        final BungeePlayer bungeePlayer = new BungeePlayer(dataArray[0].split("\\$")[0], dataArray[0].split("\\$")[1]);
-                        final Event event = new ServerSwitchEvent(bungeePlayer, dataArray[1]);
+                    case "broadcastMessage": {
+                        Bukkit.getScheduler().runTask(BungeeSK.getInstance(),
+                                () -> Bukkit.broadcastMessage(args.get("message").getAsString()));
+                        break;
+                    }
+
+                    case "customBungeeMessage": {
+                        final JsonObject serverInfos = args.get("fromServer").getAsJsonObject();
+                        final BungeeServer server = new BungeeServer(serverInfos.get("address").getAsString(),
+                                serverInfos.get("port").getAsInt(),
+                                serverInfos.get("name").getAsString(),
+                                serverInfos.get("motd").getAsString());
+                        final Event event = new BungeeMessageReceiveEvent(server, args.get("message").getAsString());
                         Bukkit.getScheduler().runTask(BungeeSK.getInstance(), () -> Bukkit.getPluginManager().callEvent(event));
                         break;
                     }
-                    case "ALLBUNGEESERVERS": {
-                        this.putFuture("ALLBUNGEESERVERSµ", separateDatas[1]);
+
+                    // Futures
+
+                    case "futureResponse": {
+                        final UUID uuid = UUID.fromString(args.get("uuid").getAsString());
+                        this.completeFuture(uuid, args.get("response").getAsJsonObject());
                         break;
                     }
-                    case "CLIENTREALNAME": {
-                        this.putFuture("CLIENTREALNAMEµ" + separateDatas[1].split("\\^")[0], separateDatas[1].split("\\^")[1]);
+
+                    // Events
+
+                    case "eventBungeePlayerConnect": {
+                        final Event event = new BungeePlayerJoinEvent(new BungeePlayer(args.get("name").getAsString(), args.get("uniqueId").getAsString()));
+                        Bukkit.getScheduler().runTask(BungeeSK.getInstance(), () -> Bukkit.getPluginManager().callEvent(event));
                         break;
                     }
-                    case "ALLBUNGEEPLAYERSONSERVER": {
-                        final String server = separateDatas[1].split("\\^")[0];
-                        this.putFuture("ALLBUNGEEPLAYERSONSERVERµ" + server, separateDatas[1]);
+                    case "eventBungeePlayerDisconnect": {
+                        final Event event = new BungeePlayerLeaveEvent(new BungeePlayer(args.get("name").getAsString(), args.get("uniqueId").getAsString()));
+                        Bukkit.getScheduler().runTask(BungeeSK.getInstance(), () -> Bukkit.getPluginManager().callEvent(event));
                         break;
                     }
-                    case "BROADCAST": {
-                        Bukkit.getScheduler().runTask(BungeeSK.getInstance(), () -> Bukkit.broadcastMessage(separateDatas[1]));
+                    case "eventBungeePlayerServerSwitch": {
+                        final BungeePlayer player = new BungeePlayer(args.get("player").getAsJsonObject().get("name").getAsString(),
+                                args.get("player").getAsJsonObject().get("uniqueId").getAsString());
+                        final JsonObject serverObj = args.get("server").getAsJsonObject();
+                        final BungeeServer server = new BungeeServer(serverObj.get("address").getAsString(),
+                                serverObj.get("port").getAsInt(),
+                                serverObj.get("name").getAsString(),
+                                serverObj.get("motd").getAsString());
+
+                        final Event event = new ServerSwitchEvent(player, server);
+                        Bukkit.getScheduler().runTask(BungeeSK.getInstance(), () -> Bukkit.getPluginManager().callEvent(event));
                         break;
                     }
                 }
@@ -209,7 +214,7 @@ public final class ConnectionClient {
 
     public void disconnect() {
         try {
-            this.writer.println(Arrays.toString("DISCONNECT".getBytes(StandardCharsets.UTF_8)));
+            this.write(false, "connectionInformation", "status", "disconnect");
             Bukkit.getScheduler().runTask(BungeeSK.getInstance(), () -> Bukkit.getPluginManager().callEvent(new ClientDisconnectEvent()));
         } catch (final Exception ignored) {
         }
@@ -219,10 +224,10 @@ public final class ConnectionClient {
     public void forceDisconnect() {
         try {
             if (!this.socket.isClosed()) {
-                this.socket.close();
                 this.reader.close();
                 this.writer.close();
                 this.readThread.interrupt();
+                this.socket.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -233,43 +238,81 @@ public final class ConnectionClient {
         return this.socket != null && this.socket.isConnected() && !this.socket.isClosed();
     }
 
-    public void write(final String message) {
-        this.writer.println(Arrays.toString(this.encryption.encrypt(message).getBytes(StandardCharsets.UTF_8)));
+    public void write(final boolean encryption, final String action, final String... args) {
+        final Map<String, Object> map = new HashMap<>();
+        map.put("action", action);
+        final Map<String, String> argsMap = new HashMap<>();
+        for (int i = 0; i < args.length; i = i + 2) {
+            argsMap.put(args[i], args[i + 1]);
+        }
+        map.put("args", argsMap);
+
+        if (encryption) {
+            final String toSend = this.encryption.encrypt(gson.toJson(map), this.password);
+            this.writer.println(toSend);
+            return;
+        }
+        this.writer.println(gson.toJson(map));
     }
 
-    public Map<String, LinkedList<CompletableFuture<String>>> getToComplete() {
+    public void writeRaw(final boolean encryption, final String action, final Map<?, ?> argsMap) {
+        final Map<String, Object> map = new HashMap<>();
+        map.put("action", action);
+        map.put("args", argsMap);
+
+        if (encryption) {
+            this.writer.println(this.encryption.encrypt(gson.toJson(map), this.password));
+            return;
+        }
+        this.writer.println(gson.toJson(map));
+    }
+
+    public Map<UUID, CompletableFuture<JsonObject>> getToComplete() {
         return this.toComplete;
     }
 
-    public void putFuture(final String key, final String value) {
-        LinkedList<CompletableFuture<String>> future = this.toComplete.get(key);
-        if (future != null && future.size() > 0) {
-            future.poll().complete(value);
-            if (future.size() == 0) this.toComplete.remove(key, future);
+    public void completeFuture(final UUID uuid, final JsonObject toComplete) {
+        CompletableFuture<JsonObject> future = this.toComplete.get(uuid);
+        if (future != null) {
+            future.complete(toComplete);
+            this.toComplete.remove(uuid);
         }
     }
 
-    public String future(final String value) {
-        LinkedList<CompletableFuture<String>> futureList = new LinkedList<>();
-        if (this.toComplete.containsKey(value)) futureList = this.toComplete.get(value);
-        final CompletableFuture<String> future = new CompletableFuture<>();
-        futureList.add(future);
-        this.toComplete.put(value, futureList);
-        this.write(value);
-        String result;
+    public JsonObject future(final String action, final String... args) {
+        final UUID randomUUID = UUID.randomUUID(); // Using a random UUID here to prevent from mixing between 2 actions at the same time
+        CompletableFuture<JsonObject> future = new CompletableFuture<>();
+        this.toComplete.put(randomUUID, future);
+
+        Map<String, String> map = new HashMap<>();
+
+        map.put("action", action);
+        map.put("uuid", randomUUID.toString());
+        if (args != null)
+            for (int i = 0; i < args.length; i = i + 2)
+                map.put(args[i], args[i + 1]);
+
+        this.writeRaw(true, "futureGet", map);
+
+        JsonObject jsonObject;
         try {
-            result = future.get(1, TimeUnit.SECONDS);
+            jsonObject = future.get(1, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            BungeeSK.getInstance().getLogger().log(Level.WARNING, "An error occurred during the get of something !");
             return null;
         }
-        return result;
+        return jsonObject;
     }
 
     public String getAddress() {
-        return this.socket.getInetAddress().getHostAddress();
+        return this.address;
     }
 
     public int getPort() {
         return this.socket.getPort();
+    }
+
+    public static Gson getGson() {
+        return gson;
     }
 }

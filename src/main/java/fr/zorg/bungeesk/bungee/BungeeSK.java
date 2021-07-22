@@ -1,34 +1,41 @@
 package fr.zorg.bungeesk.bungee;
 
+import com.rockaport.alice.AliceContext;
 import fr.zorg.bungeesk.bungee.listeners.LeaveEvent;
 import fr.zorg.bungeesk.bungee.listeners.LoginEvent;
 import fr.zorg.bungeesk.bungee.listeners.ServSwitchEvent;
 import fr.zorg.bungeesk.bungee.sockets.Server;
 import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
-import fr.zorg.bungeesk.common.utils.Utils;
+import fr.zorg.bungeesk.bungee.storage.GlobalVariables;
+import fr.zorg.bungeesk.bungee.utils.Metrics;
+import fr.zorg.bungeesk.common.encryption.GlobalEncryption;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
-import org.apache.commons.io.FileUtils;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 public class BungeeSK extends Plugin {
 
     public static BungeeSK instance;
+    private static GlobalEncryption encryption;
     private Server server;
     private PluginManager pm;
+    private Metrics metrics;
+    private GlobalVariables globalVariables;
 
     @Override
     public void onEnable() {
         instance = this;
+
+        this.metrics = new Metrics(this, 11146);
+
+        encryption = new GlobalEncryption(AliceContext.Algorithm.AES, 10);
         pm = getProxy().getPluginManager();
 
         this.getLogger().log(Level.INFO, ChatColor.GOLD + "BungeeSK has been successfully started !");
@@ -46,6 +53,7 @@ public class BungeeSK extends Plugin {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        this.globalVariables = new GlobalVariables();
     }
 
     @Override
@@ -53,22 +61,30 @@ public class BungeeSK extends Plugin {
         this.server.disconnect();
     }
 
-    public List<String> filesToString() {
+    public Map<String, String[]> filesToString() {
         final File folder = new File(this.getDataFolder().getAbsolutePath(), "common-skript");
         if (!folder.exists())
-            return new ArrayList<>();
+            return new HashMap<>();
         final FilenameFilter filter = (dir, name) -> !name.replaceAll("--", "").startsWith("-") && name.endsWith(".sk");
-        final ArrayList<String> list = new ArrayList<>();
+        final Map<String, String[]> map = new HashMap<>();
         for (final File file : folder.listFiles(filter)) {
-            list.add("newFile:" + file.getName());
             try {
-                list.add(Utils.toBase64(FileUtils.readFileToByteArray(file)));
-            } catch (IOException ignored) {
-
+                FileReader fr = new FileReader(file);
+                BufferedReader br = new BufferedReader(fr);
+                List<String> lines = new ArrayList<>();
+                int i = 0;
+                String line;
+                while ((line = br.readLine()) != null) {
+                    lines.add(line);
+                    i++;
+                }
+                fr.close();
+                map.put(file.getName(), lines.toArray(new String[0]));
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            list.add("endFile");
         }
-        return list;
+        return map;
     }
 
     public static BungeeSK getInstance() {
@@ -77,6 +93,10 @@ public class BungeeSK extends Plugin {
 
     public Server getServer() {
         return this.server;
+    }
+
+    public static GlobalEncryption getEncryption() {
+        return encryption;
     }
 
 }

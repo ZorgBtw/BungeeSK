@@ -1,14 +1,15 @@
 package fr.zorg.bungeesk.bungee.sockets;
 
-import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
-import fr.zorg.bungeesk.common.encryption.AESEncryption;
 import fr.zorg.bungeesk.common.utils.Utils;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public final class Server {
 
@@ -17,13 +18,11 @@ public final class Server {
     private final ServerSocket servSocket;
     private final Thread waitingConnection;
 
-    final AESEncryption encryption;
 
     public Server(final int port, final String passwd) throws IOException {
         this.password = passwd;
         this.clients = new ArrayList<>();
         this.servSocket = new ServerSocket(port);
-        this.encryption = new AESEncryption(passwd, BungeeSK.getInstance().getLogger());
 
         this.waitingConnection = new Thread(this::waitForConn);
         this.waitingConnection.setDaemon(true);
@@ -61,6 +60,10 @@ public final class Server {
         return this.clients.stream().anyMatch(client -> client.getSocket().equals(socket));
     }
 
+    public boolean isClient(final String address) {
+        return this.clients.stream().anyMatch(client -> client.getAddress().equals(address));
+    }
+
     public void removeClient(final ClientServer client) {
         this.clients.remove(client);
     }
@@ -75,20 +78,24 @@ public final class Server {
         this.clients.add(client);
     }
 
-    public Optional<ClientServer> getClient(final String name) {
-        return this.clients.stream().filter(client -> name.equalsIgnoreCase(client.getName())).findFirst();
+    public Optional<ClientServer> getClient(final String address) {
+        return this.clients.stream().filter(client -> client.getAddress().equalsIgnoreCase(address)).findFirst();
     }
 
     public void write(final String message, ClientServer... clients) {
         if (clients == null || clients.length == 0)
             clients = this.clients.toArray(new ClientServer[0]);
         for (final ClientServer client : clients) {
-            client.write(message);
+            client.write(true, message);
         }
     }
 
-    public void writeAll(final String message) {
-        this.clients.forEach(((ClientServer client) -> client.write(message)));
+    public void writeAll(final boolean encryption, final String action, final String... args) {
+        this.clients.forEach(client -> client.write(encryption, action, args));
+    }
+
+    public void writeRawAll(final boolean encryption, final String action, final Map<?, ?> argsMap) {
+        this.clients.forEach(client -> client.writeRaw(encryption, action, argsMap));
     }
 
     public List<ClientServer> getClients() {

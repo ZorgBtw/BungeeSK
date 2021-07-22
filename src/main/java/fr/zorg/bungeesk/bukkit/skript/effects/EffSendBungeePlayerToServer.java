@@ -12,34 +12,41 @@ import ch.njol.util.Kleenean;
 import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
 import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
+import fr.zorg.bungeesk.bukkit.utils.BungeeServer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Send bungee player to server")
 @Description("Send a player on the network to a specific server")
-@Examples("send bungee player \"Zorg_btw\" to server \"lobby2\"")
-@Since("1.0.0")
+@Examples("send bungee player named \"Zorg_btw\" to bungee server named \"lobby2\"")
+@Since("1.0.0 - 1.1.0: Usage of BungeeServer type")
 public class EffSendBungeePlayerToServer extends Effect {
 
     static {
         Skript.registerEffect(EffSendBungeePlayerToServer.class,
-                "send %bungeeplayer% to server %string%");
+                "send %bungeeplayer% to %bungeeserver%");
     }
 
     private Expression<BungeePlayer> player;
-    private Expression<String> server;
+    private Expression<BungeeServer> server;
 
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        player = (Expression<BungeePlayer>) exprs[0];
-        server = (Expression<String>) exprs[1];
+        this.player = (Expression<BungeePlayer>) exprs[0];
+        this.server = (Expression<BungeeServer>) exprs[1];
         return true;
     }
 
     @Override
     protected void execute(Event e) {
         if (BungeeSK.isClientConnected()) {
-            ConnectionClient.get().write("SENDTOSERVµ" + player.getSingle(e).getData() + "^" + server.getSingle(e));
+            if (this.player.getSingle(e) == null)
+                return;
+
+            ConnectionClient.get().write(true, "effectSendBungeePlayerToServer",
+                    "playerUniqueId", this.player.getSingle(e).getUuid(),
+                    "serverAddress", this.server.getSingle(e).getAddress(),
+                    "serverPort", String.valueOf(this.server.getSingle(e).getPort()));
         }
     }
 

@@ -11,57 +11,65 @@ import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
 import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
+import fr.zorg.bungeesk.bukkit.utils.BungeeServer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
 @Name("Execute console command")
 @Description("Make bungee or spigot execute command")
-@Since("1.0.0")
-@Examples({"make bungee console execute command \"alert This is an alert !\"",
-        "make server \"hub\" console execute command \"say Hi everyone !\""})
+@Since("1.0.0 - 1.1.0: Usage of BungeeServer type")
+@Examples({"make bungee execute console command \"alert This is an alert !\"",
+        "make bungee server named \"hub\" execute console command \"say Hi everyone !\""})
 
 public class EffExecuteCommand extends Effect {
 
     static {
         Skript.registerEffect(EffExecuteCommand.class,
-                "make bungee console execute command %string%",
-                "make server %string% console execute command %string%",
-                "make all servers console execute command %string%"
-
+                "make bungee[cord] [server] execute console command %string%",
+                "make %bungeeserver% execute console command %string%",
+                "make all servers execute console command %string%"
         );
     }
 
     private Expression<String> command;
-    private Expression<String> server;
+    private Expression<BungeeServer> server;
     private int pattern;
 
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        command = (Expression<String>) exprs[0];
         this.pattern = matchedPattern;
+
         if (this.pattern == 1) {
-            command = (Expression<String>) exprs[1];
-            server = (Expression<String>) exprs[0];
-        }
+            this.command = (Expression<String>) exprs[1];
+            this.server = (Expression<BungeeServer>) exprs[0];
+        } else
+            this.command = (Expression<String>) exprs[0];
+
         return true;
     }
 
     @Override
     protected void execute(Event e) {
         if (BungeeSK.isClientConnected()) {
-            String server = null;
+            String toSend = null;
             switch (this.pattern) {
                 case 0:
-                    server = "Bungee";
+                    toSend = "bungeecord";
                     break;
-                case 1:
-                    server = this.server.getSingle(e);
+                case 1: {
+                    if (this.server.getSingle(e) == null)
+                        return;
+                    toSend = this.server.getSingle(e).getAddress() + ":" + this.server.getSingle(e).getPort();
                     break;
+                }
                 case 2:
-                    server = "All";
+                    toSend = "all";
                     break;
             }
-            ConnectionClient.get().write("EffExecuteCommandµ" + server + "µ" + command.getSingle(e));
+
+            ConnectionClient.get().write(true, "effectExecuteCommand",
+                    "server", toSend,
+                    "command", this.command.getSingle(e));
         }
     }
 

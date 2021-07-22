@@ -17,46 +17,44 @@ import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-
-@Name("All of the bungee players")
-@Description("Returns every bungee player on the network")
-@Examples("loop all bungee players:\n" +
-        "\tsend \"%loop-value%\" is connected !")
-@Since("1.0.0")
-public class ExprAllBungeePlayers extends SimpleExpression<BungeePlayer> {
+@Name("Bungee player from uuid")
+@Description("Get bungee player from his uuid")
+@Examples("set {_player} to bungee player with uuid \"06c80842-1780-4c51-97bf-d37759bc4ed1\"")
+@Since("1.1.0")
+public class ExprBungeePlayerFromUuid extends SimpleExpression<BungeePlayer> {
 
     static {
-        Skript.registerExpression(ExprAllBungeePlayers.class, BungeePlayer.class, ExpressionType.SIMPLE,
-                "[(all [[of] the]|the)] bungee players");
+        Skript.registerExpression(ExprBungeePlayerFromUuid.class,
+                BungeePlayer.class,
+                ExpressionType.SIMPLE,
+                "bungee[ ]player with uuid %string%");
     }
+
+    private Expression<String> uuid;
 
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
+        this.uuid = (Expression<String>) exprs[0];
         return true;
     }
 
     @Override
-    protected @Nullable BungeePlayer[] get(Event e) {
+    protected BungeePlayer[] get(Event e) {
         if (BungeeSK.isClientConnected()) {
-            final JsonObject result = ConnectionClient.get().future("expressionGetAllBungeePlayers");
+            final JsonObject result = ConnectionClient.get().future("expressionGetBungeePlayerFromUUID",
+                    "uniqueId", this.uuid.getSingle(e));
 
             if (result.get("error").getAsBoolean())
                 return new BungeePlayer[0];
 
-            List<BungeePlayer> players = new ArrayList<>();
-            result.get("players").getAsJsonArray().forEach(player -> {
-                players.add(new BungeePlayer(player.getAsJsonObject().get("name").getAsString(), player.getAsJsonObject().get("uniqueId").getAsString()));
-            });
-            return players.toArray(new BungeePlayer[0]);
+            return new BungeePlayer[]{new BungeePlayer(result.get("name").getAsString(), result.get("uniqueId").getAsString())};
         }
         return new BungeePlayer[0];
     }
 
     @Override
     public boolean isSingle() {
-        return false;
+        return true;
     }
 
     @Override
@@ -66,7 +64,7 @@ public class ExprAllBungeePlayers extends SimpleExpression<BungeePlayer> {
 
     @Override
     public String toString(@Nullable Event e, boolean debug) {
-        return "every bungee player";
+        return "bungee player with uuid " + this.uuid.toString(e, debug);
     }
 
 }

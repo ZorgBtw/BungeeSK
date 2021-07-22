@@ -6,6 +6,7 @@ import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
 import fr.zorg.bungeesk.bukkit.skript.events.bukkit.ServerSwitchEvent;
 import fr.zorg.bungeesk.bukkit.utils.BungeePlayer;
+import fr.zorg.bungeesk.bukkit.utils.BungeeServer;
 import org.jetbrains.annotations.Nullable;
 
 public class EvtServerSwitch {
@@ -26,10 +27,10 @@ public class EvtServerSwitch {
             }
         }, 0);
 
-        EventValues.registerEventValue(ServerSwitchEvent.class, String.class, new Getter<String, ServerSwitchEvent>() {
+        EventValues.registerEventValue(ServerSwitchEvent.class, BungeeServer.class, new Getter<BungeeServer, ServerSwitchEvent>() {
             @Nullable
             @Override
-            public String get(ServerSwitchEvent e) {
+            public BungeeServer get(ServerSwitchEvent e) {
                 return e.getServer();
             }
         }, 0);

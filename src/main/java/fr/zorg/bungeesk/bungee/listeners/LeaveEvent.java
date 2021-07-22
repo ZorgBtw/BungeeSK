@@ -9,9 +9,9 @@ public class LeaveEvent implements Listener {
 
     @EventHandler
     public void onLeave(PlayerDisconnectEvent e) {
-        String[] data = {e.getPlayer().getName(),
-                e.getPlayer().getUniqueId().toString()};
-        BungeeSK.getInstance().getServer().writeAll("LeaveEventµ" + String.join("µ", data));
+        BungeeSK.getInstance().getServer().writeAll(true, "eventBungeePlayerDisconnect",
+                "name", e.getPlayer().getName(),
+                "uniqueId", e.getPlayer().getUniqueId().toString());
     }
 
 }

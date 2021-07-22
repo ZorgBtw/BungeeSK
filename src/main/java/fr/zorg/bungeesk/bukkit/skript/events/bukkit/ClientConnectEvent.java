@@ -7,7 +7,8 @@ public class ClientConnectEvent extends Event {
 
     public static final HandlerList handlers = new HandlerList();
 
-    public ClientConnectEvent() { }
+    public ClientConnectEvent() {
+    }
 
     public static HandlerList getHandlerList() {
         return handlers;

@@ -5,6 +5,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.config.Node;
 import ch.njol.skript.config.SectionNode;
 import ch.njol.skript.lang.*;
+import ch.njol.skript.lang.parser.ParserInstance;
 import ch.njol.skript.log.*;
 import ch.njol.util.Kleenean;
 import ch.njol.util.StringUtils;
@@ -163,13 +164,14 @@ public abstract class EffectSection extends Condition {
      */
     public void loadSection(String name, boolean setNext, Class<? extends Event>... events) {
         if (section != null && name != null && events != null && events.length > 0) {
-            String previousName = ScriptLoader.getCurrentEventName();
-            Class<? extends Event>[] previousEvents = ScriptLoader.getCurrentEvents();
-            Kleenean previousDelay = ScriptLoader.hasDelayBefore;
-            ScriptLoader.setCurrentEvent(name, events);
+            final ParserInstance instance = ParserInstance.get();
+            String previousName = instance.getCurrentEventName();
+            Class<? extends Event>[] previousEvents = instance.getCurrentEvents();
+            Kleenean previousDelay = instance.getHasDelayBefore();
+            instance.setCurrentEvent(name, events);
             loadSection(setNext);
-            ScriptLoader.setCurrentEvent(previousName, previousEvents);
-            ScriptLoader.hasDelayBefore = previousDelay;
+            instance.setCurrentEvent(previousName, previousEvents);
+            instance.setHasDelayBefore(previousDelay);
         }
     }
 
