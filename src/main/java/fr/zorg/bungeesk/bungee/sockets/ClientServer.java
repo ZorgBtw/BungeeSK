@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
+import fr.zorg.bungeesk.bungee.storage.GlobalVariables;
 import fr.zorg.bungeesk.bungee.utils.BungeeUtils;
 import fr.zorg.bungeesk.common.encryption.GlobalEncryption;
 import net.md_5.bungee.api.ChatColor;
@@ -122,6 +123,20 @@ public final class ClientServer {
 
                     case "sendFilesRequest": {
                         this.sendFiles();
+                        break;
+                    }
+
+                    // Global variables
+
+                    case "setGlobalVariable": {
+                        GlobalVariables.get().setVar(args.get("varName").getAsString(), args.get("value").getAsString());
+                        break;
+                    }
+
+                    case "deleteGlobalVariable": {
+                        System.out.println("aabbccdd");
+                        System.out.println("args.get(\"varName\").getAsString() = " + args.get("varName").getAsString());
+                        GlobalVariables.get().deleteVar(args.get("varName").getAsString());
                         break;
                     }
 
@@ -422,6 +437,11 @@ public final class ClientServer {
                                 }
 
                                 argsMap.put("address", player.getAddress().getAddress().getHostAddress());
+                                break;
+                            }
+                            case "getGlobalVariable": {
+                                argsMap.put("varName", args.get("varName").getAsString());
+                                argsMap.put("value", GlobalVariables.get().getVar(args.get("varName").getAsString()));
                                 break;
                             }
                         }

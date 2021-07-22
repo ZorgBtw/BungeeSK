@@ -6,6 +6,7 @@ import fr.zorg.bungeesk.bungee.listeners.LoginEvent;
 import fr.zorg.bungeesk.bungee.listeners.ServSwitchEvent;
 import fr.zorg.bungeesk.bungee.sockets.Server;
 import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
+import fr.zorg.bungeesk.bungee.storage.GlobalVariables;
 import fr.zorg.bungeesk.bungee.utils.Metrics;
 import fr.zorg.bungeesk.common.encryption.GlobalEncryption;
 import net.md_5.bungee.api.ChatColor;
@@ -26,12 +27,14 @@ public class BungeeSK extends Plugin {
     private Server server;
     private PluginManager pm;
     private Metrics metrics;
+    private GlobalVariables globalVariables;
 
     @Override
     public void onEnable() {
+        instance = this;
+
         this.metrics = new Metrics(this, 11146);
 
-        instance = this;
         encryption = new GlobalEncryption(AliceContext.Algorithm.AES, 10);
         pm = getProxy().getPluginManager();
 
@@ -50,6 +53,7 @@ public class BungeeSK extends Plugin {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        this.globalVariables = new GlobalVariables();
     }
 
     @Override
