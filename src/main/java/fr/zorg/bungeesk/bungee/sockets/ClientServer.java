@@ -134,8 +134,6 @@ public final class ClientServer {
                     }
 
                     case "deleteGlobalVariable": {
-                        System.out.println("aabbccdd");
-                        System.out.println("args.get(\"varName\").getAsString() = " + args.get("varName").getAsString());
                         GlobalVariables.get().deleteVar(args.get("varName").getAsString());
                         break;
                     }
