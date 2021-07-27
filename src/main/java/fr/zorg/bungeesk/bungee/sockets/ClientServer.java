@@ -458,6 +458,16 @@ public final class ClientServer {
                                 argsMap.put("value", GlobalVariables.get().getVar(args.get("varName").getAsString()));
                                 break;
                             }
+                            case "conditionDoesBungeePlayerHavePermission": {
+                                final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("playerUuid").getAsString()));
+
+                                if (player == null || !(player.isConnected()) || player.hasPermission(args.get("permission").getAsString())) {
+                                    error = true;
+                                    break;
+                                }
+
+                                break;
+                            }
                         }
                         argsMap.put("error", error);
                         toSend.put("response", argsMap);
