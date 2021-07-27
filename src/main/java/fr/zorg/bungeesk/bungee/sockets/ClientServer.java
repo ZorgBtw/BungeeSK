@@ -11,6 +11,7 @@ import fr.zorg.bungeesk.bungee.utils.BungeeUtils;
 import fr.zorg.bungeesk.common.encryption.GlobalEncryption;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -20,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -274,6 +276,20 @@ public final class ClientServer {
 
 
                         title.send(player);
+                        break;
+                    }
+
+                    case "effectAddDynamicServer": {
+                        final ServerInfo infos = ProxyServer.getInstance().constructServerInfo(args.get("name").getAsString(),
+                                new InetSocketAddress(args.get("address").getAsString(), args.get("port").getAsInt()),
+                                args.get("motd").getAsString(), false);
+
+                        ProxyServer.getInstance().getServers().put(args.get("name").getAsString(), infos);
+                        break;
+                    }
+
+                    case "effectDeleteServerFromBungee": {
+                        ProxyServer.getInstance().getServers().remove(args.get("name").getAsString());
                         break;
                     }
 
