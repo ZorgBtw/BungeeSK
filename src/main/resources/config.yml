@@ -15,7 +15,7 @@
 
 #The port where the server should listen to.
 #This port has to be opened in your firewall if your servers are on different machines.
-port: 100
+port: 20000
 
 #The password
 password:
