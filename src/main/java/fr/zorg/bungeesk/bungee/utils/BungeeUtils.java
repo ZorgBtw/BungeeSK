@@ -1,7 +1,6 @@
 package fr.zorg.bungeesk.bungee.utils;
 
 import fr.zorg.bungeesk.bungee.BungeeSK;
-import fr.zorg.bungeesk.bungee.sockets.Server;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.config.Configuration;
 

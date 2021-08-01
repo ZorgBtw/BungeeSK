@@ -35,10 +35,6 @@ public class BungeeConfig {
     private transient File file;
     private transient Configuration config;
 
-
-    private BungeeConfig() {
-    }
-
     public void load() {
         this.file = new File(BungeeSK.getInstance().getDataFolder(), "config.yml");
         if (!BungeeSK.getInstance().getDataFolder().exists())
