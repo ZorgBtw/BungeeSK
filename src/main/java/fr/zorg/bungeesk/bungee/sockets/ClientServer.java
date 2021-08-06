@@ -437,10 +437,9 @@ public final class ClientServer {
                             case "expressionGetPlayerConnectionState": {
                                 final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("playerUniqueId").getAsString()));
 
-                                if (player == null || !(player.isConnected())) {
+                                if (player == null || !(player.isConnected()))
                                     error = true;
-                                    break;
-                                }
+                                break;
                             }
                             case "expressionGetBungeePlayerIP": {
                                 final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("playerUniqueId").getAsString()));
