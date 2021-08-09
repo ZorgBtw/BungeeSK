@@ -53,13 +53,15 @@ public class GlobalVariables {
     }
 
     private void saveConfig() {
-        try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(this.variablesFile));
-            this.gson.toJson(this.globalVariables, bw);
-            bw.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        BungeeSK.getInstance().getProxy().getScheduler().runAsync(BungeeSK.getInstance(), () -> {
+            try {
+                BufferedWriter bw = new BufferedWriter(new FileWriter(this.variablesFile));
+                this.gson.toJson(this.globalVariables, bw);
+                bw.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 
 }
