@@ -460,7 +460,7 @@ public final class ClientServer {
                             case "conditionDoesBungeePlayerHavePermission": {
                                 final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(UUID.fromString(args.get("playerUuid").getAsString()));
 
-                                if (player == null || !(player.isConnected()) || player.hasPermission(args.get("permission").getAsString())) {
+                                if (player == null || !(player.isConnected()) || !player.hasPermission(args.get("permission").getAsString())) {
                                     error = true;
                                     break;
                                 }
