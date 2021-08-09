@@ -60,7 +60,6 @@ public class ExprAllPlayersOnServer extends SimpleExpression<BungeePlayer> {
 
             List<BungeePlayer> players = new ArrayList<>();
             result.get("players").getAsJsonArray().forEach(player -> {
-                System.out.println("player.getAsJsonObject().get(\"name\").getAsString() = " + player.getAsJsonObject().get("name").getAsString());
                 players.add(new BungeePlayer(player.getAsJsonObject().get("name").getAsString(), player.getAsJsonObject().get("uniqueId").getAsString()));
             });
 

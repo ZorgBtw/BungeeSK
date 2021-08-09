@@ -40,7 +40,6 @@ public class EffKickBungeePlayer extends Effect {
         if (BungeeSK.isClientConnected()) {
             if (this.player.getSingle(e) == null)
                 return;
-            System.out.println("this.reason.getSingle(e) = " + this.reason.getSingle(e));
             ConnectionClient.get().write(true, "effectKickBungeePlayer",
                     "playerUniqueId", this.player.getSingle(e).getUuid(),
                     "reason", (this.reason == null ? "NONE" : this.reason.getSingle(e)));
