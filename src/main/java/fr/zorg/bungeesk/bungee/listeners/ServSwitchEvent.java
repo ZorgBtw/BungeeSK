@@ -13,7 +13,7 @@ public class ServSwitchEvent implements Listener {
 
     @EventHandler
     public void onSwitch(ServerSwitchEvent e) {
-        if (e.getFrom() == null) return;
+        if (e.getFrom() == null || e.getFrom().getAddress() == null) return;
 
 
         final ServerInfo server = e.getFrom();
