@@ -454,7 +454,7 @@ public final class ClientServer {
                             }
                         }
                         toComplete.addProperty("error", error);
-                        toSend.add("response", args);
+                        toSend.add("response", toComplete);
                         this.writeRaw(true, "futureResponse", toSend);
                         break;
                     }
