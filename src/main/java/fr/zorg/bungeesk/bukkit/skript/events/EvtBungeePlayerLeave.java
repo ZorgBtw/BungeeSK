@@ -12,7 +12,7 @@ public class EvtBungeePlayerLeave {
 
     static {
         Skript.registerEvent("bungee player leave", SimpleEvent.class, BungeePlayerLeaveEvent.class,
-                "bungee [player] (leave|quit)")
+                        "bungee [player] (leave|quit)")
                 .description("When a bungee player leaves the network")
                 .examples("on bungee player leave:", "\tset {_player} to event-bungeeplayer")
                 .since("1.0.0");

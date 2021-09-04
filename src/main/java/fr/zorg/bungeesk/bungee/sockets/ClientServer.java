@@ -1,9 +1,6 @@
 package fr.zorg.bungeesk.bungee.sockets;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
 import fr.zorg.bungeesk.bungee.storage.GlobalVariables;
@@ -24,7 +21,10 @@ import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 
 public final class ClientServer {
@@ -223,11 +223,11 @@ public final class ClientServer {
                         final Optional<ServerInfo> optionnalServer = BungeeUtils.findServer(this.address.split(":")[0], Integer.parseInt(this.address.split(":")[1]));
 
                         if (serv.getClient(server).isPresent() && optionnalServer.isPresent()) {
-                            Map<String, Object> map = new HashMap<>();
-                            map.put("message", args.get("message").getAsString());
-                            map.put("fromServer", BungeeUtils.getBungeeServer(optionnalServer.get()));
+                            final JsonObject message = new JsonObject();
+                            message.addProperty("message", args.get("message").getAsString());
+                            message.add("fromServer", BungeeUtils.getBungeeServer(optionnalServer.get()));
 
-                            serv.getClient(server).get().writeRaw(true, "customBungeeMessage", map);
+                            serv.getClient(server).get().writeRaw(true, "customBungeeMessage", message);
                         }
                         break;
                     }
@@ -298,23 +298,20 @@ public final class ClientServer {
                     case "futureGet": {
                         final String uuid = args.get("uuid").getAsString();
                         final String localAction = args.get("action").getAsString();
-                        Map<String, Object> toSend = new HashMap<>();
-                        toSend.put("uuid", uuid);
-                        Map<String, Object> argsMap = new HashMap<>();
+                        final JsonObject toSend = new JsonObject();
+                        toSend.addProperty("uuid", uuid);
+                        JsonObject toComplete = new JsonObject();
                         boolean error = false;
                         switch (localAction) {
                             case "expressionGetBungeeServerFromName": {
-                                ServerInfo server = BungeeSK.getInstance().getProxy().getServerInfo(args.get("name").getAsString());
+                                final ServerInfo server = BungeeSK.getInstance().getProxy().getServerInfo(args.get("name").getAsString());
 
                                 if (server == null) {
                                     error = true;
                                     break;
                                 }
 
-                                argsMap.put("name", server.getName());
-                                argsMap.put("address", server.getAddress().getAddress().getHostAddress());
-                                argsMap.put("port", String.valueOf(server.getAddress().getPort()));
-                                argsMap.put("motd", server.getMotd());
+                                toComplete = BungeeUtils.getBungeeServer(server);
 
                                 break;
                             }
@@ -326,13 +323,7 @@ public final class ClientServer {
                                     error = true;
                                     break;
                                 }
-
-                                final ServerInfo server = optionalServer.get();
-
-                                argsMap.put("name", server.getName());
-                                argsMap.put("address", server.getAddress().getAddress().getHostAddress());
-                                argsMap.put("port", String.valueOf(server.getAddress().getPort()));
-                                argsMap.put("motd", server.getMotd());
+                                toComplete = BungeeUtils.getBungeeServer(optionalServer.get());
 
                                 break;
                             }
@@ -343,16 +334,11 @@ public final class ClientServer {
                                     break;
                                 }
 
-                                List<Map<String, String>> serverInfos = new ArrayList<>();
-                                for (ServerInfo server : BungeeSK.getInstance().getProxy().getServers().values()) {
-                                    Map<String, String> serverInfo = new HashMap<>();
-                                    serverInfo.put("name", server.getName());
-                                    serverInfo.put("address", server.getAddress().getAddress().getHostAddress());
-                                    serverInfo.put("port", String.valueOf(server.getAddress().getPort()));
-                                    serverInfo.put("motd", server.getMotd());
-                                    serverInfos.add(serverInfo);
-                                }
-                                argsMap.put("servers", serverInfos);
+                                final JsonArray servers = new JsonArray();
+                                BungeeSK.getInstance().getProxy().getServers().values().forEach(serverInfo ->
+                                        servers.add(BungeeUtils.getBungeeServer(serverInfo))
+                                );
+                                toComplete.add("servers", servers);
                                 break;
                             }
 
@@ -364,8 +350,8 @@ public final class ClientServer {
                                     break;
                                 }
 
-                                argsMap.put("name", player.getName());
-                                argsMap.put("uniqueId", player.getUniqueId().toString());
+                                toComplete.addProperty("name", player.getName());
+                                toComplete.addProperty("uniqueId", player.getUniqueId().toString());
 
                                 break;
                             }
@@ -378,8 +364,8 @@ public final class ClientServer {
                                     break;
                                 }
 
-                                argsMap.put("name", player.getName());
-                                argsMap.put("uniqueId", player.getUniqueId().toString());
+                                toComplete.addProperty("name", player.getName());
+                                toComplete.addProperty("uniqueId", player.getUniqueId().toString());
 
                                 break;
                             }
@@ -390,14 +376,15 @@ public final class ClientServer {
                                     break;
                                 }
 
-                                List<Map<String, String>> players = new ArrayList<>();
+                                final JsonArray players = new JsonArray();
+
                                 BungeeSK.getInstance().getProxy().getPlayers().forEach(player -> {
-                                    Map<String, String> playerData = new HashMap<>();
-                                    playerData.put("name", player.getName());
-                                    playerData.put("uniqueId", player.getUniqueId().toString());
+                                    final JsonObject playerData = new JsonObject();
+                                    playerData.addProperty("name", player.getName());
+                                    playerData.addProperty("uniqueId", player.getUniqueId().toString());
                                     players.add(playerData);
                                 });
-                                argsMap.put("players", players);
+                                toComplete.add("players", players);
                                 break;
                             }
                             case "expressionGetServerOfBungeePlayer": {
@@ -408,9 +395,9 @@ public final class ClientServer {
                                     break;
                                 }
 
-                                final Map<String, String> bungeeServ = BungeeUtils.getBungeeServer(player.getServer().getInfo());
+                                final JsonObject serverInfos = BungeeUtils.getBungeeServer(player.getServer().getInfo());
 
-                                argsMap.put("server", bungeeServ);
+                                toComplete.add("server", serverInfos);
                                 break;
                             }
                             case "expressionGetAllPlayersOnServer": {
@@ -421,17 +408,15 @@ public final class ClientServer {
                                     break;
                                 }
 
-                                final ServerInfo server = optionalServer.get();
-
-                                List<Map<String, String>> players = new ArrayList<>();
-                                server.getPlayers().forEach(player -> {
-                                    Map<String, String> playerData = new HashMap<>();
-                                    playerData.put("name", player.getName());
-                                    playerData.put("uniqueId", player.getUniqueId().toString());
+                                final JsonArray players = new JsonArray();
+                                optionalServer.get().getPlayers().forEach(player -> {
+                                    final JsonObject playerData = new JsonObject();
+                                    playerData.addProperty("name", player.getName());
+                                    playerData.addProperty("uniqueId", player.getUniqueId().toString());
                                     players.add(playerData);
                                 });
 
-                                argsMap.put("players", players);
+                                toComplete.add("players", players);
                                 break;
                             }
                             case "expressionGetPlayerConnectionState": {
@@ -449,12 +434,12 @@ public final class ClientServer {
                                     break;
                                 }
 
-                                argsMap.put("address", player.getAddress().getAddress().getHostAddress());
+                                toComplete.addProperty("address", player.getAddress().getAddress().getHostAddress());
                                 break;
                             }
                             case "getGlobalVariable": {
-                                argsMap.put("varName", args.get("varName").getAsString());
-                                argsMap.put("value", GlobalVariables.get().getVar(args.get("varName").getAsString()));
+                                toComplete.addProperty("varName", args.get("varName").getAsString());
+                                toComplete.addProperty("value", GlobalVariables.get().getVar(args.get("varName").getAsString()));
                                 break;
                             }
                             case "conditionDoesBungeePlayerHavePermission": {
@@ -468,8 +453,8 @@ public final class ClientServer {
                                 break;
                             }
                         }
-                        argsMap.put("error", error);
-                        toSend.put("response", argsMap);
+                        toComplete.addProperty("error", error);
+                        toSend.add("response", args);
                         this.writeRaw(true, "futureResponse", toSend);
                         break;
                     }
@@ -483,8 +468,7 @@ public final class ClientServer {
     }
 
     private void sendFiles() {
-        final Map<String, String[]> files = BungeeSK.getInstance().filesToString();
-        this.writeRaw(true, "sendFiles", files);
+        this.writeRaw(true, "sendFiles", BungeeSK.getInstance().filesToString());
     }
 
     public void disconnect() {
@@ -534,15 +518,15 @@ public final class ClientServer {
         this.writer.println(gson.toJson(map));
     }
 
-    public void writeRaw(final boolean encryption, final String action, final Map<?, ?> argsMap) {
-        final Map<String, Object> map = new HashMap<>();
-        map.put("action", action);
-        map.put("args", argsMap);
+    public void writeRaw(final boolean encryption, final String action, final JsonObject args) {
+        final JsonObject toSend = new JsonObject();
+        toSend.addProperty("action", action);
+        toSend.add("args", args);
         if (encryption) {
-            this.writer.println(this.encryption.encrypt(gson.toJson(map), this.password));
+            this.writer.println(this.encryption.encrypt(gson.toJson(toSend), this.password));
             return;
         }
-        this.writer.println(gson.toJson(map));
+        this.writer.println(gson.toJson(toSend));
     }
 
     public String getAddress() {

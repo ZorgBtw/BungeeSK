@@ -34,12 +34,13 @@ public class EffSendActionBar extends Effect {
         this.message = (Expression<String>) exprs[1];
         return true;
     }
+
     @Override
     protected void execute(Event e) {
         if (BungeeSK.isClientConnected()) {
 
             if (this.player.getSingle(e) == null)
-                 return;
+                return;
 
             ConnectionClient.get().write(true, "effectSendActionBar",
                     "playerUuid", this.player.getSingle(e).getUuid(),

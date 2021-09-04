@@ -1,11 +1,10 @@
 package fr.zorg.bungeesk.bungee.utils;
 
+import com.google.gson.JsonObject;
 import fr.zorg.bungeesk.bungee.BungeeSK;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.config.Configuration;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 public class BungeeUtils {
@@ -24,15 +23,15 @@ public class BungeeUtils {
                         && server.getAddress().getPort() == port)).findFirst();
     }
 
-    public static Map<String, String> getBungeeServer(final ServerInfo server) {
-        Map<String, String> infos = new HashMap<>();
+    public static JsonObject getBungeeServer(final ServerInfo server) {
+        final JsonObject serverInfos = new JsonObject();
 
-        infos.put("name", server.getName());
-        infos.put("address", server.getAddress().getAddress().getHostAddress());
-        infos.put("port", String.valueOf(server.getAddress().getPort()));
-        infos.put("motd", server.getMotd());
+        serverInfos.addProperty("name", server.getName() == null ? "" : server.getName());
+        serverInfos.addProperty("address", server.getAddress().getAddress().getHostAddress() == null ? "" : server.getAddress().getAddress().getHostAddress());
+        serverInfos.addProperty("port", String.valueOf(server.getAddress().getPort()));
+        serverInfos.addProperty("motd", server.getMotd() == null ? "" : server.getMotd());
 
-        return infos;
+        return serverInfos;
     }
 
 }

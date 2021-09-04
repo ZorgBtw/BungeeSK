@@ -1,5 +1,6 @@
 package fr.zorg.bungeesk.bungee.sockets;
 
+import com.google.gson.JsonObject;
 import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
 import fr.zorg.bungeesk.common.utils.Utils;
 
@@ -8,7 +9,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public final class Server {
@@ -94,8 +94,8 @@ public final class Server {
         this.clients.forEach(client -> client.write(encryption, action, args));
     }
 
-    public void writeRawAll(final boolean encryption, final String action, final Map<?, ?> argsMap) {
-        this.clients.forEach(client -> client.writeRaw(encryption, action, argsMap));
+    public void writeRawAll(final boolean encryption, final String action, final JsonObject args) {
+        this.clients.forEach(client -> client.writeRaw(encryption, action, args));
     }
 
     public List<ClientServer> getClients() {

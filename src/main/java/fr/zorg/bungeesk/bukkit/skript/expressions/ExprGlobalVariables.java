@@ -43,7 +43,7 @@ public class ExprGlobalVariables extends SimpleExpression<String> {
                     "varName", this.varName.getSingle(e));
             if (result.get("value").getAsString().equalsIgnoreCase("NONE"))
                 return new String[0];
-            return new String[] { result.get("value").getAsString() };
+            return new String[]{result.get("value").getAsString()};
         }
         return new String[0];
     }

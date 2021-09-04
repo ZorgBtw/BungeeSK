@@ -8,7 +8,7 @@ public class EvtClientDisconnect {
 
     static {
         Skript.registerEvent("client disconnect", SimpleEvent.class, ClientDisconnectEvent.class,
-                "[bungee] client disconnect")
+                        "[bungee] client disconnect")
                 .description("When the client disconnects from the server")
                 .examples("on bungee client disconnect:", "\tbroadcast \"&cClient disconnected !\"")
                 .since("1.0.0");

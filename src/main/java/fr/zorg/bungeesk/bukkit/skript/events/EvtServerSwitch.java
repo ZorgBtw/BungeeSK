@@ -13,7 +13,7 @@ public class EvtServerSwitch {
 
     static {
         Skript.registerEvent("server switch", SimpleEvent.class, ServerSwitchEvent.class,
-                "[bungee] server switch")
+                        "[bungee] server switch")
                 .description("When the player switches between 2 servers")
                 .examples("on server switch:", "\tbroadcast \"&6%event-bungeeplayer% &7switched from server &c%past-server% &7to &a%event-bungeeplayer's server% &7!\"")
                 .since("1.0.0");

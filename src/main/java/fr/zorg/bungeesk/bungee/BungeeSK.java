@@ -1,5 +1,7 @@
 package fr.zorg.bungeesk.bungee;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.rockaport.alice.AliceContext;
 import fr.zorg.bungeesk.bungee.listeners.LeaveEvent;
 import fr.zorg.bungeesk.bungee.listeners.LoginEvent;
@@ -14,10 +16,6 @@ import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 
 public class BungeeSK extends Plugin {
@@ -61,17 +59,17 @@ public class BungeeSK extends Plugin {
         this.server.disconnect();
     }
 
-    public Map<String, String[]> filesToString() {
+    public JsonObject filesToString() {
         final File folder = new File(this.getDataFolder().getAbsolutePath(), "common-skript");
         if (!folder.exists())
-            return new HashMap<>();
+            return new JsonObject();
         final FilenameFilter filter = (dir, name) -> !name.replaceAll("--", "").startsWith("-") && name.endsWith(".sk");
-        final Map<String, String[]> map = new HashMap<>();
+        final JsonObject files = new JsonObject();
         for (final File file : folder.listFiles(filter)) {
             try {
-                FileReader fr = new FileReader(file);
-                BufferedReader br = new BufferedReader(fr);
-                List<String> lines = new ArrayList<>();
+                final FileReader fr = new FileReader(file);
+                final BufferedReader br = new BufferedReader(fr);
+                final JsonArray lines = new JsonArray();
                 int i = 0;
                 String line;
                 while ((line = br.readLine()) != null) {
@@ -79,12 +77,12 @@ public class BungeeSK extends Plugin {
                     i++;
                 }
                 fr.close();
-                map.put(file.getName(), lines.toArray(new String[0]));
+                files.add(file.getName(), lines);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        return map;
+        return files;
     }
 
     public static BungeeSK getInstance() {

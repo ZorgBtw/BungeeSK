@@ -8,7 +8,7 @@ public class EvtClientConnect {
 
     static {
         Skript.registerEvent("client connect", SimpleEvent.class, ClientConnectEvent.class,
-                "[bungee] client connect")
+                        "[bungee] client connect")
                 .description("When the client connects to a server")
                 .examples("on bungee client connect:", "\tbroadcast \"&aClient connected !\"")
                 .since("1.0.0");

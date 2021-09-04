@@ -255,16 +255,16 @@ public final class ConnectionClient {
         this.writer.println(gson.toJson(map));
     }
 
-    public void writeRaw(final boolean encryption, final String action, final Map<?, ?> argsMap) {
-        final Map<String, Object> map = new HashMap<>();
-        map.put("action", action);
-        map.put("args", argsMap);
+    public void writeRaw(final boolean encryption, final String action, final JsonObject args) {
+        final JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("action", action);
+        jsonObject.add("args", args);
 
         if (encryption) {
-            this.writer.println(this.encryption.encrypt(gson.toJson(map), this.password));
+            this.writer.println(this.encryption.encrypt(gson.toJson(jsonObject), this.password));
             return;
         }
-        this.writer.println(gson.toJson(map));
+        this.writer.println(gson.toJson(jsonObject));
     }
 
     public Map<UUID, CompletableFuture<JsonObject>> getToComplete() {
@@ -284,15 +284,15 @@ public final class ConnectionClient {
         CompletableFuture<JsonObject> future = new CompletableFuture<>();
         this.toComplete.put(randomUUID, future);
 
-        Map<String, String> map = new HashMap<>();
+        final JsonObject arguments = new JsonObject();
 
-        map.put("action", action);
-        map.put("uuid", randomUUID.toString());
+        arguments.addProperty("action", action);
+        arguments.addProperty("uuid", randomUUID.toString());
         if (args != null)
             for (int i = 0; i < args.length; i = i + 2)
-                map.put(args[i], args[i + 1]);
+                arguments.addProperty(args[i], args[i + 1]);
 
-        this.writeRaw(true, "futureGet", map);
+        this.writeRaw(true, "futureGet", arguments);
 
         JsonObject jsonObject;
         try {
