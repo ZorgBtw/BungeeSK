@@ -27,7 +27,7 @@ public class BungeeUtils {
         final JsonObject serverInfos = new JsonObject();
 
         serverInfos.addProperty("name", server.getName() == null ? "" : server.getName());
-        serverInfos.addProperty("address", server.getAddress().getAddress().getHostAddress() == null ? "" : server.getAddress().getAddress().getHostAddress());
+        serverInfos.addProperty("address", server.getAddress() == null ? "" : server.getAddress().getAddress().getHostAddress());
         serverInfos.addProperty("port", String.valueOf(server.getAddress().getPort()));
         serverInfos.addProperty("motd", server.getMotd() == null ? "" : server.getMotd());
 

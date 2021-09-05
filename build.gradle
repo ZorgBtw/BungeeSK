@@ -39,12 +39,7 @@ processResources {
     ]
 }
 
-configurations {
-    implementation {
-        canBeResolved = true
-    }
-}
-
 shadowJar {
     archiveName("BungeeSK.jar")
+    minimize()
 }
