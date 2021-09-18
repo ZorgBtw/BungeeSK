@@ -6,6 +6,7 @@ import com.rockaport.alice.AliceContext;
 import fr.zorg.bungeesk.bukkit.sockets.ConnectionClient;
 import fr.zorg.bungeesk.bukkit.utils.Metrics;
 import fr.zorg.bungeesk.common.encryption.GlobalEncryption;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;

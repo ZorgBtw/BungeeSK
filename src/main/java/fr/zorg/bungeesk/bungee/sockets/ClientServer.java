@@ -46,7 +46,7 @@ public final class ClientServer {
         this.reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream(), StandardCharsets.UTF_8));
         this.writer = new PrintWriter(this.socket.getOutputStream(), true);
         this.encryption = BungeeSK.getEncryption();
-        this.password = BungeeConfig.get().getPassword();
+        this.password = BungeeConfig.PASSWORD.get();
 
         this.readThread = new Thread(this::read);
         this.readThread.setDaemon(true);
@@ -98,7 +98,7 @@ public final class ClientServer {
 
                         this.write(true, "connectionInformation", "status", "connected");
 
-                        if (BungeeConfig.get().isSendFilesAutoEnabled())
+                        if (BungeeConfig.FILES$SYNC_AT_CONNECT.get())
                             this.sendFiles();
 
                     } else {
@@ -467,7 +467,7 @@ public final class ClientServer {
 
     }
 
-    private void sendFiles() {
+    public void sendFiles() {
         this.writeRaw(true, "sendFiles", BungeeSK.getInstance().filesToString());
     }
 

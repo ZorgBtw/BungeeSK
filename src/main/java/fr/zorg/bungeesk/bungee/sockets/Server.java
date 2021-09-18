@@ -33,9 +33,9 @@ public final class Server {
         while (!this.servSocket.isClosed()) {
             try {
                 final ClientServer client = new ClientServer(this.servSocket.accept());
-                if (BungeeConfig.get().isWhitelistIp()) {
+                if (BungeeConfig.WHITELIST_IP$ENABLE.get()) {
                     final Socket clientSocket = client.getSocket();
-                    if (!BungeeConfig.get().getAuthorizedIp().contains(clientSocket.getInetAddress().getHostAddress()))
+                    if (!((List<String>) BungeeConfig.WHITELIST_IP$WHITELIST.get()).contains(clientSocket.getInetAddress().getHostAddress()))
                         client.forceDisconnect();
                 }
             } catch (IOException ignored) {

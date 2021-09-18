@@ -6,16 +6,27 @@ import com.rockaport.alice.AliceContext;
 import fr.zorg.bungeesk.bungee.listeners.LeaveEvent;
 import fr.zorg.bungeesk.bungee.listeners.LoginEvent;
 import fr.zorg.bungeesk.bungee.listeners.ServSwitchEvent;
+import fr.zorg.bungeesk.bungee.sockets.ClientServer;
 import fr.zorg.bungeesk.bungee.sockets.Server;
 import fr.zorg.bungeesk.bungee.storage.BungeeConfig;
 import fr.zorg.bungeesk.bungee.storage.GlobalVariables;
 import fr.zorg.bungeesk.bungee.utils.Metrics;
 import fr.zorg.bungeesk.common.encryption.GlobalEncryption;
+import io.methvin.watcher.DirectoryChangeEvent;
+import io.methvin.watcher.DirectoryWatcher;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
+import org.apache.commons.vfs2.*;
+import org.apache.commons.vfs2.impl.DefaultFileMonitor;
+import org.apache.commons.vfs2.impl.StandardFileSystemManager;
+import org.apache.commons.vfs2.provider.*;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.WatchService;
 import java.util.logging.Level;
 
 public class BungeeSK extends Plugin {
@@ -37,7 +48,8 @@ public class BungeeSK extends Plugin {
         pm = getProxy().getPluginManager();
 
         this.getLogger().log(Level.INFO, ChatColor.GOLD + "BungeeSK has been successfully started !");
-        BungeeConfig.get().load();
+
+        BungeeConfig.init();
 
         pm.registerListener(this, new LoginEvent());
         pm.registerListener(this, new LeaveEvent());
@@ -46,12 +58,15 @@ public class BungeeSK extends Plugin {
         final File file = new File(this.getDataFolder().getAbsolutePath(), "common-skript");
         if (!file.exists())
             file.mkdir();
+
+        this.globalVariables = new GlobalVariables();
+
         try {
-            this.server = new Server(BungeeConfig.get().getPort(), BungeeConfig.get().getPassword());
+            this.server = new Server(BungeeConfig.PORT.get(), BungeeConfig.PASSWORD.get());
+            this.listenFileChanging();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.globalVariables = new GlobalVariables();
     }
 
     @Override
@@ -83,6 +98,20 @@ public class BungeeSK extends Plugin {
             }
         }
         return files;
+    }
+
+    public void listenFileChanging() throws IOException {
+        if (BungeeConfig.FILES$AUTO_UPDATE.get()) {
+            final Path path = Paths.get(this.getDataFolder().getPath(), "common-skript");
+            DirectoryWatcher watcher = DirectoryWatcher.builder()
+                    .path(path)
+                    .listener(e -> {
+                        if (e.path().toString().toLowerCase().endsWith(".sk") && !(e.eventType().equals(DirectoryChangeEvent.EventType.DELETE)))
+                            this.server.getClients().forEach(ClientServer::sendFiles);
+                    })
+                    .build();
+            watcher.watchAsync();
+        }
     }
 
     public static BungeeSK getInstance() {
