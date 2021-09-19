@@ -28,11 +28,10 @@ dependencies {
         exclude group: "net.milkbowl.vault", module: "Vault"
     }
     implementation group: "commons-io", name: "commons-io", version: "2.11.0"
-    implementation group: "org.apache.commons", name: "commons-vfs2", version: "2.9.0"
 
     implementation group: "com.github.rockaport", name:"alice", version: "0.9.0"
     implementation group: "me.carleslc.Simple-YAML", name: "Simple-Yaml", version: "1.7.2"
-    implementation group: "io.methvin", name: "directory-watcher", version: "0.10.1"
+    implementation group: "io.methvin", name: "directory-watcher", version: '0.15.0'
 }
 
 [compileJava, compileTestJava]*.options*.encoding = "UTF-8"

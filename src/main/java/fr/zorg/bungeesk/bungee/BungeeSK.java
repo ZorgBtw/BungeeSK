@@ -3,6 +3,7 @@ package fr.zorg.bungeesk.bungee;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.rockaport.alice.AliceContext;
+import fr.zorg.bungeesk.bungee.commands.BungeeSKCommand;
 import fr.zorg.bungeesk.bungee.listeners.LeaveEvent;
 import fr.zorg.bungeesk.bungee.listeners.LoginEvent;
 import fr.zorg.bungeesk.bungee.listeners.ServSwitchEvent;
@@ -17,16 +18,10 @@ import io.methvin.watcher.DirectoryWatcher;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
-import org.apache.commons.vfs2.*;
-import org.apache.commons.vfs2.impl.DefaultFileMonitor;
-import org.apache.commons.vfs2.impl.StandardFileSystemManager;
-import org.apache.commons.vfs2.provider.*;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.WatchService;
 import java.util.logging.Level;
 
 public class BungeeSK extends Plugin {
@@ -54,6 +49,9 @@ public class BungeeSK extends Plugin {
         pm.registerListener(this, new LoginEvent());
         pm.registerListener(this, new LeaveEvent());
         pm.registerListener(this, new ServSwitchEvent());
+        final BungeeSKCommand bungeeSKCommand = new BungeeSKCommand();
+        pm.registerListener(this, bungeeSKCommand);
+        pm.registerCommand(this, bungeeSKCommand);
 
         final File file = new File(this.getDataFolder().getAbsolutePath(), "common-skript");
         if (!file.exists())
@@ -67,6 +65,7 @@ public class BungeeSK extends Plugin {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
     @Override
@@ -103,7 +102,7 @@ public class BungeeSK extends Plugin {
     public void listenFileChanging() throws IOException {
         if (BungeeConfig.FILES$AUTO_UPDATE.get()) {
             final Path path = Paths.get(this.getDataFolder().getPath(), "common-skript");
-            DirectoryWatcher watcher = DirectoryWatcher.builder()
+            final DirectoryWatcher watcher = DirectoryWatcher.builder()
                     .path(path)
                     .listener(e -> {
                         if (e.path().toString().toLowerCase().endsWith(".sk") && !(e.eventType().equals(DirectoryChangeEvent.EventType.DELETE)))

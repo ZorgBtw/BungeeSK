@@ -19,7 +19,6 @@ public class GlobalVariables {
     public GlobalVariables() {
         instance = this;
 
-
         try {
             if (!this.variablesFile.exists())
                 FileUtils.copyInputStreamToFile(BungeeSK.getInstance().getResourceAsStream("variables.json"), this.variablesFile);

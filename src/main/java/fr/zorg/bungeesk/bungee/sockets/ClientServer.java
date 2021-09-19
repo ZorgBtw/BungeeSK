@@ -66,7 +66,7 @@ public final class ClientServer {
 
                 if (data.equals("wrongPassword")) {
                     this.disconnect();
-                    break reader;
+                    break;
                 }
 
                 final JsonParser jsonParser = new JsonParser();
@@ -502,7 +502,6 @@ public final class ClientServer {
         return this.socket;
     }
 
-
     public void write(final boolean encryption, final String action, final String... args) {
         final Map<String, Object> map = new HashMap<>();
         map.put("action", action);
@@ -541,6 +540,3 @@ public final class ClientServer {
         return gson;
     }
 }
-
-
-
