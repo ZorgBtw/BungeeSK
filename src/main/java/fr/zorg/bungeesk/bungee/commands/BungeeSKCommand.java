@@ -38,8 +38,11 @@ public class BungeeSKCommand extends Command implements Listener {
         if (args[0].equalsIgnoreCase("servers")) {
             sender.sendMessage(TextComponent.fromLegacyText(this.prefix + "§3Servers"));
             BungeeSK.getInstance().getServer().getClients().forEach(clientServer -> {
-                final ServerInfo server = BungeeUtils.findServer(clientServer.getAddress().split(":")[0],
-                        Integer.parseInt(clientServer.getAddress().split(":")[1])).get();
+                final Optional<ServerInfo> optionalServer = BungeeUtils.findServer(clientServer.getAddress().split(":")[0],
+                        Integer.parseInt(clientServer.getAddress().split(":")[1]));
+                if (!optionalServer.isPresent())
+                    return;
+                final ServerInfo server = optionalServer.get();
                 sender.sendMessage(TextComponent.fromLegacyText(
                         String.format("  §8» §aName: §6%s§f, §aIP: §6%s§f, §aPort: §6%s",
                                 server.getName(),
