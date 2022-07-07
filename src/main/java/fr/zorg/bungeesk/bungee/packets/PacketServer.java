@@ -1,37 +1,45 @@
 package fr.zorg.bungeesk.bungee.packets;
 
-import com.esotericsoftware.kryonet.Connection;
-import com.esotericsoftware.kryonet.Server;
 import fr.zorg.bungeesk.bungee.BungeeConfig;
-import fr.zorg.bungeesk.common.entities.BungeeServer;
+import fr.zorg.bungeesk.bungee.Debug;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PacketServer {
 
-    private static Server server;
-    private static Map<Connection, BungeeServer> serversMap = new HashMap<>();
+    private static ServerSocket serverSocket;
+    private static boolean running = false;
+    private static final List<ClientSocket> clientSockets = new ArrayList<>();
 
     public static void start() {
         try {
-            server = new Server();
-            server.start();
-            server.bind(BungeeConfig.PORT.get());
-            server.addListener(new MainListener());
+            serverSocket = new ServerSocket(BungeeConfig.PORT.get());
+            Debug.log("PacketServer started on port " + BungeeConfig.PORT.get());
+            running = true;
+            while (running) {
+                final Socket socketClient = serverSocket.accept();
+                final ClientSocket clientSocket = new ClientSocket(socketClient);
+                clientSockets.add(clientSocket);
+            }
+            clientSockets.forEach(ClientSocket::disconnect);
+            clientSockets.clear();
         } catch (IOException e) {
-            System.err.println("An error appeared during the server's launching process. \n" +
+            System.err.println("An error occurred during the server's launching process. \n" +
                     "Is the port opened ? Is the port available and not occupied by another process ?");
         }
     }
 
-    public static Server getServer() {
-        return server;
-    }
-
-    public static Map<Connection, BungeeServer> getServersMap() {
-        return serversMap;
+    public static void stop() {
+        running = false;
+        try {
+            serverSocket.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
 }

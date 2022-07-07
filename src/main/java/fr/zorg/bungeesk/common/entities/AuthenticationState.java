@@ -4,8 +4,7 @@ public enum AuthenticationState {
 
     UNKNOWN,
     HANDSHAKE,
-    PASSWORDREQUEST,
-    AUTHENTICATED;
-
+    PASSWORD_REQUEST,
+    AUTHENTICATED
 
 }
