@@ -1,16 +1,30 @@
 package fr.zorg.bungeesk.bukkit;
 
+import fr.zorg.bungeesk.bukkit.packets.PacketClient;
+import fr.zorg.bungeesk.bukkit.packets.listeners.HandshakeListener;
 import fr.zorg.bungeesk.common.AutoUpdater;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public class BungeeSK extends JavaPlugin {
 
-    private BukkitAPI api;
+    private static BukkitAPI api;
+    private static final char[] password = ";6C5C!k/c19f2Z07".toCharArray();
 
     @Override
     public void onEnable() {
         this.launchAutoUpdater();
-        this.api = new BukkitAPI();
+        api = new BukkitAPI();
+
+        api.registerListeners("fr.zorg.bungeesk.bukkit.packets.listeners");
+
+        try {
+            PacketClient.start(InetAddress.getByName("localhost"), 20000);
+        } catch (UnknownHostException ex) {
+            ex.printStackTrace();
+        }
     }
 
     public static BungeeSK getInstance() {
@@ -25,7 +39,11 @@ public class BungeeSK extends JavaPlugin {
         }, 10L, 1728000L); // Everyday
     }
 
-    public BukkitAPI getApi() {
-        return this.api;
+    public static BukkitAPI getApi() {
+        return api;
+    }
+
+    public static char[] getPassword() {
+        return password;
     }
 }

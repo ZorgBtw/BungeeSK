@@ -1,4 +1,7 @@
 package fr.zorg.bungeesk.common.packets;
 
-public interface BungeeSKPacket {
+import java.io.Serializable;
+
+public interface BungeeSKPacket extends Serializable {
+
 }

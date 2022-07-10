@@ -1,15 +1,16 @@
 package fr.zorg.bungeesk.common.packets;
 
+
 public class AuthRequestPacket implements BungeeSKPacket {
 
-    private final char[] password;
+    private final byte[] encryptedUuid;
 
-    public AuthRequestPacket(char[] password) {
-        this.password = password;
+    public AuthRequestPacket(byte[] encryptedUuid) {
+        this.encryptedUuid = encryptedUuid;
     }
 
-    public char[] getPassword() {
-        return password;
+    public byte[] getEncryptedUuid() {
+        return this.encryptedUuid;
     }
 
 }

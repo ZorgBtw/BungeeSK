@@ -14,8 +14,8 @@ public class PacketUtils {
             objectOutputStream.writeObject(packet);
             objectOutputStream.flush();
             bytes = byteArrayOutputStream.toByteArray();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (IOException ex) {
+            ex.printStackTrace();
         } finally {
             try {
                 byteArrayOutputStream.close();

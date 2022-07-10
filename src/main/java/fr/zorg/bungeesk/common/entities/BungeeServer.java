@@ -4,16 +4,16 @@ import java.net.InetAddress;
 
 public class BungeeServer {
 
-    private final InetAddress address;
+    private final InetAddress inetAddress;
     private AuthenticationState state;
 
-    public BungeeServer(InetAddress address) {
-        this.address = address;
+    public BungeeServer(InetAddress inetAddress) {
+        this.inetAddress = inetAddress;
         this.state = AuthenticationState.HANDSHAKE;
     }
 
-    public InetAddress getAddress() {
-        return this.address;
+    public InetAddress getInetAddress() {
+        return this.inetAddress;
     }
 
     public AuthenticationState getState() {
