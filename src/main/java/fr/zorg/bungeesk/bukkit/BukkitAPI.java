@@ -3,7 +3,6 @@ package fr.zorg.bungeesk.bukkit;
 import fr.zorg.bungeesk.bukkit.api.BungeeSKBukkitListener;
 import fr.zorg.bungeesk.bukkit.packets.PacketClient;
 import fr.zorg.bungeesk.bukkit.packets.SocketClient;
-import fr.zorg.bungeesk.bungee.api.BungeeSKListener;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import fr.zorg.bungeesk.common.utils.ReflectionUtils;
 

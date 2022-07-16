@@ -1,6 +1,5 @@
 package fr.zorg.bungeesk.bukkit;
 
-import ch.njol.skript.Skript;
 import fr.zorg.bungeesk.bukkit.packets.PacketClient;
 import fr.zorg.bungeesk.common.AutoUpdater;
 import org.bukkit.plugin.java.JavaPlugin;
