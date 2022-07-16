@@ -1,46 +1,46 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
-    id 'java'
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "java"
 }
 
-group 'fr.zorg'
-version '2.0.0'
+group "fr.zorg"
+version "2.0.0"
 
 repositories {
     mavenCentral()
-    maven { url = 'https://jitpack.io' }
-    maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-    maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
-    maven { url = 'https://repo.destroystokyo.com/repository/maven-public/' }
+    maven { url = "https://jitpack.io" }
+    maven { url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/" }
+    maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
+    maven { url = "https://repo.destroystokyo.com/repository/maven-public/" }
 }
 
 dependencies {
-    compileOnly group: 'org.spigotmc', name: 'spigot-api', version: '1.18-R0.1-SNAPSHOT'
-    compileOnly group: 'net.md-5', name: 'bungeecord-api', version: '1.17-R0.1-SNAPSHOT'
-    compileOnly group: 'org.jetbrains', name: 'annotations', version: '22.0.0'
-    compileOnly (group: 'com.github.SkriptLang', name: 'Skript', version: '2.6-alpha1') {
-        exclude group: 'com.sk89q.worldguard', module: 'worldguard-legacy'
-        exclude group: 'net.milkbowl.vault', module: 'Vault'
+    compileOnly group: "org.spigotmc", name: "spigot-api", version: "1.18-R0.1-SNAPSHOT"
+    compileOnly group: "net.md-5", name: "bungeecord-api", version: "1.17-R0.1-SNAPSHOT"
+    compileOnly group: "org.jetbrains", name: "annotations", version: "22.0.0"
+    compileOnly (group: "com.github.SkriptLang", name: "Skript", version: "2.6-alpha1") {
+        exclude group: "com.sk89q.worldguard", module: "worldguard-legacy"
+        exclude group: "net.milkbowl.vault", module: "Vault"
     }
-    implementation group: 'commons-io', name: 'commons-io', version: '2.11.0'
+    implementation group: "commons-io", name: "commons-io", version: "2.11.0"
 
-    implementation group: 'com.github.rockaport', name:'alice', version: '0.9.0'
-    implementation group: 'me.carleslc.Simple-YAML', name: 'Simple-Yaml', version: '1.7.2'
-    implementation group: 'io.methvin', name: 'directory-watcher', version: '0.15.1'
+    implementation group: "com.github.rockaport", name:"alice", version: "0.9.0"
+    implementation group: "me.carleslc.Simple-YAML", name: "Simple-Yaml", version: "1.7.2"
+    implementation group: "io.methvin", name: "directory-watcher", version: "0.15.1"
     implementation group: "org.reflections", name: "reflections", version: "0.10.2"
 }
 
-[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+[compileJava, compileTestJava]*.options*.encoding = "UTF-8"
 
 processResources {
     filter ReplaceTokens, tokens: [
-            'version': project.property('version'),
+            "version": project.property("version"),
     ]
 }
 
 shadowJar {
-    archiveName('BungeeSK.jar')
+    archiveName("BungeeSK.jar")
     minimize()
 }
