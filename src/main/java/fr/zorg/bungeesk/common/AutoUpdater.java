@@ -10,13 +10,13 @@ import java.net.URL;
 
 public class AutoUpdater {
 
-    public static boolean isUpdated(String actualVersion) {
+    public static boolean isUpToDate(String currentVersion) {
         try {
             final URL url = new URL("https://api.github.com/repos/ZorgBtw/BungeeSK/releases/latest");
             final InputStreamReader inputStreamReader = new InputStreamReader(url.openStream());
             final BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             final JsonObject result = new JsonParser().parse(bufferedReader).getAsJsonObject();
-            return result.get("tag_name").getAsString().equalsIgnoreCase(actualVersion);
+            return result.get("tag_name").getAsString().equalsIgnoreCase(currentVersion);
         } catch (IOException ex) {
             System.err.println("An error occured during the update-checking process !");
         }
