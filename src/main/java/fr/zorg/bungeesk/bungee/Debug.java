@@ -6,7 +6,6 @@ public class Debug {
         if (BungeeConfig.DEBUG.get())
             for (String line : text)
                 System.out.println(line);
-        //BungeeSK.getInstance().getLogger().info(line);
     }
 
 }
