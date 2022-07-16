@@ -3,11 +3,15 @@ package fr.zorg.bungeesk.bukkit;
 import fr.zorg.bungeesk.bukkit.api.BungeeSKBukkitListener;
 import fr.zorg.bungeesk.bukkit.packets.PacketClient;
 import fr.zorg.bungeesk.bukkit.packets.SocketClient;
+import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import fr.zorg.bungeesk.common.utils.ReflectionUtils;
+import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,9 +28,14 @@ public class BukkitAPI {
         return this;
     }
 
-    public BukkitAPI registerListeners(String packageName) {
+    public BukkitAPI registerListeners(String packageName, JavaPlugin plugin) {
+
         try {
-            ReflectionUtils.getClassesFromPackage(packageName, BungeeSKBukkitListener.class).forEach((clazz) -> {
+            final Method method = plugin.getClass().getSuperclass().getDeclaredMethod("getFile");
+            method.setAccessible(true);
+            final File file = (File) method.invoke(plugin);
+
+            ReflectionUtils.getClassesFromPackage(packageName, BungeeSKBukkitListener.class, file).forEach((clazz) -> {
                 try {
                     this.listeners.add((BungeeSKBukkitListener) clazz.getConstructor().newInstance());
                 } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
@@ -34,7 +43,7 @@ public class BukkitAPI {
                     ex.printStackTrace();
                 }
             });
-        } catch (IOException ex) {
+        } catch (IOException | NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
             ex.printStackTrace();
         }
         return this;

@@ -21,6 +21,7 @@ public class SocketServer {
     private final Thread readThread;
     private boolean authenticated;
     private UUID challengeUUID;
+    private boolean waitingForAuth = false;
 
     public SocketServer(Socket socket) {
         this.socket = socket;
@@ -67,16 +68,18 @@ public class SocketServer {
     }
 
     public void disconnect() {
-        Debug.log("Disconnecting client with IP " + socket.getInetAddress().getHostAddress());
-        try {
-            this.reader.close();
-            this.writer.close();
-            this.socket.close();
-            this.readThread.interrupt();
-            Debug.log("Client with IP " + socket.getInetAddress().getHostAddress() + " disconnected");
-            PacketServer.getClientSockets().remove(this);
-        } catch (IOException ignored) {
-            Debug.log("An error occurred while disconnecting the client with IP " + socket.getInetAddress().getHostAddress());
+        if (this.socket.isConnected() && !this.socket.isClosed() && !this.readThread.isInterrupted()) {
+            Debug.log("Disconnecting client with IP " + socket.getInetAddress().getHostAddress());
+            try {
+                this.reader.close();
+                this.writer.close();
+                this.socket.close();
+                this.readThread.interrupt();
+                Debug.log("Client with IP " + socket.getInetAddress().getHostAddress() + " disconnected");
+                PacketServer.getClientSockets().remove(this);
+            } catch (IOException ignored) {
+                Debug.log("An error occurred while disconnecting the client with IP " + socket.getInetAddress().getHostAddress());
+            }
         }
     }
 
@@ -106,11 +109,19 @@ public class SocketServer {
 
     public UUID initChallenge() {
         this.challengeUUID = UUID.randomUUID();
+        this.waitingForAuth = true;
+        BungeeSK.runAsync(() -> {
+            try {
+                Thread.sleep(5000);
+                this.waitingForAuth = false;
+            } catch (InterruptedException ignored) {
+            }
+        });
         return this.challengeUUID;
     }
 
     public void completeChallenge(UUID uuid) {
-        if (this.challengeUUID.compareTo(uuid) == 0) {
+        if (this.waitingForAuth && this.challengeUUID.compareTo(uuid) == 0) {
             this.authenticated = true;
             Debug.log("Client with IP " + socket.getInetAddress().getHostAddress() + " authenticated");
         } else {

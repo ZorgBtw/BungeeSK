@@ -18,7 +18,7 @@ public class AuthRequestListener extends BungeeSKBukkitListener {
             final AuthRequestPacket authRequestPacket = (AuthRequestPacket) packet;
             final byte[] encryptedUUID = authRequestPacket.getEncryptedUuid();
             try {
-                final UUID uuid = EncryptionUtils.decryptUUID(encryptedUUID, BungeeSK.getPassword());
+                final UUID uuid = EncryptionUtils.decryptUUID(encryptedUUID, ";6C5C!k/c19f2Z07".toCharArray()); //TODO
                 BungeeSK.getApi().sendPacket(new AuthResponsePacket(uuid));
             } catch (GeneralSecurityException ex) {
                 BungeeSK.getInstance().getLogger().severe("§6BungeeSK §f| §7Connection error: §cWrong password");

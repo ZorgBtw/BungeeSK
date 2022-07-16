@@ -1,7 +1,6 @@
 package fr.zorg.bungeesk.common.utils;
 
-import fr.zorg.bungeesk.bungee.BungeeSK;
-
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -11,10 +10,10 @@ import java.util.jar.JarFile;
 
 public class ReflectionUtils {
 
-    public static List<Class<?>> getClassesFromPackage(String packageName, Class<?> subTypeOf) throws IOException {
+    public static List<Class<?>> getClassesFromPackage(String packageName, Class<?> subTypeOf, File pluginFile) throws IOException {
         final String path = packageName.replace(".", "/");
         final List<Class<?>> classes = new ArrayList<>();
-        final JarFile jarFile = new JarFile(BungeeSK.getInstance().getFile());
+        final JarFile jarFile = new JarFile(pluginFile);
         final Enumeration<JarEntry> entries = jarFile.entries();
         while (entries.hasMoreElements()) {
             final JarEntry entry = entries.nextElement();

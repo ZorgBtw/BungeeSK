@@ -49,6 +49,10 @@ public class BungeeSK extends Plugin {
         }
     }
 
+    public static void runAsync(Runnable task) {
+        instance.getProxy().getScheduler().runAsync(instance, task);
+    }
+
     public static BungeeAPI getApi() {
         return api;
     }

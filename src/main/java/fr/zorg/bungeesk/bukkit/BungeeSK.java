@@ -10,14 +10,13 @@ import java.net.UnknownHostException;
 public class BungeeSK extends JavaPlugin {
 
     private static BukkitAPI api;
-    private static final char[] password = "".toCharArray();
 
     @Override
     public void onEnable() {
         this.launchAutoUpdater();
         api = new BukkitAPI();
 
-        api.registerListeners("fr.zorg.bungeesk.bukkit.packets.listeners");
+        api.registerListeners("fr.zorg.bungeesk.bukkit.packets.listeners", this);
 
         try {
             PacketClient.start(InetAddress.getByName("localhost"), 20000);
@@ -44,10 +43,6 @@ public class BungeeSK extends JavaPlugin {
 
     public static BukkitAPI getApi() {
         return api;
-    }
-
-    public static char[] getPassword() {
-        return password;
     }
 
 }

@@ -28,7 +28,7 @@ public class BungeeAPI {
 
     public BungeeAPI registerListeners(String packageName) {
         try {
-            ReflectionUtils.getClassesFromPackage(packageName, BungeeSKListener.class).forEach((clazz) -> {
+            ReflectionUtils.getClassesFromPackage(packageName, BungeeSKListener.class, BungeeSK.getInstance().getFile()).forEach((clazz) -> {
                 try {
                     this.listeners.add((BungeeSKListener) clazz.getConstructor().newInstance());
                 } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
