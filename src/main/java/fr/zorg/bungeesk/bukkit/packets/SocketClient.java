@@ -45,13 +45,15 @@ public class SocketClient {
     }
 
     public void send(BungeeSKPacket packet) {
-        this.handleSendListeners(packet);
-        final byte[] bytes = PacketUtils.packetToBytes(packet);
-        try {
-            writer.writeInt(bytes.length);
-            writer.write(bytes);
-        } catch (IOException ignored) {
-        }
+        BungeeSK.runAsync(() -> {
+            this.handleSendListeners(packet);
+            final byte[] bytes = PacketUtils.packetToBytes(packet);
+            try {
+                writer.writeInt(bytes.length);
+                writer.write(bytes);
+            } catch (IOException ignored) {
+            }
+        });
     }
 
     public void disconnect() {
@@ -65,22 +67,26 @@ public class SocketClient {
     }
 
     private void handleSendListeners(BungeeSKPacket packet) {
-        BungeeSK.getApi().getListeners().forEach(listener -> {
-            try {
-                listener.getClass().getMethod("onSend", BungeeSKPacket.class);
-                listener.onSend(packet);
-            } catch (Exception ignored) {
-            }
+        BungeeSK.runAsync(() -> {
+            BungeeSK.getApi().getListeners().forEach(listener -> {
+                try {
+                    listener.getClass().getMethod("onSend", BungeeSKPacket.class);
+                    listener.onSend(packet);
+                } catch (Exception ignored) {
+                }
+            });
         });
     }
 
     private void handleReceiveListeners(BungeeSKPacket packet) {
-        BungeeSK.getApi().getListeners().forEach(listener -> {
-            try {
-                listener.getClass().getMethod("onReceive", BungeeSKPacket.class);
-                listener.onReceive(packet);
-            } catch (Exception ignored) {
-            }
+        BungeeSK.runAsync(() -> {
+            BungeeSK.getApi().getListeners().forEach(listener -> {
+                try {
+                    listener.getClass().getMethod("onReceive", BungeeSKPacket.class);
+                    listener.onReceive(packet);
+                } catch (Exception ignored) {
+                }
+            });
         });
     }
 

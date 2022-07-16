@@ -1,5 +1,6 @@
 package fr.zorg.bungeesk.bukkit;
 
+import ch.njol.skript.Skript;
 import fr.zorg.bungeesk.bukkit.packets.PacketClient;
 import fr.zorg.bungeesk.common.AutoUpdater;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -23,10 +24,15 @@ public class BungeeSK extends JavaPlugin {
             PacketClient.start(InetAddress.getByName("localhost"), 20000);
         } catch (UnknownHostException ignored) {
         }
+
     }
 
     public static BungeeSK getInstance() {
         return JavaPlugin.getPlugin(BungeeSK.class);
+    }
+
+    public static void runAsync(Runnable task) {
+        getInstance().getServer().getScheduler().runTaskAsynchronously(getInstance(), task);
     }
 
     private void launchAutoUpdater() {

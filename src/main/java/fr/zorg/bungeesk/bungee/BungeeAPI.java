@@ -4,10 +4,14 @@ import fr.zorg.bungeesk.bungee.api.BungeeSKListener;
 import fr.zorg.bungeesk.bungee.packets.PacketServer;
 import fr.zorg.bungeesk.bungee.packets.SocketServer;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
-import org.reflections.Reflections;
+import fr.zorg.bungeesk.common.utils.ReflectionUtils;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,13 +29,18 @@ public class BungeeAPI {
     }
 
     public BungeeAPI registerListeners(String packageName) {
-        new Reflections(packageName).getSubTypesOf(BungeeSKListener.class).forEach(clazz -> {
-            try {
-                this.registerListener(clazz.newInstance());
-            } catch (InstantiationException | IllegalAccessException ex) {
-                ex.printStackTrace();
-            }
-        });
+        try {
+            ReflectionUtils.getClassesFromPackage(packageName, BungeeSKListener.class).forEach((clazz) -> {
+                try {
+                    this.listeners.add((BungeeSKListener) clazz.getConstructor().newInstance());
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                         NoSuchMethodException ex) {
+                    ex.printStackTrace();
+                }
+            });
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
         return this;
     }
 

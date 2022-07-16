@@ -5,8 +5,10 @@ import fr.zorg.bungeesk.bukkit.packets.PacketClient;
 import fr.zorg.bungeesk.bukkit.packets.SocketClient;
 import fr.zorg.bungeesk.bungee.api.BungeeSKListener;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
-import org.reflections.Reflections;
+import fr.zorg.bungeesk.common.utils.ReflectionUtils;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,14 +24,20 @@ public class BukkitAPI {
         this.listeners.add(listener);
         return this;
     }
+
     public BukkitAPI registerListeners(String packageName) {
-        new Reflections(packageName).getSubTypesOf(BungeeSKBukkitListener.class).forEach(clazz -> {
-            try {
-                this.registerListener(clazz.newInstance());
-            } catch (InstantiationException | IllegalAccessException ex) {
-                ex.printStackTrace();
-            }
-        });
+        try {
+            ReflectionUtils.getClassesFromPackage(packageName, BungeeSKBukkitListener.class).forEach((clazz) -> {
+                try {
+                    this.listeners.add((BungeeSKBukkitListener) clazz.getConstructor().newInstance());
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                         NoSuchMethodException ex) {
+                    ex.printStackTrace();
+                }
+            });
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
         return this;
     }
 
