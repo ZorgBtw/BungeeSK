@@ -121,7 +121,7 @@ public class SocketServer {
     }
 
     public void completeChallenge(UUID uuid) {
-        if (this.waitingForAuth && this.challengeUUID.compareTo(uuid) == 0) {
+        if (this.waitingForAuth && this.challengeUUID.compareTo(uuid) == 0 && !this.authenticated) {
             this.authenticated = true;
             Debug.log("Client with IP " + socket.getInetAddress().getHostAddress() + " authenticated");
         } else {

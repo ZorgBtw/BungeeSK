@@ -27,7 +27,7 @@ import java.io.IOException;
         "\tstart new connection with connection")
 public class ScopeConnectToServer extends EffectSection {
 
-    public static ClientBuilder settings;
+    public static ClientBuilder builder;
 
     static {
         Skript.registerCondition(ScopeConnectToServer.class, "(create|init) new bungee connection");
@@ -46,7 +46,7 @@ public class ScopeConnectToServer extends EffectSection {
 
     @Override
     protected void execute(Event e) throws IOException {
-        settings = new ClientBuilder();
+        builder = new ClientBuilder();
         super.runSection(e);
     }
 
@@ -55,8 +55,8 @@ public class ScopeConnectToServer extends EffectSection {
         return "create new bungee connection";
     }
 
-    public static ClientBuilder getSettings() {
-        return settings;
+    public static ClientBuilder getBuilder() {
+        return builder;
     }
 
 }

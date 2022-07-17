@@ -1,7 +1,6 @@
 package fr.zorg.bungeesk.bukkit.packets;
 
 import fr.zorg.bungeesk.bukkit.BungeeSK;
-import fr.zorg.bungeesk.bungee.Debug;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import fr.zorg.bungeesk.common.utils.PacketUtils;
 
@@ -18,7 +17,6 @@ public class SocketClient {
     private final Thread readThread;
 
     public SocketClient(Socket socket) {
-        Debug.log("ClientSocket started on " + socket.getInetAddress().getHostAddress());
         this.socket = socket;
         try {
             this.reader = new DataInputStream(socket.getInputStream());

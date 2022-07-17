@@ -1,11 +1,11 @@
 package fr.zorg.bungeesk.bukkit;
 
-import fr.zorg.bungeesk.bukkit.packets.PacketClient;
+import ch.njol.skript.Skript;
+import ch.njol.skript.SkriptAddon;
 import fr.zorg.bungeesk.common.AutoUpdater;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.io.IOException;
 
 public class BungeeSK extends JavaPlugin {
 
@@ -18,9 +18,12 @@ public class BungeeSK extends JavaPlugin {
 
         api.registerListeners("fr.zorg.bungeesk.bukkit.packets.listeners", this);
 
+
+        final SkriptAddon addon = Skript.registerAddon(this);
         try {
-            PacketClient.start(InetAddress.getByName("localhost"), 20000);
-        } catch (UnknownHostException ignored) {
+            addon.loadClasses("fr.zorg.bungeesk.bukkit.skript");
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
 
     }
