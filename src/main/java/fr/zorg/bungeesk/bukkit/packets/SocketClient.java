@@ -64,6 +64,10 @@ public class SocketClient {
         }
     }
 
+    public boolean isConnected() {
+        return this.socket != null && this.socket.isConnected() && !this.socket.isClosed();
+    }
+
     private void handleSendListeners(BungeeSKPacket packet) {
         BungeeSK.runAsync(() -> {
             BungeeSK.getApi().getListeners().forEach(listener -> {
