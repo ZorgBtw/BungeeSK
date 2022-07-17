@@ -39,16 +39,6 @@ public class BungeeSK extends Plugin {
         }, 0, 1L, TimeUnit.DAYS); // Everyday
     }
 
-    public void dispatchPacket(InetAddress address, BungeeSKPacket packet) {
-        for (BungeeSKListener listener : api.getListeners()) {
-            try {
-                listener.getClass().getMethod("onReceive", BungeeServer.class, BungeeSKPacket.class);
-                listener.onReceive(address, packet);
-            } catch (NoSuchMethodException ignored) {
-            }
-        }
-    }
-
     public static void runAsync(Runnable task) {
         instance.getProxy().getScheduler().runAsync(instance, task);
     }

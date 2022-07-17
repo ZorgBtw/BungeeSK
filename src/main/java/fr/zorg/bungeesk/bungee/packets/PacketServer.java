@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PacketServer {
@@ -31,6 +32,11 @@ public class PacketServer {
         while (!serverSocket.isClosed()) {
             try {
                 final Socket socketClient = serverSocket.accept();
+                if (BungeeConfig.WHITELIST_IP$ENABLE.get()) {
+                    final List<String> whitelist = Arrays.asList(BungeeConfig.WHITELIST_IP$WHITELIST.get());
+                    if (!whitelist.contains(socketClient.getInetAddress().getHostAddress()))
+                        socketClient.close();
+                }
                 final SocketServer clientSocket = new SocketServer(socketClient);
                 clientSockets.add(clientSocket);
             } catch (IOException ex) {
