@@ -112,7 +112,7 @@ public class SocketServer {
         this.waitingForAuth = true;
         BungeeSK.runAsync(() -> {
             try {
-                Thread.sleep(5000);
+                Thread.sleep(3000); //Timeout of 3 seconds to authenticate
                 this.waitingForAuth = false;
             } catch (InterruptedException ignored) {
             }

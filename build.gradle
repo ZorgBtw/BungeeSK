@@ -20,7 +20,7 @@ dependencies {
     compileOnly group: "org.spigotmc", name: "spigot-api", version: "1.18-R0.1-SNAPSHOT"
     compileOnly group: "net.md-5", name: "bungeecord-api", version: "1.17-R0.1-SNAPSHOT"
     compileOnly group: "org.jetbrains", name: "annotations", version: "22.0.0"
-    compileOnly (group: "com.github.SkriptLang", name: "Skript", version: "2.6-alpha1") {
+    compileOnly (group: "com.github.SkriptLang", name: "Skript", version: "2.6.2") {
         exclude group: "com.sk89q.worldguard", module: "worldguard-legacy"
         exclude group: "net.milkbowl.vault", module: "Vault"
     }
