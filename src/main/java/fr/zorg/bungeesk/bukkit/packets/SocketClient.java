@@ -1,6 +1,8 @@
 package fr.zorg.bungeesk.bukkit.packets;
 
 import fr.zorg.bungeesk.bukkit.BungeeSK;
+import fr.zorg.bungeesk.bukkit.skript.events.bukkit.ClientConnectEvent;
+import fr.zorg.bungeesk.bukkit.skript.events.bukkit.ClientDisconnectEvent;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import fr.zorg.bungeesk.common.utils.PacketUtils;
 
@@ -24,6 +26,7 @@ public class SocketClient {
         } catch (IOException ex) {
             this.disconnect();
         }
+        BungeeSK.callEvent(new ClientConnectEvent());
         this.readThread = new Thread(this::read);
         this.readThread.start();
     }
@@ -55,6 +58,7 @@ public class SocketClient {
     }
 
     public void disconnect() {
+        BungeeSK.callEvent(new ClientDisconnectEvent());
         try {
             this.writer.close();
             this.reader.close();

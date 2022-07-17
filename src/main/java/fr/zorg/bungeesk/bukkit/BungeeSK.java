@@ -3,6 +3,7 @@ package fr.zorg.bungeesk.bukkit;
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
 import fr.zorg.bungeesk.common.AutoUpdater;
+import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
@@ -46,6 +47,12 @@ public class BungeeSK extends JavaPlugin {
 
     public static BukkitAPI getApi() {
         return api;
+    }
+
+    public static void callEvent(Event event) {
+        getInstance().getServer().getScheduler().runTask(getInstance(), () -> {
+            getInstance().getServer().getPluginManager().callEvent(event);
+        });
     }
 
 }

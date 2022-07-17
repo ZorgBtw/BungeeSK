@@ -28,7 +28,6 @@ public class EffDisconnectClient extends Effect {
         return true;
     }
 
-
     @Override
     protected void execute(Event e) {
         if (PacketClient.getClient().isConnected())

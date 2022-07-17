@@ -5,7 +5,6 @@ import fr.zorg.bungeesk.bukkit.utils.ClientBuilder;
 import org.bukkit.Bukkit;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.Socket;
 
 public class PacketClient {
