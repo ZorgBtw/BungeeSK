@@ -8,7 +8,7 @@ import java.util.Random;
 
 public enum BungeeConfig {
 
-    PORT(20000, "The port BungeeSK will listen to. This port need to be opened."),
+    PORT(20000, "The port BungeeSK will listen to. This port needs to be opened."),
     PASSWORD(generatePassword(), "Password of the connection. Needs to be the same for every connection"),
     ENCRYPT(true, "This isn't recommended to turn this off. " +
             "The password will be less efficient than before and the connection more exposed. " +
