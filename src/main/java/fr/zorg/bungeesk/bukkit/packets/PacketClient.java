@@ -2,6 +2,7 @@ package fr.zorg.bungeesk.bukkit.packets;
 
 import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.utils.ClientBuilder;
+import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import org.bukkit.Bukkit;
 
 import java.io.IOException;
@@ -34,6 +35,11 @@ public class PacketClient {
 
     public static ClientBuilder getBuilder() {
         return builder;
+    }
+
+    public static void sendPacket(BungeeSKPacket packet) {
+        if (client != null && client.isConnected())
+            client.send(packet);
     }
 
 }
