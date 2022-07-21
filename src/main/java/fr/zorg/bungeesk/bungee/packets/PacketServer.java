@@ -2,8 +2,10 @@ package fr.zorg.bungeesk.bungee.packets;
 
 import fr.zorg.bungeesk.bungee.BungeeConfig;
 import fr.zorg.bungeesk.bungee.Debug;
+import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -43,6 +45,10 @@ public class PacketServer {
                 ex.printStackTrace();
             }
         }
+    }
+
+    public static void sendPacket(InetAddress address, BungeeSKPacket packet) {
+        clientSockets.stream().filter(client -> client.getSocket().getInetAddress().equals(address)).findFirst().ifPresent(client -> client.send(packet));
     }
 
     public static void stop() {

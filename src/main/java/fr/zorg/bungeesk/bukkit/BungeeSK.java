@@ -34,7 +34,7 @@ public class BungeeSK extends JavaPlugin {
     }
 
     public static void runAsync(Runnable task) {
-        getInstance().getServer().getScheduler().runTaskAsynchronously(getInstance(), task);
+        new Thread(task).start();
     }
 
     private void launchAutoUpdater() {

@@ -43,7 +43,7 @@ public class BungeeAPI {
     }
 
     public BungeeAPI sendPacket(InetAddress address, BungeeSKPacket packet) {
-        this.getClients().stream().filter(client -> client.getSocket().getInetAddress().equals(address)).findFirst().ifPresent(client -> client.send(packet));
+        PacketServer.sendPacket(address, packet);
         return this;
     }
 

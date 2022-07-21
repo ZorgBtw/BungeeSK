@@ -1,13 +1,10 @@
 package fr.zorg.bungeesk.bungee;
 
-import fr.zorg.bungeesk.bungee.api.BungeeSKListener;
 import fr.zorg.bungeesk.bungee.packets.PacketServer;
+import fr.zorg.bungeesk.bungee.utils.GlobalVariablesUtils;
 import fr.zorg.bungeesk.common.AutoUpdater;
-import fr.zorg.bungeesk.common.entities.BungeeServer;
-import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import net.md_5.bungee.api.plugin.Plugin;
 
-import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
 
 public class BungeeSK extends Plugin {
@@ -22,6 +19,7 @@ public class BungeeSK extends Plugin {
 
         this.launchAutoUpdater();
         BungeeConfig.init();
+        GlobalVariablesUtils.init();
         PacketServer.start();
 
         api.registerListeners("fr.zorg.bungeesk.bungee.packets.listeners");

@@ -47,24 +47,26 @@ public class SocketClient {
 
     public void send(BungeeSKPacket packet) {
         BungeeSK.runAsync(() -> {
-            this.handleSendListeners(packet);
-            final byte[] bytes = PacketUtils.packetToBytes(packet);
-            try {
-                writer.writeInt(bytes.length);
-                writer.write(bytes);
-            } catch (IOException ignored) {
+            if (PacketClient.isConnected()) {
+                this.handleSendListeners(packet);
+                final byte[] bytes = PacketUtils.packetToBytes(packet);
+                try {
+                    writer.writeInt(bytes.length);
+                    writer.write(bytes);
+                } catch (IOException ignored) {
+                }
             }
         });
     }
 
     public void disconnect() {
-        BungeeSK.callEvent(new ClientDisconnectEvent());
-        try {
-            this.writer.close();
-            this.reader.close();
-            this.socket.close();
-            this.readThread.interrupt();
-        } catch (IOException ignored) {
+        if (this.isConnected()) {
+            try {
+                this.socket.close();
+                this.readThread.interrupt();
+                BungeeSK.callEvent(new ClientDisconnectEvent());
+            } catch (IOException ignored) {
+            }
         }
     }
 

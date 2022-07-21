@@ -29,6 +29,10 @@ public class PacketClient {
         });
     }
 
+    public static boolean isConnected() {
+        return socket != null && client != null && client.isConnected();
+    }
+
     public static SocketClient getClient() {
         return client;
     }
@@ -38,8 +42,7 @@ public class PacketClient {
     }
 
     public static void sendPacket(BungeeSKPacket packet) {
-        if (client != null && client.isConnected())
-            client.send(packet);
+        client.send(packet);
     }
 
 }
