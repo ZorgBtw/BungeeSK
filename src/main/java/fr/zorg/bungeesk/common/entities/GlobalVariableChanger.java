@@ -6,6 +6,6 @@ public enum GlobalVariableChanger {
     REMOVE,
     SET,
     DELETE,
-    GET,
-    GET_RESPONSE
+    GET
+
 }

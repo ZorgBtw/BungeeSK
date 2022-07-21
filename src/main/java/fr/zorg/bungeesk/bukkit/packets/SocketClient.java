@@ -47,7 +47,7 @@ public class SocketClient {
 
     public void send(BungeeSKPacket packet) {
         BungeeSK.runAsync(() -> {
-            if (PacketClient.isConnected()) {
+            if (this.isConnected()) {
                 this.handleSendListeners(packet);
                 final byte[] bytes = PacketUtils.packetToBytes(packet);
                 try {

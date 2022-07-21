@@ -2,6 +2,7 @@ package fr.zorg.bungeesk.bungee.packets.listeners;
 
 import fr.zorg.bungeesk.bungee.api.BungeeSKListener;
 import fr.zorg.bungeesk.bungee.utils.GlobalVariablesUtils;
+import fr.zorg.bungeesk.common.entities.EmptyFutureResponse;
 import fr.zorg.bungeesk.common.entities.GlobalVariableChanger;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import fr.zorg.bungeesk.common.packets.GlobalVariablePacket;
@@ -50,7 +51,8 @@ public class GlobalVariableListener extends BungeeSKListener {
         if (packet instanceof GlobalVariablePacket) {
             final GlobalVariablePacket globalVariablePacket = (GlobalVariablePacket) packet;
             if (globalVariablePacket.getChanger() == GlobalVariableChanger.GET) {
-                return GlobalVariablesUtils.getGlobalVariable(globalVariablePacket.getVariableName());
+                final Object globalVar = GlobalVariablesUtils.getGlobalVariable(globalVariablePacket.getVariableName());
+                return globalVar == null ? new EmptyFutureResponse() : globalVar;
             }
         }
         return null;

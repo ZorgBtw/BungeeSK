@@ -2,6 +2,7 @@ package fr.zorg.bungeesk.bungee.utils;
 
 import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.packets.PacketServer;
+import fr.zorg.bungeesk.common.entities.EmptyFutureResponse;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import fr.zorg.bungeesk.common.packets.CompletableFutureResponsePacket;
 
@@ -15,8 +16,15 @@ public class FutureUtils {
             try {
                 listener.getClass().getMethod("onFutureRequest", UUID.class, InetAddress.class, BungeeSKPacket.class);
                 final Object response = listener.onFutureRequest(uuid, address, input);
-                if (response != null)
-                    PacketServer.sendPacket(address, new CompletableFutureResponsePacket(uuid, response));
+                if (response != null) {
+                    PacketServer.sendPacket(address,
+                            new CompletableFutureResponsePacket(
+                                    uuid,
+                                    response instanceof EmptyFutureResponse ? null : response,
+                                    response instanceof EmptyFutureResponse
+                            )
+                    );
+                }
             } catch (NoSuchMethodException ignored) {
             }
         });

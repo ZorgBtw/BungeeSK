@@ -30,7 +30,7 @@ public class CompletableFutureUtils {
         } catch (InterruptedException | ExecutionException | TimeoutException ignored) {
         }
 
-        return response;
+        return response == "NULL" ? null : response; //todo fix that, if value is 'NULL' on bungee then it will be interpreted as empty value
     }
 
     public static void completeFuture(UUID uuid, Object response) {
