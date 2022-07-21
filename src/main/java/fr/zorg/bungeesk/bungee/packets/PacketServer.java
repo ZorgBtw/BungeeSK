@@ -51,6 +51,10 @@ public class PacketServer {
         clientSockets.stream().filter(client -> client.getSocket().getInetAddress().equals(address)).findFirst().ifPresent(client -> client.send(packet));
     }
 
+    public static void broadcastPacket(BungeeSKPacket packet) {
+        clientSockets.forEach(client -> client.send(packet));
+    }
+
     public static void stop() {
         serverThread.interrupt();
         clientSockets.forEach(SocketServer::disconnect);

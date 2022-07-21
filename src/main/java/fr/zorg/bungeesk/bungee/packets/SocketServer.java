@@ -1,7 +1,9 @@
 package fr.zorg.bungeesk.bungee.packets;
 
+import fr.zorg.bungeesk.bungee.BungeeConfig;
 import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.Debug;
+import fr.zorg.bungeesk.bungee.utils.GlobalScriptsUtils;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import fr.zorg.bungeesk.common.packets.HandshakePacket;
 import fr.zorg.bungeesk.common.utils.PacketUtils;
@@ -124,6 +126,9 @@ public class SocketServer {
         if (this.waitingForAuth && this.challengeUUID.compareTo(uuid) == 0 && !this.authenticated) {
             this.authenticated = true;
             Debug.log("Client with IP " + socket.getInetAddress().getHostAddress() + " authenticated");
+            if (BungeeConfig.FILES$SYNC_AT_CONNECT.get()) {
+                GlobalScriptsUtils.sendGlobalScripts(this.socket.getInetAddress());
+            }
         } else {
             this.disconnect();
         }

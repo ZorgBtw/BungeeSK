@@ -2,9 +2,6 @@ package fr.zorg.bungeesk.bukkit;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
-import ch.njol.skript.lang.SkriptParser;
-import ch.njol.skript.lang.VariableString;
-import ch.njol.skript.variables.Variables;
 import fr.zorg.bungeesk.common.AutoUpdater;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
