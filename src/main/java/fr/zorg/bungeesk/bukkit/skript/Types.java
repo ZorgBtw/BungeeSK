@@ -46,17 +46,17 @@ public class Types {
                 .parser(new Parser<BungeePlayer>() {
 
                     @Override
-                    public BungeePlayer parse(final String id, final ParseContext context) {
+                    public BungeePlayer parse(String id, ParseContext context) {
                         return null;
                     }
 
                     @Override
-                    public String toString(final BungeePlayer player, final int arg1) {
+                    public String toString(BungeePlayer player, int arg1) {
                         return player.getName();
                     }
 
                     @Override
-                    public String toVariableNameString(final BungeePlayer player) {
+                    public String toVariableNameString(BungeePlayer player) {
                         return player.getName();
                     }
 

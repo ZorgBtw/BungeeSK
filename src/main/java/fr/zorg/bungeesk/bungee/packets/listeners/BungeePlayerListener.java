@@ -21,8 +21,7 @@ public class BungeePlayerListener extends BungeeSKListener {
             final String name = bungeePlayerNamedPacket.getName();
             final ProxiedPlayer proxiedPlayer = BungeeSK.getInstance().getProxy().getPlayer(name);
             return proxiedPlayer == null ? new EmptyFutureResponse() : new BungeePlayer(proxiedPlayer.getName(), proxiedPlayer.getUniqueId());
-        }
-        else if (packet instanceof BungeePlayerWithUUIDPacket) {
+        } else if (packet instanceof BungeePlayerWithUUIDPacket) {
             final BungeePlayerWithUUIDPacket bungeePlayerWithUUIDPacket = (BungeePlayerWithUUIDPacket) packet;
             final UUID playerUuid = bungeePlayerWithUUIDPacket.getUuid();
             final ProxiedPlayer proxiedPlayer = BungeeSK.getInstance().getProxy().getPlayer(playerUuid);
