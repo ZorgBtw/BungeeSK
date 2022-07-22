@@ -19,9 +19,11 @@ import fr.zorg.bungeesk.common.packets.GlobalVariablePacket;
 import org.bukkit.event.Event;
 
 @Name("Global variables stored on the Bungeecord")
-@Description("Set, get and delete a global variable stored on the Bungeecord.")
+@Description("Set, get and delete a global variable stored on the Bungeecord. Value can be boolean, number or string.")
 @Examples("set global variable \"rank.%player%\" to \"Admin\"\n" +
-        "set {_rank} to global variable \"rank.%player%\"")
+        "set {_rank} to global variable \"rank.%player%\"\n" +
+        "set global variable \"money.%player%\" to 1000\n" +
+        "set global variable \"test.%player%\" to true")
 @Since("1.1.0")
 public class ExprGlobalVariables extends SimpleExpression<Object> {
 
