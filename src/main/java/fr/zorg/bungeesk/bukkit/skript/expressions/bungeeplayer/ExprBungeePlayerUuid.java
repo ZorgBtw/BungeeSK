@@ -12,14 +12,14 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("UUID of bungee player")
 @Description("Get the UUID of a player on the network")
-@Examples("set {_uuid} to event-bungeeplayer's uuid")
+@Examples("set {_uuid} to event-bungeeplayer's bungee uuid")
 @Since("1.0.0")
 public class ExprBungeePlayerUuid extends SimplePropertyExpression<BungeePlayer, String> {
 
     static {
         register(ExprBungeePlayerUuid.class,
                 String.class,
-                "uuid",
+                "bungee uuid",
                 "bungeeplayer");
     }
 
