@@ -25,15 +25,15 @@ public class PacketUtils {
         return bytes;
     }
 
-    public static <T extends BungeeSKPacket> T packetFromBytes(byte[] bytes) {
+    public static BungeeSKPacket packetFromBytes(byte[] bytes) {
         final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
         ObjectInput objectInput = null;
-        T packet = null;
+        BungeeSKPacket packet = null;
         try {
             objectInput = new ObjectInputStream(byteArrayInputStream);
-            packet = (T) objectInput.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            packet = (BungeeSKPacket) objectInput.readObject();
+        } catch (IOException | ClassNotFoundException ex) {
+            ex.printStackTrace();
         } finally {
             try {
                 if (objectInput != null)
