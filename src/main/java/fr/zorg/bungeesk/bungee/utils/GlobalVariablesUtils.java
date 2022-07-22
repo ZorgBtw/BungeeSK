@@ -10,8 +10,8 @@ import java.io.*;
 
 public class GlobalVariablesUtils {
 
-    private static File variablesFile = new File(BungeeSK.getInstance().getDataFolder().getAbsolutePath(), "variables.json");
-    private static Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private static final File variablesFile = new File(BungeeSK.getInstance().getDataFolder().getAbsolutePath(), "variables.json");
+    private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private static JsonObject globalVariables;
 
     public static void init() {

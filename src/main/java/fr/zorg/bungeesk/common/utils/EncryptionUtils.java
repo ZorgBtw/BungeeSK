@@ -4,6 +4,7 @@ import com.rockaport.alice.Alice;
 import com.rockaport.alice.AliceContext;
 import com.rockaport.alice.AliceContextBuilder;
 
+import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.UUID;
 
@@ -24,6 +25,24 @@ public class EncryptionUtils {
     public static UUID decryptUUID(byte[] encryptedUUID, char[] password) throws GeneralSecurityException {
         final byte[] uuidBytes = alice.decrypt(encryptedUUID, password);
         return UUIDUtils.bytesToUUID(uuidBytes);
+    }
+
+    public static byte[] encryptPacket(byte[] serializedPacket, char[] password) {
+        try {
+            return alice.encrypt(serializedPacket, password);
+        } catch (GeneralSecurityException | IOException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public static byte[] decryptPacket(byte[] encryptedPacket, char[] password) {
+        try {
+            return alice.decrypt(encryptedPacket, password);
+        } catch (GeneralSecurityException ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
 }

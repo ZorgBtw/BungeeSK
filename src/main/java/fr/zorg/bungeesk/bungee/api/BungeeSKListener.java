@@ -1,5 +1,6 @@
 package fr.zorg.bungeesk.bungee.api;
 
+import fr.zorg.bungeesk.common.entities.EmptyFutureResponse;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 
 import java.net.InetAddress;
@@ -31,7 +32,8 @@ public abstract class BungeeSKListener {
      * @param uuid    The uuid of the said request
      * @param address The server's address from where the get request is from
      * @param packet  The packet specified from the Spigot server
-     * @return What will be sent to the Spigot server
+     * @return What the Spigot will receive.
+     * Return a new {@link EmptyFutureResponse} to send nothing, {@link null} to be ignored
      */
     public Object onFutureRequest(UUID uuid, InetAddress address, BungeeSKPacket packet) {
         return null;

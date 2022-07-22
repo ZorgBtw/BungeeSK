@@ -21,7 +21,7 @@ public enum BungeeConfig {
     WHITELIST_IP$WHITELIST(new String[]{"127.0.0.1"}, "List of all whitelisted IPs");
 
     private Object value;
-    private String[] comments;
+    private final String[] comments;
 
     BungeeConfig(final Object defaultValue, final String... comments) {
         this.value = defaultValue;

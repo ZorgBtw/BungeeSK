@@ -4,8 +4,10 @@ import fr.zorg.bungeesk.bungee.BungeeConfig;
 import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.Debug;
 import fr.zorg.bungeesk.bungee.utils.GlobalScriptsUtils;
+import fr.zorg.bungeesk.common.packets.AuthCompletePacket;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import fr.zorg.bungeesk.common.packets.HandshakePacket;
+import fr.zorg.bungeesk.common.utils.EncryptionUtils;
 import fr.zorg.bungeesk.common.utils.PacketUtils;
 
 import java.io.DataInputStream;
@@ -24,9 +26,11 @@ public class SocketServer {
     private boolean authenticated;
     private UUID challengeUUID;
     private boolean waitingForAuth = false;
+    private boolean encrypting;
 
     public SocketServer(Socket socket) {
         this.socket = socket;
+        this.encrypting = false;
         try {
             this.reader = new DataInputStream(socket.getInputStream());
             this.writer = new DataOutputStream(socket.getOutputStream());
@@ -47,6 +51,11 @@ public class SocketServer {
                 final int length = reader.readInt();
                 byte[] data = new byte[length];
                 reader.readFully(data, 0, data.length);
+                if (this.encrypting) {
+                    data = EncryptionUtils.decryptPacket(data, ((String) BungeeConfig.PASSWORD.get()).toCharArray());
+                    if (data == null)
+                        continue;
+                }
                 final BungeeSKPacket packet = PacketUtils.packetFromBytes(data);
                 Debug.log("Received packet " + packet.getClass().getSimpleName() + " from " + socket.getInetAddress().getHostAddress());
                 this.handleReceiveListeners(packet);
@@ -58,7 +67,15 @@ public class SocketServer {
 
     public void send(BungeeSKPacket packet) {
         this.handleSendListeners(packet);
-        final byte[] bytes = PacketUtils.packetToBytes(packet);
+        byte[] bytes = PacketUtils.packetToBytes(packet);
+        if (encrypting) {
+            Debug.log("Encrypting packet " + packet.getClass().getSimpleName());
+            bytes = EncryptionUtils.encryptPacket(bytes, ((String) BungeeConfig.PASSWORD.get()).toCharArray());
+            if (bytes == null) {
+                Debug.log("Failed to encrypt packet");
+                return;
+            }
+        }
         Debug.log("Sending packet " + packet.getClass().getSimpleName() + " to " + socket.getInetAddress().getHostAddress());
         try {
             writer.writeInt(bytes.length);
@@ -125,6 +142,8 @@ public class SocketServer {
     public void completeChallenge(UUID uuid) {
         if (this.waitingForAuth && this.challengeUUID.compareTo(uuid) == 0 && !this.authenticated) {
             this.authenticated = true;
+            this.send(new AuthCompletePacket(BungeeConfig.ENCRYPT.get()));
+            this.encrypting = BungeeConfig.ENCRYPT.get();
             Debug.log("Client with IP " + socket.getInetAddress().getHostAddress() + " authenticated");
             if (BungeeConfig.FILES$SYNC_AT_CONNECT.get()) {
                 GlobalScriptsUtils.sendGlobalScripts(this.socket.getInetAddress());
@@ -137,4 +156,9 @@ public class SocketServer {
     public boolean isAuthenticated() {
         return this.authenticated;
     }
+
+    public boolean isEncrypting() {
+        return this.encrypting;
+    }
+
 }

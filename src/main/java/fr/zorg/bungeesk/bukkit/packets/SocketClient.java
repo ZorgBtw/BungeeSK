@@ -1,9 +1,9 @@
 package fr.zorg.bungeesk.bukkit.packets;
 
 import fr.zorg.bungeesk.bukkit.BungeeSK;
-import fr.zorg.bungeesk.bukkit.skript.events.bukkit.ClientConnectEvent;
 import fr.zorg.bungeesk.bukkit.skript.events.bukkit.ClientDisconnectEvent;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
+import fr.zorg.bungeesk.common.utils.EncryptionUtils;
 import fr.zorg.bungeesk.common.utils.PacketUtils;
 
 import java.io.DataInputStream;
@@ -17,16 +17,17 @@ public class SocketClient {
     private DataInputStream reader;
     private DataOutputStream writer;
     private final Thread readThread;
+    private boolean encrypting;
 
     public SocketClient(Socket socket) {
         this.socket = socket;
+        this.encrypting = false;
         try {
             this.reader = new DataInputStream(socket.getInputStream());
             this.writer = new DataOutputStream(socket.getOutputStream());
         } catch (IOException ex) {
             this.disconnect();
         }
-        BungeeSK.callEvent(new ClientConnectEvent());
         this.readThread = new Thread(this::read);
         this.readThread.start();
     }
@@ -37,6 +38,11 @@ public class SocketClient {
                 final int length = reader.readInt();
                 byte[] data = new byte[length];
                 reader.readFully(data, 0, data.length);
+                if (this.encrypting) {
+                    data = EncryptionUtils.decryptPacket(data, PacketClient.getBuilder().getPassword());
+                    if (data == null)
+                        continue;
+                }
                 final BungeeSKPacket packet = PacketUtils.packetFromBytes(data);
                 this.handleReceiveListeners(packet);
             } catch (IOException ex) {
@@ -49,7 +55,12 @@ public class SocketClient {
         BungeeSK.runAsync(() -> {
             if (this.isConnected()) {
                 this.handleSendListeners(packet);
-                final byte[] bytes = PacketUtils.packetToBytes(packet);
+                byte[] bytes = PacketUtils.packetToBytes(packet);
+                if (this.isEncrypting()) {
+                    bytes = EncryptionUtils.encryptPacket(bytes, PacketClient.getBuilder().getPassword());
+                    if (bytes == null)
+                        return;
+                }
                 try {
                     writer.writeInt(bytes.length);
                     writer.write(bytes);
@@ -98,4 +109,11 @@ public class SocketClient {
         });
     }
 
+    public void setEncrypting(boolean encrypting) {
+        this.encrypting = encrypting;
+    }
+
+    public boolean isEncrypting() {
+        return this.encrypting;
+    }
 }
