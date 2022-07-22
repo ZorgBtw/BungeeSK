@@ -20,8 +20,7 @@ public class FutureUtils {
                     PacketServer.sendPacket(address,
                             new CompletableFutureResponsePacket(
                                     uuid,
-                                    response instanceof EmptyFutureResponse ? null : response,
-                                    response instanceof EmptyFutureResponse
+                                    response instanceof EmptyFutureResponse ? null : response
                             )
                     );
                 }
