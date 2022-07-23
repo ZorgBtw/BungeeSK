@@ -17,6 +17,10 @@ public class CompletableFutureUtils {
     private static final Map<UUID, CompletableFuture<Object>> futures = new HashMap<>();
 
     public static Object generateFuture(BungeeSKPacket packet) {
+
+        if (!PacketClient.isConnected())
+            return null;
+
         final UUID randomUUID = UUID.randomUUID(); // Using a random UUID here to prevent from mixing between 2 actions at the same time
         final CompletableFuture<Object> future = new CompletableFuture<>();
         futures.put(randomUUID, future);
