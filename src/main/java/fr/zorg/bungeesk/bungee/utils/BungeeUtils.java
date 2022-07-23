@@ -8,7 +8,8 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 public class BungeeUtils {
 
     public static ProxiedPlayer getPlayer(BungeePlayer bungeePlayer) {
-        return BungeeSK.getInstance().getProxy().getPlayer(bungeePlayer.getUuid());
+        final ProxiedPlayer player = BungeeSK.getInstance().getProxy().getPlayer(bungeePlayer.getName());
+        return player != null && player.isConnected() ? player : null;
     }
 
     public static TextComponent[] getTextComponent(String... text) {
