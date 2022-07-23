@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 public class ExprBungeePlayerName extends SimplePropertyExpression<BungeePlayer, String> {
 
     static {
-        register(ExprBungeePlayerIP.class,
+        register(ExprBungeePlayerName.class,
                 String.class,
                 "[user]name",
                 "bungeeplayer");

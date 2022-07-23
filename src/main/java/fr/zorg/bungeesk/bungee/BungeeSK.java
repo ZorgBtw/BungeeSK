@@ -23,6 +23,7 @@ public class BungeeSK extends Plugin {
         PacketServer.start();
 
         api.registerListeners("fr.zorg.bungeesk.bungee.packets.listeners");
+        getProxy().getPluginManager().registerListener(this, new BungeeEventsListener());
     }
 
     public static BungeeSK getInstance() {
