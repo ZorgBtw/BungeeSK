@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Name("IP address of BungeePlayer")
 @Description("Gets the IP address of a BungeePlayer")
-@Examples("send (bungee player named \"Zorg_btw\")'s ip")
+@Examples("send (bungee player named \"Notch\")'s ip")
 @Since("1.1.0")
 public class ExprBungeePlayerIP extends SimplePropertyExpression<BungeePlayer, String> {
 

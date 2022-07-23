@@ -16,7 +16,7 @@ import org.bukkit.event.Event;
 
 @Name("Make BungeePlayer execute command")
 @Description("Make a player on the bungeecord execute a specific command")
-@Examples("make bungee player named \"Zorg_btw\" execute command \"say What's up people !\"")
+@Examples("make bungee player named \"Notch\" execute command \"say What's up people !\"")
 @Since("1.1.0")
 public class EffMakeBungeePlayerExecuteCommand extends Effect {
 
