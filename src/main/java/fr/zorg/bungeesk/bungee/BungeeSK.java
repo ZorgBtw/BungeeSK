@@ -1,5 +1,6 @@
 package fr.zorg.bungeesk.bungee;
 
+import fr.zorg.bungeesk.bungee.utils.Metrics;
 import fr.zorg.bungeesk.bungee.packets.PacketServer;
 import fr.zorg.bungeesk.bungee.utils.GlobalVariablesUtils;
 import fr.zorg.bungeesk.common.AutoUpdater;
@@ -11,11 +12,13 @@ public class BungeeSK extends Plugin {
 
     private static BungeeSK instance;
     private static BungeeAPI api;
+    private Metrics metrics;
 
     @Override
     public void onEnable() {
         instance = this;
         api = new BungeeAPI();
+        this.metrics = new Metrics(this, 11146);
 
         this.launchAutoUpdater();
         BungeeConfig.init();

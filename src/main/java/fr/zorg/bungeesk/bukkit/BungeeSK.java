@@ -2,6 +2,7 @@ package fr.zorg.bungeesk.bukkit;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
+import fr.zorg.bungeesk.bukkit.utils.Metrics;
 import fr.zorg.bungeesk.common.AutoUpdater;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -11,11 +12,13 @@ import java.io.IOException;
 public class BungeeSK extends JavaPlugin {
 
     private static BukkitAPI api;
+    private Metrics metrics;
 
     @Override
     public void onEnable() {
         this.launchAutoUpdater();
         api = new BukkitAPI();
+        this.metrics = new Metrics(this, 10655);
 
         api.registerListeners("fr.zorg.bungeesk.bukkit.packets.listeners", this);
 
@@ -26,6 +29,7 @@ public class BungeeSK extends JavaPlugin {
             ex.printStackTrace();
         }
 
+        this.metrics.addCustomChart(new Metrics.SimplePie("skript_version", () -> Skript.getVersion().toString()));
     }
 
     public static BungeeSK getInstance() {
