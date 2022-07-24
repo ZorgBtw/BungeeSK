@@ -41,7 +41,6 @@ public class ExprBungeeServerFromAddress extends SimpleExpression<BungeeServer> 
 
     @Override
     protected BungeeServer[] get(Event e) {
-        System.out.println("this.port.getSingle(e).getClass() = " + this.port.getSingle(e).getClass());
         final GetBungeeServerFromAddressPacket packet = new GetBungeeServerFromAddressPacket(this.address.getSingle(e), this.port.getSingle(e));
         final BungeeServer response = (BungeeServer) CompletableFutureUtils.generateFuture(packet);
         if (response == null)
