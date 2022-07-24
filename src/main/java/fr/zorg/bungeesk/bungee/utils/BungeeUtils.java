@@ -53,6 +53,10 @@ public class BungeeUtils {
         return serverInfo != null ? new BungeeServer(serverInfo.getAddress().getAddress(), serverInfo.getAddress().getPort(), serverInfo.getName()) : null;
     }
 
+    public static BungeeServer getServerFromSocket(SocketServer socketServer) {
+        return getServerFromAddress(socketServer.getSocket().getInetAddress().getHostAddress(), socketServer.getMinecraftPort());
+    }
+
     public static ServerInfo getServerInfo(BungeeServer bungeeServer) {
         return BungeeSK
                 .getInstance()
