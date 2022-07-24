@@ -1,6 +1,7 @@
 package fr.zorg.bungeesk.bungee.packets.listeners;
 
 import fr.zorg.bungeesk.bungee.api.BungeeSKListener;
+import fr.zorg.bungeesk.bungee.packets.SocketServer;
 import fr.zorg.bungeesk.bungee.utils.BungeeUtils;
 import fr.zorg.bungeesk.common.entities.BungeePlayer;
 import fr.zorg.bungeesk.common.entities.BungeeServer;
@@ -9,14 +10,13 @@ import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import fr.zorg.bungeesk.common.packets.GetAllPlayersOnServerPacket;
 import net.md_5.bungee.api.config.ServerInfo;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.UUID;
 
 public class GetAllPlayersOnServerListener extends BungeeSKListener {
 
     @Override
-    public Object onFutureRequest(UUID uuid, InetAddress address, BungeeSKPacket packet) {
+    public Object onFutureRequest(UUID uuid, SocketServer socketServer, BungeeSKPacket packet) {
         if (packet instanceof GetAllPlayersOnServerPacket) {
             final GetAllPlayersOnServerPacket getAllPlayersOnServerPacket = (GetAllPlayersOnServerPacket) packet;
             final BungeeServer server = getAllPlayersOnServerPacket.getBungeeServer();

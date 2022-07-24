@@ -16,6 +16,10 @@ public class BungeeUtils {
         return player != null && player.isConnected() ? player : null;
     }
 
+    public static BungeePlayer getBungeePlayer(ProxiedPlayer player) {
+        return new BungeePlayer(player.getName(), player.getUniqueId());
+    }
+
     public static TextComponent[] getTextComponent(String... text) {
         final TextComponent[] textComponents = new TextComponent[text.length];
         for (int i = 0; i < text.length; i++) {

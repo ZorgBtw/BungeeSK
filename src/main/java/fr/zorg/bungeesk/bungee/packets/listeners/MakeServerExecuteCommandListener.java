@@ -10,12 +10,10 @@ import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import fr.zorg.bungeesk.common.packets.ExecuteCommandPacket;
 import fr.zorg.bungeesk.common.packets.MakeServerExecuteCommandPacket;
 
-import java.net.InetAddress;
-
 public class MakeServerExecuteCommandListener extends BungeeSKListener {
 
     @Override
-    public void onReceive(InetAddress address, BungeeSKPacket packet) {
+    public void onReceive(SocketServer socketServer, BungeeSKPacket packet) {
         if (packet instanceof MakeServerExecuteCommandPacket) {
             final MakeServerExecuteCommandPacket makeServerExecuteCommandPacket = (MakeServerExecuteCommandPacket) packet;
             final String command = makeServerExecuteCommandPacket.getCommand();
@@ -30,9 +28,9 @@ public class MakeServerExecuteCommandListener extends BungeeSKListener {
             }
             if (toSend instanceof BungeeServer) {
                 final BungeeServer bungeeServer = (BungeeServer) toSend;
-                final SocketServer socketServer = BungeeUtils.getSocketFromBungeeServer(bungeeServer);
-                if (socketServer != null)
-                    socketServer.send(new ExecuteCommandPacket(command));
+                final SocketServer server = BungeeUtils.getSocketFromBungeeServer(bungeeServer);
+                if (server != null)
+                    server.sendPacket(new ExecuteCommandPacket(command));
             }
         }
     }

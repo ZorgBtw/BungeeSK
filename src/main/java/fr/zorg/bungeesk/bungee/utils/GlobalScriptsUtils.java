@@ -2,12 +2,11 @@ package fr.zorg.bungeesk.bungee.utils;
 
 import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.Debug;
-import fr.zorg.bungeesk.bungee.packets.PacketServer;
+import fr.zorg.bungeesk.bungee.packets.SocketServer;
 import fr.zorg.bungeesk.common.packets.GlobalScriptsPacket;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -15,7 +14,7 @@ import java.util.HashMap;
 
 public class GlobalScriptsUtils {
 
-    public static void sendGlobalScripts(InetAddress address) {
+    public static void sendGlobalScripts(SocketServer socketServer) {
         final File folder = new File(BungeeSK.getInstance().getDataFolder().getAbsolutePath(), "common-skript");
         if (!folder.exists()) {
             folder.mkdirs();
@@ -37,8 +36,8 @@ public class GlobalScriptsUtils {
         }
 
         final GlobalScriptsPacket packet = new GlobalScriptsPacket(scripts);
-        PacketServer.sendPacket(address, packet);
-        Debug.log("Sent global scripts to " + address.getHostAddress());
+        socketServer.sendPacket(packet);
+        Debug.log("Sent global scripts to " + socketServer.getSocket().getInetAddress().getHostAddress() + ":" + socketServer.getMinecraftPort());
     }
 
 }

@@ -48,11 +48,11 @@ public class PacketServer {
     }
 
     public static void sendPacket(InetAddress address, BungeeSKPacket packet) {
-        clientSockets.stream().filter(client -> client.getSocket().getInetAddress().equals(address)).findFirst().ifPresent(client -> client.send(packet));
+        clientSockets.stream().filter(client -> client.getSocket().getInetAddress().equals(address)).findFirst().ifPresent(client -> client.sendPacket(packet));
     }
 
     public static void broadcastPacket(BungeeSKPacket packet) {
-        clientSockets.forEach(client -> client.send(packet));
+        clientSockets.forEach(client -> client.sendPacket(packet));
     }
 
     public static void stop() {

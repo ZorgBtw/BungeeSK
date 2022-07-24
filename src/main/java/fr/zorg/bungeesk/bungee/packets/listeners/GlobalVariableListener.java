@@ -1,19 +1,19 @@
 package fr.zorg.bungeesk.bungee.packets.listeners;
 
 import fr.zorg.bungeesk.bungee.api.BungeeSKListener;
+import fr.zorg.bungeesk.bungee.packets.SocketServer;
 import fr.zorg.bungeesk.bungee.utils.GlobalVariablesUtils;
 import fr.zorg.bungeesk.common.entities.EmptyFutureResponse;
 import fr.zorg.bungeesk.common.entities.GlobalVariableChanger;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import fr.zorg.bungeesk.common.packets.GlobalVariablePacket;
 
-import java.net.InetAddress;
 import java.util.UUID;
 
 public class GlobalVariableListener extends BungeeSKListener {
 
     @Override
-    public void onReceive(InetAddress address, BungeeSKPacket packet) {
+    public void onReceive(SocketServer socketServer, BungeeSKPacket packet) {
         if (packet instanceof GlobalVariablePacket) {
 
             final GlobalVariablePacket globalVariablePacket = (GlobalVariablePacket) packet;
@@ -47,7 +47,7 @@ public class GlobalVariableListener extends BungeeSKListener {
     }
 
     @Override
-    public Object onFutureRequest(UUID uuid, InetAddress address, BungeeSKPacket packet) {
+    public Object onFutureRequest(UUID uuid, SocketServer socketServer, BungeeSKPacket packet) {
         if (packet instanceof GlobalVariablePacket) {
             final GlobalVariablePacket globalVariablePacket = (GlobalVariablePacket) packet;
             if (globalVariablePacket.getChanger() == GlobalVariableChanger.GET) {

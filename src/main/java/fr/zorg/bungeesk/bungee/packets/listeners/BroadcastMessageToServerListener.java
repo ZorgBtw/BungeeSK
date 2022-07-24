@@ -7,17 +7,15 @@ import fr.zorg.bungeesk.common.packets.BroadcastMessagePacket;
 import fr.zorg.bungeesk.common.packets.BroadcastMessageToServerPacket;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 
-import java.net.InetAddress;
-
 public class BroadcastMessageToServerListener extends BungeeSKListener {
 
     @Override
-    public void onReceive(InetAddress address, BungeeSKPacket packet) {
+    public void onReceive(SocketServer socketServer, BungeeSKPacket packet) {
         if (packet instanceof BroadcastMessageToServerPacket) {
             final BroadcastMessageToServerPacket broadcastMessageToServerPacket = (BroadcastMessageToServerPacket) packet;
-            final SocketServer socketServer = BungeeUtils.getSocketFromBungeeServer(broadcastMessageToServerPacket.getBungeeServer());
-            if (socketServer != null)
-                socketServer.send(new BroadcastMessagePacket(broadcastMessageToServerPacket.getMessage()));
+            final SocketServer server = BungeeUtils.getSocketFromBungeeServer(broadcastMessageToServerPacket.getBungeeServer());
+            if (server != null)
+                server.sendPacket(new BroadcastMessagePacket(broadcastMessageToServerPacket.getMessage()));
         }
     }
 }

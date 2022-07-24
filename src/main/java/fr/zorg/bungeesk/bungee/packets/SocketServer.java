@@ -43,7 +43,7 @@ public class SocketServer {
         this.authenticated = false;
         Debug.log("ClientSocket started on " + socket.getInetAddress().getHostAddress());
 
-        this.send(new HandshakePacket(0));
+        this.sendPacket(new HandshakePacket(0));
     }
 
     public void read() {
@@ -66,7 +66,7 @@ public class SocketServer {
         }
     }
 
-    public void send(BungeeSKPacket packet) {
+    public void sendPacket(BungeeSKPacket packet) {
         this.handleSendListeners(packet);
         byte[] bytes = PacketUtils.packetToBytes(packet);
         if (encrypting) {
@@ -89,13 +89,13 @@ public class SocketServer {
 
     public void disconnect() {
         if (this.socket.isConnected() && !this.socket.isClosed() && !this.readThread.isInterrupted()) {
-            Debug.log("Disconnecting client with IP " + socket.getInetAddress().getHostAddress());
+            Debug.log("Disconnecting client with IP " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort);
             try {
                 this.reader.close();
                 this.writer.close();
                 this.socket.close();
                 this.readThread.interrupt();
-                Debug.log("Client with IP " + socket.getInetAddress().getHostAddress() + " disconnected");
+                Debug.log("Client with IP " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort + " disconnected");
                 PacketServer.getClientSockets().remove(this);
             } catch (IOException ignored) {
                 Debug.log("An error occurred while disconnecting the client with IP " + socket.getInetAddress().getHostAddress());
@@ -110,8 +110,8 @@ public class SocketServer {
     private void handleSendListeners(BungeeSKPacket packet) {
         BungeeSK.getApi().getListeners().forEach(listener -> {
             try {
-                listener.getClass().getMethod("onSend", InetAddress.class, BungeeSKPacket.class);
-                listener.onSend(this.socket.getInetAddress(), packet);
+                listener.getClass().getMethod("onSend", SocketServer.class, BungeeSKPacket.class);
+                listener.onSend(this, packet);
             } catch (Exception ignored) {
             }
         });
@@ -120,8 +120,8 @@ public class SocketServer {
     private void handleReceiveListeners(BungeeSKPacket packet) {
         BungeeSK.getApi().getListeners().forEach(listener -> {
             try {
-                listener.getClass().getMethod("onReceive", InetAddress.class, BungeeSKPacket.class);
-                listener.onReceive(this.socket.getInetAddress(), packet);
+                listener.getClass().getMethod("onReceive", SocketServer.class, BungeeSKPacket.class);
+                listener.onReceive(this, packet);
             } catch (Exception ignored) {
             }
         });
@@ -143,11 +143,11 @@ public class SocketServer {
     public void completeChallenge(UUID uuid) {
         if (this.waitingForAuth && this.challengeUUID.compareTo(uuid) == 0 && !this.authenticated) {
             this.authenticated = true;
-            this.send(new AuthCompletePacket(BungeeConfig.ENCRYPT.get()));
+            this.sendPacket(new AuthCompletePacket(BungeeConfig.ENCRYPT.get()));
             this.encrypting = BungeeConfig.ENCRYPT.get();
             Debug.log("Client with IP " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort + " authenticated");
             if (BungeeConfig.FILES$SYNC_AT_CONNECT.get()) {
-                GlobalScriptsUtils.sendGlobalScripts(this.socket.getInetAddress());
+                GlobalScriptsUtils.sendGlobalScripts(this);
             }
         } else {
             this.disconnect();
