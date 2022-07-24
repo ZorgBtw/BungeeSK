@@ -3,6 +3,7 @@ package fr.zorg.bungeesk.bukkit.packets.listeners;
 import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.api.BungeeSKBukkitListener;
 import fr.zorg.bungeesk.bukkit.packets.PacketClient;
+import fr.zorg.bungeesk.common.entities.BungeeServer;
 import fr.zorg.bungeesk.common.packets.AuthRequestPacket;
 import fr.zorg.bungeesk.common.packets.AuthResponsePacket;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
@@ -20,7 +21,7 @@ public class AuthRequestListener extends BungeeSKBukkitListener {
             final byte[] encryptedUUID = authRequestPacket.getEncryptedUuid();
             try {
                 final UUID uuid = EncryptionUtils.decryptUUID(encryptedUUID, PacketClient.getBuilder().getPassword());
-                BungeeSK.getApi().sendPacket(new AuthResponsePacket(uuid));
+                PacketClient.sendPacket(new AuthResponsePacket(uuid));
             } catch (GeneralSecurityException ex) {
                 BungeeSK.getInstance().getLogger().severe("§7Connection error: §cWrong password");
                 BungeeSK.getApi().getClient().disconnect();

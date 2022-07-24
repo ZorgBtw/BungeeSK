@@ -15,25 +15,25 @@ import org.jetbrains.annotations.Nullable;
 @Description("Set the port of a connection")
 @Since("1.0.0")
 @Examples("set port of {_connection} to 20000")
-public class ExprPort extends SimplePropertyExpression<ClientBuilder, Long> {
+public class ExprPort extends SimplePropertyExpression<ClientBuilder, Integer> {
 
     static {
         register(ExprPort.class,
-                Long.class,
+                Integer.class,
                 "port",
                 "bungeeconn");
     }
 
     @Nullable
     @Override
-    public Long convert(ClientBuilder builder) {
-        return (long) builder.getPort();
+    public Integer convert(ClientBuilder builder) {
+        return builder.getPort();
     }
 
     @Override
     public Class<?>[] acceptChange(ChangeMode mode) {
         if (mode == ChangeMode.SET) {
-            return CollectionUtils.array(Long.class);
+            return CollectionUtils.array(Integer.class);
         }
         return CollectionUtils.array();
     }
@@ -41,13 +41,13 @@ public class ExprPort extends SimplePropertyExpression<ClientBuilder, Long> {
     @Override
     public void change(Event e, Object[] delta, ChangeMode mode) {
         for (ClientBuilder builder : getExpr().getArray(e)) {
-            builder.setPort(((Long) delta[0]).intValue());
+            builder.setPort((Integer) delta[0]);
         }
     }
 
     @Override
-    public Class<? extends Long> getReturnType() {
-        return Long.class;
+    public Class<? extends Integer> getReturnType() {
+        return Integer.class;
     }
 
     @Override

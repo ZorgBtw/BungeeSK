@@ -2,7 +2,9 @@ package fr.zorg.bungeesk.bungee.utils;
 
 import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.common.entities.BungeePlayer;
+import fr.zorg.bungeesk.common.entities.BungeeServer;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 public class BungeeUtils {
@@ -18,6 +20,27 @@ public class BungeeUtils {
             textComponents[i] = new TextComponent(text[i]);
         }
         return textComponents;
+    }
+
+    public static BungeeServer getServerFromName(String name) {
+        final ServerInfo serverInfo = BungeeSK.getInstance().getProxy().getServerInfo(name);
+        return serverInfo != null ? new BungeeServer(serverInfo.getAddress().getAddress(), serverInfo.getAddress().getPort(), serverInfo.getName()) : null;
+    }
+
+    public static BungeeServer getServerFromAddress(String address, int port) {
+        final ServerInfo serverInfo = BungeeSK
+                .getInstance()
+                .getProxy()
+                .getServers()
+                .values()
+                .stream()
+                .filter(server ->
+                        server.getAddress().getAddress().getHostAddress().equalsIgnoreCase(address) &&
+                                server.getAddress().getPort() == port)
+                .findFirst()
+                .orElse(null);
+
+        return serverInfo != null ? new BungeeServer(serverInfo.getAddress().getAddress(), serverInfo.getAddress().getPort(), serverInfo.getName()) : null;
     }
 
 }
