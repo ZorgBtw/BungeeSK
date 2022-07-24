@@ -43,4 +43,18 @@ public class BungeeUtils {
         return serverInfo != null ? new BungeeServer(serverInfo.getAddress().getAddress(), serverInfo.getAddress().getPort(), serverInfo.getName()) : null;
     }
 
+    public static ServerInfo getServerInfo(BungeeServer bungeeServer) {
+        return BungeeSK
+                .getInstance()
+                .getProxy()
+                .getServers()
+                .values()
+                .stream()
+                .filter(server ->
+                        server.getAddress().getAddress().getHostAddress().equalsIgnoreCase(bungeeServer.getAddress().getHostAddress()) &&
+                                server.getAddress().getPort() == bungeeServer.getPort())
+                .findFirst()
+                .orElse(null);
+    }
+
 }
