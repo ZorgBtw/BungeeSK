@@ -21,6 +21,7 @@ public class HandshakeListener extends BungeeSKListener {
         if (packet instanceof HandshakePacket) {
             final Optional<SocketServer> client = BungeeSK.getApi().getClientWithInetAddress(address);
             if (client.isPresent()) {
+                client.get().setMinecraftPort(((HandshakePacket) packet).getMinecraftPort());
                 final UUID uuid = client.get().initChallenge();
                 try {
                     final byte[] encryptedUUID = EncryptionUtils.encryptUUID(uuid, ((String) BungeeConfig.PASSWORD.get()).toCharArray());

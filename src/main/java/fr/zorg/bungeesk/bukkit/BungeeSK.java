@@ -54,4 +54,8 @@ public class BungeeSK extends JavaPlugin {
         });
     }
 
+    public static int getMinecraftPort() {
+        return getInstance().getServer().getPort();
+    }
+
 }

@@ -27,6 +27,7 @@ public class SocketServer {
     private UUID challengeUUID;
     private boolean waitingForAuth = false;
     private boolean encrypting;
+    private int minecraftPort;
 
     public SocketServer(Socket socket) {
         this.socket = socket;
@@ -42,7 +43,7 @@ public class SocketServer {
         this.authenticated = false;
         Debug.log("ClientSocket started on " + socket.getInetAddress().getHostAddress());
 
-        this.send(new HandshakePacket());
+        this.send(new HandshakePacket(0));
     }
 
     public void read() {
@@ -57,7 +58,7 @@ public class SocketServer {
                         continue;
                 }
                 final BungeeSKPacket packet = PacketUtils.packetFromBytes(data);
-                Debug.log("Received packet " + packet.getClass().getSimpleName() + " from " + socket.getInetAddress().getHostAddress());
+                Debug.log("Received packet " + packet.getClass().getSimpleName() + " from " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort);
                 this.handleReceiveListeners(packet);
             } catch (IOException ex) {
                 this.disconnect();
@@ -76,13 +77,13 @@ public class SocketServer {
                 return;
             }
         }
-        Debug.log("Sending packet " + packet.getClass().getSimpleName() + " to " + socket.getInetAddress().getHostAddress());
+        Debug.log("Sending packet " + packet.getClass().getSimpleName() + " to " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort);
         try {
             writer.writeInt(bytes.length);
             writer.write(bytes);
-            Debug.log("Packet " + packet.getClass().getSimpleName() + " sent to " + socket.getInetAddress().getHostAddress());
+            Debug.log("Packet " + packet.getClass().getSimpleName() + " sent to " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort);
         } catch (IOException ignored) {
-            Debug.log("Error while sending packet " + packet.getClass().getSimpleName() + " to " + socket.getInetAddress().getHostAddress());
+            Debug.log("Error while sending packet " + packet.getClass().getSimpleName() + " to " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort);
         }
     }
 
@@ -144,7 +145,7 @@ public class SocketServer {
             this.authenticated = true;
             this.send(new AuthCompletePacket(BungeeConfig.ENCRYPT.get()));
             this.encrypting = BungeeConfig.ENCRYPT.get();
-            Debug.log("Client with IP " + socket.getInetAddress().getHostAddress() + " authenticated");
+            Debug.log("Client with IP " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort + " authenticated");
             if (BungeeConfig.FILES$SYNC_AT_CONNECT.get()) {
                 GlobalScriptsUtils.sendGlobalScripts(this.socket.getInetAddress());
             }
@@ -159,6 +160,14 @@ public class SocketServer {
 
     public boolean isEncrypting() {
         return this.encrypting;
+    }
+
+    public void setMinecraftPort(int minecraftPort) {
+        this.minecraftPort = minecraftPort;
+    }
+
+    public int getMinecraftPort() {
+        return this.minecraftPort;
     }
 
 }

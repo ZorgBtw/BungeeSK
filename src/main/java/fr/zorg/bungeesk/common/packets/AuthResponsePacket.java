@@ -14,4 +14,5 @@ public class AuthResponsePacket implements BungeeSKPacket {
         return this.decryptedUuid;
     }
 
+
 }

@@ -10,7 +10,7 @@ public class HandshakeListener extends BungeeSKBukkitListener {
     @Override
     public void onReceive(BungeeSKPacket packet) {
         if (packet instanceof HandshakePacket) {
-            BungeeSK.getApi().sendPacket(new HandshakePacket());
+            BungeeSK.getApi().sendPacket(new HandshakePacket(BungeeSK.getMinecraftPort()));
         }
     }
 
