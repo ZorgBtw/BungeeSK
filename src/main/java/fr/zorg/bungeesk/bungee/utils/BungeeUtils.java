@@ -1,6 +1,8 @@
 package fr.zorg.bungeesk.bungee.utils;
 
 import fr.zorg.bungeesk.bungee.BungeeSK;
+import fr.zorg.bungeesk.bungee.packets.PacketServer;
+import fr.zorg.bungeesk.bungee.packets.SocketServer;
 import fr.zorg.bungeesk.common.entities.BungeePlayer;
 import fr.zorg.bungeesk.common.entities.BungeeServer;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -61,4 +63,24 @@ public class BungeeUtils {
                 .orElse(null);
     }
 
+    public static SocketServer getSocketFromBungeeServer(BungeeServer bungeeServer) {
+
+        return PacketServer
+                .getClientSockets()
+                .stream()
+                .filter(clientSocket ->
+                        clientSocket
+                                .getSocket()
+                                .getInetAddress()
+                                .getHostAddress()
+                                .equalsIgnoreCase(
+                                        bungeeServer
+                                                .getAddress()
+                                                .getHostAddress()
+                                ) &&
+                                clientSocket.getMinecraftPort() == bungeeServer.getPort()
+                )
+                .findFirst().orElse(null);
+
+    }
 }
