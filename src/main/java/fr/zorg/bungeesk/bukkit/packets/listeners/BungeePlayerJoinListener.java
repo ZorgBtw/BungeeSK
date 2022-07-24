@@ -1,8 +1,8 @@
 package fr.zorg.bungeesk.bukkit.packets.listeners;
 
+import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.api.BungeeSKBukkitListener;
 import fr.zorg.bungeesk.bukkit.skript.events.bukkit.BungeePlayerJoinEvent;
-import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.common.packets.BungeePlayerJoinPacket;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 

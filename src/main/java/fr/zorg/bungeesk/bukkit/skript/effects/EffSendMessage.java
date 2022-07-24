@@ -9,7 +9,6 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
-import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.packets.PacketClient;
 import fr.zorg.bungeesk.common.entities.BungeePlayer;
 import fr.zorg.bungeesk.common.packets.SendMessagePacket;

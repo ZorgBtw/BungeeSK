@@ -27,6 +27,10 @@ public class BungeeUtils {
         return serverInfo != null ? new BungeeServer(serverInfo.getAddress().getAddress(), serverInfo.getAddress().getPort(), serverInfo.getName()) : null;
     }
 
+    public static BungeeServer getServerFromInfo(ServerInfo serverInfo) {
+        return serverInfo != null ? new BungeeServer(serverInfo.getAddress().getAddress(), serverInfo.getAddress().getPort(), serverInfo.getName()) : null;
+    }
+
     public static BungeeServer getServerFromAddress(String address, int port) {
         final ServerInfo serverInfo = BungeeSK
                 .getInstance()

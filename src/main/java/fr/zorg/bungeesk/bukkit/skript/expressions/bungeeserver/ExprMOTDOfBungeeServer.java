@@ -8,6 +8,7 @@ import ch.njol.skript.doc.Since;
 import ch.njol.skript.expressions.base.SimplePropertyExpression;
 import fr.zorg.bungeesk.bukkit.utils.CompletableFutureUtils;
 import fr.zorg.bungeesk.common.entities.BungeeServer;
+import fr.zorg.bungeesk.common.packets.GetBungeeServerMOTDPacket;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 

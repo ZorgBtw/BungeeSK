@@ -3,7 +3,6 @@ package fr.zorg.bungeesk.bukkit.packets.listeners;
 import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.api.BungeeSKBukkitListener;
 import fr.zorg.bungeesk.bukkit.packets.PacketClient;
-import fr.zorg.bungeesk.common.entities.BungeeServer;
 import fr.zorg.bungeesk.common.packets.AuthRequestPacket;
 import fr.zorg.bungeesk.common.packets.AuthResponsePacket;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;

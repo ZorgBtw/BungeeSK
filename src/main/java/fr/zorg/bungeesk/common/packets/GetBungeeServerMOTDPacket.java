@@ -1,7 +1,6 @@
-package fr.zorg.bungeesk.bukkit.skript.expressions.bungeeserver;
+package fr.zorg.bungeesk.common.packets;
 
 import fr.zorg.bungeesk.common.entities.BungeeServer;
-import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 
 public class GetBungeeServerMOTDPacket implements BungeeSKPacket {
 
