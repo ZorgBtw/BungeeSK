@@ -15,7 +15,7 @@ import fr.zorg.bungeesk.bukkit.utils.ClientBuilder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
-@Name("Last created area")
+@Name("Last created connection")
 @Description("Returns the last created connection inside of a scope")
 @Since("1.0.0")
 @Examples("on load:\n" +
@@ -24,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
         "\t\tset port of connection to 20000\n" +
         "\t\tset password of connection to \"abcd\"\n" +
         "\tstart new connection with connection")
-
 public class ExprLastConnection extends SimpleExpression<ClientBuilder> {
 
     static {

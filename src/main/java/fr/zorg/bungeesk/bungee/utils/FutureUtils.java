@@ -6,7 +6,6 @@ import fr.zorg.bungeesk.common.entities.EmptyFutureResponse;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import fr.zorg.bungeesk.common.packets.CompletableFutureResponsePacket;
 
-import java.net.InetAddress;
 import java.util.UUID;
 
 public class FutureUtils {

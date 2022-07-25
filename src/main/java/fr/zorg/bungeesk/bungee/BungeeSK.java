@@ -1,8 +1,8 @@
 package fr.zorg.bungeesk.bungee;
 
-import fr.zorg.bungeesk.bungee.utils.Metrics;
 import fr.zorg.bungeesk.bungee.packets.PacketServer;
 import fr.zorg.bungeesk.bungee.utils.GlobalVariablesUtils;
+import fr.zorg.bungeesk.bungee.utils.Metrics;
 import fr.zorg.bungeesk.common.AutoUpdater;
 import net.md_5.bungee.api.plugin.Plugin;
 

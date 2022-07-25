@@ -8,6 +8,7 @@ import ch.njol.skript.registrations.Classes;
 import fr.zorg.bungeesk.bukkit.utils.ClientBuilder;
 import fr.zorg.bungeesk.common.entities.BungeePlayer;
 import fr.zorg.bungeesk.common.entities.BungeeServer;
+import fr.zorg.bungeesk.common.entities.BungeeServerBuilder;
 import org.jetbrains.annotations.Nullable;
 
 public class Types {
@@ -82,6 +83,31 @@ public class Types {
 
                     @Override
                     public String toVariableNameString(final BungeeServer server) {
+                        return server.getName();
+                    }
+
+                }));
+
+        Classes.registerClass(new ClassInfo<>(BungeeServerBuilder.class, "serverbuilder")
+                .defaultExpression(new EventValueExpression<>(BungeeServerBuilder.class))
+                .user("serverbuilder")
+                .name("Bungee server builder")
+                .description("Represents a bungee server builder")
+                .since("2.0.0")
+                .parser(new Parser<BungeeServerBuilder>() {
+
+                    @Override
+                    public BungeeServerBuilder parse(final String id, final ParseContext context) {
+                        return null;
+                    }
+
+                    @Override
+                    public String toString(final BungeeServerBuilder server, final int arg1) {
+                        return server.getName();
+                    }
+
+                    @Override
+                    public String toVariableNameString(final BungeeServerBuilder server) {
                         return server.getName();
                     }
 
