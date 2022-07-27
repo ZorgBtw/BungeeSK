@@ -13,7 +13,7 @@ public enum BungeeConfig {
     ENCRYPT(true, "This isn't recommended to turn this off. " +
             "The password will be less efficient than before and the connection more exposed. " +
             "Turn this off only if you know what you are doing"),
-    DEBUG(true, "You will be notified in the console when the server receives a packet"),
+    DEBUG(false, "You will be notified in the console when the server receives a packet"),
     FILES$SYNC_AT_CONNECT(true, "Global scripts located at \"/plugins/BungeeSK/scripts\" will be synchronised whenever a spigot connects to the BungeeSK's server",
             "If you need to retrieve scripts manually, please refer to https://skripthub.net/docs/?id=5689"),
     FILES$AUTO_UPDATE(false, "On change of every script, this will be updated in every BungeeSK server"),
