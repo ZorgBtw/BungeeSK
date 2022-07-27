@@ -1,0 +1,76 @@
+package fr.zorg.bungeesk.bungee.commands;
+
+import fr.zorg.bungeesk.bungee.packets.PacketServer;
+import fr.zorg.bungeesk.bungee.packets.SocketServer;
+import fr.zorg.bungeesk.bungee.utils.BungeeUtils;
+import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.event.TabCompleteEvent;
+import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.event.EventHandler;
+
+import java.util.ArrayList;
+
+public class BungeeSKCommand extends Command implements Listener {
+
+    private final String prefix = "§6BungeeSK §7» ";
+
+    public BungeeSKCommand() {
+        super("bungeesk");
+    }
+
+    @Override
+    public void execute(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("bungeesk.command")) {
+            sender.sendMessage(BungeeUtils.getTextComponent("&cYou don't have permission to use this command"));
+            return;
+        }
+
+        if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
+            sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§bHelp"));
+            sender.sendMessage(BungeeUtils.getTextComponent("  §8» §6/§fbungeesk §3servers§e: §7Displays all servers connected to BungeeSK"));
+            sender.sendMessage(BungeeUtils.getTextComponent("  §8» §6/§fbungeesk §cdisconnect <IP:PORT / ALL>§e: §7Disconnect a specific server under BungeeSK"));
+        } else if (args[0].equalsIgnoreCase("servers")) {
+            sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§3Servers"));
+            PacketServer.getClientSockets().forEach(socket -> {
+                sender.sendMessage(BungeeUtils.getTextComponent("  §8» §6" + socket.getSocket().getInetAddress().getHostAddress() + ":" + socket.getMinecraftPort()));
+            });
+        } else if (args[0].equalsIgnoreCase("disconnect")) {
+            if (args.length < 2) {
+                sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§cYou must specify a server to disconnect !"));
+                return;
+            }
+
+            if (args[1].equalsIgnoreCase("all")) {
+                new ArrayList<>(PacketServer.getClientSockets()).forEach(SocketServer::disconnect);
+                sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§aAll BungeeSK clients are now disconnected !"));
+                return;
+            }
+
+            if (!args[1].contains(":")) {
+                sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§cThe server IP:PORT is invalid !"));
+                return;
+            }
+
+            final SocketServer server = PacketServer.getClientSockets().stream().filter(socket -> socket.getSocket().getInetAddress().getHostAddress().equals(args[1].split(":")[0]) && socket.getMinecraftPort() == Integer.parseInt(args[1].split(":")[1])).findFirst().orElse(null);
+
+            if (server == null) {
+                sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§cNo server exists under this IP:PORT"));
+                return;
+            }
+
+            server.disconnect();
+            sender.sendMessage(BungeeUtils.getTextComponent(this.prefix +
+                    String.format("§7Disconnected server under address %s and port %s", server.getSocket().getInetAddress().getHostAddress(), server.getMinecraftPort())));
+        }
+    }
+
+    @EventHandler
+    public void onTabComplete(TabCompleteEvent e) {
+        if (!((CommandSender) e.getSender()).hasPermission("bungeesk.command") &&
+                e.getSuggestions().stream().anyMatch(s -> s.equalsIgnoreCase("bungeesk"))) {
+            e.getSuggestions().remove("bungeesk");
+        }
+    }
+
+}

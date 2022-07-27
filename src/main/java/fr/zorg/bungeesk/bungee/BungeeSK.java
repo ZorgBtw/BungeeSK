@@ -1,5 +1,6 @@
 package fr.zorg.bungeesk.bungee;
 
+import fr.zorg.bungeesk.bungee.commands.BungeeSKCommand;
 import fr.zorg.bungeesk.bungee.packets.PacketServer;
 import fr.zorg.bungeesk.bungee.utils.GlobalVariablesUtils;
 import fr.zorg.bungeesk.bungee.utils.Metrics;
@@ -26,7 +27,8 @@ public class BungeeSK extends Plugin {
         PacketServer.start();
 
         api.registerListeners("fr.zorg.bungeesk.bungee.packets.listeners");
-        getProxy().getPluginManager().registerListener(this, new BungeeEventsListener());
+        super.getProxy().getPluginManager().registerListener(this, new BungeeEventsListener());
+        super.getProxy().getPluginManager().registerCommand(this, new BungeeSKCommand());
     }
 
     public static BungeeSK getInstance() {
