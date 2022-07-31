@@ -40,8 +40,8 @@ public class ExprAddress extends SimplePropertyExpression<ClientBuilder, String>
 
     @Override
     public void change(final Event e, final Object[] delta, final ChangeMode mode) {
-        for (ClientBuilder ClientBuilder : getExpr().getArray(e)) {
-            ClientBuilder.setAddress((String) delta[0]);
+        for (ClientBuilder clientBuilder : getExpr().getArray(e)) {
+            clientBuilder.setAddress((String) delta[0]);
         }
     }
 

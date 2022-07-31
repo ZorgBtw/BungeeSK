@@ -9,7 +9,6 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class PacketServer {
@@ -39,7 +38,7 @@ public class PacketServer {
                     if (BungeeConfig.WHITELIST_IP$WHITELIST.get() == null)
                         whitelist = new ArrayList<>();
                     else
-                        whitelist = Arrays.asList(BungeeConfig.WHITELIST_IP$WHITELIST.get());
+                        whitelist = BungeeConfig.WHITELIST_IP$WHITELIST.get();
                     if (!whitelist.contains(socketClient.getInetAddress().getHostAddress()))
                         socketClient.close();
                 }

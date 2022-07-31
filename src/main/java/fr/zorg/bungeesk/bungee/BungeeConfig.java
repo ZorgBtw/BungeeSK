@@ -60,7 +60,14 @@ public enum BungeeConfig {
                 if (config.get(key) == null)
                     config.set(key, field.get());
 
-                field.setValue(config.get(key));
+                if (field.equals(PASSWORD)) {
+                    String password = (String) config.get(key);
+                    password = password.replaceAll("&", "");
+                    password = password.replaceAll("§", "");
+                    field.setValue(password);
+                } else {
+                    field.setValue(config.get(key));
+                }
 
 
                 final StringBuilder sb = new StringBuilder(field.getComments().length);
@@ -85,7 +92,7 @@ public enum BungeeConfig {
                 "j", "k", "l", "m", "n", "o", "p", "q", "r",
                 "s", "t", "u", "v", "w", "x", "y", "z", "0",
                 "1", "2", "3", "4", "5", "6", "7", "8", "9",
-                "!", "&", "/", ":", ";", ",", "*"
+                "!", "/", ":", ";", ",", "*"
         };
         final StringBuilder builder = new StringBuilder();
         for (int loop = 0; loop < 16; loop++) {

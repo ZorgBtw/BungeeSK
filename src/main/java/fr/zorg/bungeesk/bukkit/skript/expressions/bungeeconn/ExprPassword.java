@@ -41,7 +41,9 @@ public class ExprPassword extends SimplePropertyExpression<ClientBuilder, String
     @Override
     public void change(Event e, Object[] delta, ChangeMode mode) {
         for (final ClientBuilder builder : super.getExpr().getArray(e)) {
-            final String password = (String) delta[0];
+            String password = (String) delta[0];
+            password = password.replaceAll("&", "");
+            password = password.replaceAll("§", "");
             builder.setPassword(password.toCharArray());
         }
     }

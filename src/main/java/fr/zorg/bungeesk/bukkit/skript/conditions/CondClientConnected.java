@@ -40,10 +40,9 @@ public class CondClientConnected extends Condition {
 
     @Override
     public boolean check(Event e) {
-        boolean isConnected = PacketClient.getClient() != null && PacketClient.getClient().isConnected();
         if (invert)
-            return !isConnected;
-        return isConnected;
+            return !PacketClient.isConnected();
+        return PacketClient.isConnected();
     }
 
     @Override
