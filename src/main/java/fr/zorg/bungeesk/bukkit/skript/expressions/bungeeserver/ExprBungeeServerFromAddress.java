@@ -30,18 +30,18 @@ public class ExprBungeeServerFromAddress extends SimpleExpression<BungeeServer> 
     }
 
     private Expression<String> address;
-    private Expression<Integer> port;
+    private Expression<Long> port;
 
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         this.address = (Expression<String>) exprs[0];
-        this.port = (Expression<Integer>) exprs[1];
+        this.port = (Expression<Long>) exprs[1];
         return true;
     }
 
     @Override
     protected BungeeServer[] get(Event e) {
-        final GetBungeeServerFromAddressPacket packet = new GetBungeeServerFromAddressPacket(this.address.getSingle(e), this.port.getSingle(e));
+        final GetBungeeServerFromAddressPacket packet = new GetBungeeServerFromAddressPacket(this.address.getSingle(e), this.port.getSingle(e).intValue());
         final BungeeServer response = (BungeeServer) CompletableFutureUtils.generateFuture(packet);
         if (response == null)
             return new BungeeServer[0];

@@ -35,7 +35,11 @@ public class PacketServer {
             try {
                 final Socket socketClient = serverSocket.accept();
                 if (BungeeConfig.WHITELIST_IP$ENABLE.get()) {
-                    final List<String> whitelist = Arrays.asList(BungeeConfig.WHITELIST_IP$WHITELIST.get());
+                    List<String> whitelist;
+                    if (BungeeConfig.WHITELIST_IP$WHITELIST.get() == null)
+                        whitelist = new ArrayList<>();
+                    else
+                        whitelist = Arrays.asList(BungeeConfig.WHITELIST_IP$WHITELIST.get());
                     if (!whitelist.contains(socketClient.getInetAddress().getHostAddress()))
                         socketClient.close();
                 }
@@ -56,8 +60,8 @@ public class PacketServer {
     }
 
     public static void stop() {
-        serverThread.interrupt();
         clientSockets.forEach(SocketServer::disconnect);
+        serverThread.interrupt();
         clientSockets.clear();
         try {
             serverSocket.close();

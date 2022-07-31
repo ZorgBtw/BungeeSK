@@ -14,19 +14,19 @@ import org.jetbrains.annotations.Nullable;
 @Description("Get the port of a server precised in the Bungeecord config")
 @Examples("broadcast bungee port of bungee server named \"lobby\"")
 @Since("1.1.0")
-public class ExprPortOfBungeeServer extends SimplePropertyExpression<BungeeServer, Integer> {
+public class ExprPortOfBungeeServer extends SimplePropertyExpression<BungeeServer, Long> {
 
     static {
         register(ExprPortOfBungeeServer.class,
-                Integer.class,
+                Long.class,
                 "bungee port",
                 "bungeeserver");
     }
 
     @Nullable
     @Override
-    public Integer convert(BungeeServer server) {
-        return server == null ? null : server.getPort();
+    public Long convert(BungeeServer server) {
+        return server == null ? null : (long) server.getPort();
     }
 
     @Override
@@ -35,8 +35,8 @@ public class ExprPortOfBungeeServer extends SimplePropertyExpression<BungeeServe
     }
 
     @Override
-    public Class<? extends Integer> getReturnType() {
-        return Integer.class;
+    public Class<? extends Long> getReturnType() {
+        return Long.class;
     }
 
     @Override
