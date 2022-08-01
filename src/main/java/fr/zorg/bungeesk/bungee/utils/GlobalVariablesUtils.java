@@ -7,6 +7,7 @@ import fr.zorg.bungeesk.bungee.BungeeSK;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GlobalVariablesUtils {
 
@@ -20,8 +21,13 @@ public class GlobalVariablesUtils {
                 if (!variablesFile.exists()) {
                     FileUtils.copyInputStreamToFile(BungeeSK.getInstance().getResourceAsStream("variables.json"), variablesFile);
                 }
-                globalVariables = gson.fromJson(new BufferedReader(new FileReader(variablesFile)), JsonObject.class).getAsJsonObject();
-                migrateFromV1();
+                globalVariables = gson.fromJson(new BufferedReader(new FileReader(variablesFile)), JsonObject.class);
+                if (globalVariables == null) {
+                    FileUtils.copyInputStreamToFile(BungeeSK.getInstance().getResourceAsStream("variables.json"), variablesFile);
+                    init();
+                } else {
+                    migrateFromV1();
+                }
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -69,10 +75,21 @@ public class GlobalVariablesUtils {
         saveFile();
     }
 
-    private static void migrateFromV1() {
+    private static void migrateFromV1() throws IOException {
+        AtomicBoolean copiedFile = new AtomicBoolean(false);
         globalVariables.entrySet().forEach(stringJsonElementEntry -> {
             final String varName = stringJsonElementEntry.getKey();
             if (!globalVariables.get(varName).isJsonObject()) {
+
+                if (!copiedFile.get()) {
+                    try {
+                        FileUtils.copyFile(new File(BungeeSK.getInstance().getDataFolder().getAbsolutePath(), "variables.json"), new File(BungeeSK.getInstance().getDataFolder().getAbsolutePath(), "variables_old.json"));
+                        copiedFile.set(true);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
                 final JsonObject jsonObject = new JsonObject();
                 jsonObject.addProperty("value", globalVariables.get(varName).getAsString());
                 jsonObject.addProperty("type", "STRING");

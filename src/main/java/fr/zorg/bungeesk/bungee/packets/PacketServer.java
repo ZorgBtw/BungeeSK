@@ -16,9 +16,14 @@ public class PacketServer {
     private static ServerSocket serverSocket;
     private static final List<SocketServer> clientSockets = new ArrayList<>();
     private static final Thread serverThread = new Thread(PacketServer::listenForClients);
+    private static List<String> whitelist;
 
     public static void start() {
         try {
+            if (BungeeConfig.WHITELIST_IP$WHITELIST.get() == null)
+                whitelist = new ArrayList<>();
+            else
+                whitelist = BungeeConfig.WHITELIST_IP$WHITELIST.get();
             serverSocket = new ServerSocket(BungeeConfig.PORT.get());
             Debug.log("PacketServer started on port " + BungeeConfig.PORT.get());
             serverThread.start();
@@ -34,11 +39,6 @@ public class PacketServer {
             try {
                 final Socket socketClient = serverSocket.accept();
                 if (BungeeConfig.WHITELIST_IP$ENABLE.get()) {
-                    List<String> whitelist;
-                    if (BungeeConfig.WHITELIST_IP$WHITELIST.get() == null)
-                        whitelist = new ArrayList<>();
-                    else
-                        whitelist = BungeeConfig.WHITELIST_IP$WHITELIST.get();
                     if (!whitelist.contains(socketClient.getInetAddress().getHostAddress()))
                         socketClient.close();
                 }

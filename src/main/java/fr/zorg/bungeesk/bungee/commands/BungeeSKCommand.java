@@ -31,6 +31,10 @@ public class BungeeSKCommand extends Command implements Listener {
             sender.sendMessage(BungeeUtils.getTextComponent("  §8» §6/§fbungeesk §3servers§e: §7Displays all servers connected to BungeeSK"));
             sender.sendMessage(BungeeUtils.getTextComponent("  §8» §6/§fbungeesk §cdisconnect <IP:PORT / ALL>§e: §7Disconnect a specific server under BungeeSK"));
         } else if (args[0].equalsIgnoreCase("servers")) {
+            if (PacketServer.getClientSockets().size() == 0) {
+                sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§fNo servers are connected to BungeeSK"));
+                return;
+            }
             sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§3Servers"));
             PacketServer.getClientSockets().forEach(socket -> {
                 sender.sendMessage(BungeeUtils.getTextComponent("  §8» §6" + socket.getSocket().getInetAddress().getHostAddress() + ":" + socket.getMinecraftPort()));

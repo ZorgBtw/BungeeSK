@@ -13,6 +13,7 @@ import fr.zorg.bungeesk.common.utils.PacketUtils;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.UUID;
 
@@ -31,18 +32,21 @@ public class SocketServer {
     public SocketServer(Socket socket) {
         this.socket = socket;
         this.encrypting = false;
-        try {
-            this.reader = new DataInputStream(socket.getInputStream());
-            this.writer = new DataOutputStream(socket.getOutputStream());
-        } catch (IOException ex) {
-            this.disconnect();
-        }
-        this.readThread = new Thread(this::read);
-        this.readThread.start();
         this.authenticated = false;
-        Debug.log("ClientSocket started on " + socket.getInetAddress().getHostAddress());
+        this.readThread = new Thread(this::read);
+        if (!this.socket.isClosed()) {
+            try {
+                this.reader = new DataInputStream(socket.getInputStream());
+                this.writer = new DataOutputStream(socket.getOutputStream());
+                this.readThread.start();
+                Debug.log("ClientSocket started on " + socket.getInetAddress().getHostAddress());
 
-        this.sendPacket(new HandshakePacket(0));
+                this.sendPacket(new HandshakePacket(0));
+            } catch (IOException ex) {
+                this.disconnect();
+                ex.printStackTrace();
+            }
+        }
     }
 
     public void read() {
@@ -66,6 +70,8 @@ public class SocketServer {
     }
 
     public void sendPacket(BungeeSKPacket packet) {
+        if (this.writer == null || this.reader == null)
+            return;
         this.handleSendListeners(packet);
         byte[] bytes = PacketUtils.packetToBytes(packet);
         if (encrypting) {
