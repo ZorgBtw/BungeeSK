@@ -69,7 +69,6 @@ public enum BungeeConfig {
                     field.setValue(config.get(key));
                 }
 
-
                 final StringBuilder sb = new StringBuilder(field.getComments().length);
                 for (int i = 0; i < field.getComments().length; i++) {
                     sb.append(field.getComments()[i]);
