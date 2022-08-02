@@ -3,7 +3,6 @@ package fr.zorg.bungeesk.bukkit.packets;
 import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.utils.ClientBuilder;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
-import org.bukkit.Bukkit;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -16,7 +15,7 @@ public class PacketClient {
 
     public static void start(ClientBuilder builder) {
         PacketClient.builder = builder;
-        Bukkit.getScheduler().runTaskAsynchronously(BungeeSK.getInstance(), () -> {
+        BungeeSK.runAsync(() -> {
             if (socket != null && socket.isConnected())
                 client.disconnect();
             try {
@@ -43,6 +42,11 @@ public class PacketClient {
 
     public static void sendPacket(BungeeSKPacket packet) {
         client.send(packet);
+    }
+
+    public static void resetSocket() {
+        socket = null;
+        client = null;
     }
 
 }

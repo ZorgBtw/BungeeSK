@@ -10,7 +10,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Arrays;
 
 public class SocketClient {
 
@@ -34,7 +33,7 @@ public class SocketClient {
     }
 
     public void read() {
-        while (this.socket.isConnected()) {
+        while (this.isConnected()) {
             try {
                 final int length = reader.readInt();
                 byte[] data = new byte[length];
@@ -74,8 +73,11 @@ public class SocketClient {
     public void disconnect() {
         if (this.isConnected()) {
             try {
+                this.reader.close();
+                this.writer.close();
                 this.socket.close();
                 this.readThread.interrupt();
+                PacketClient.resetSocket();
                 BungeeSK.callEvent(new ClientDisconnectEvent());
             } catch (IOException ignored) {
             }
@@ -117,4 +119,5 @@ public class SocketClient {
     public boolean isEncrypting() {
         return this.encrypting;
     }
+
 }

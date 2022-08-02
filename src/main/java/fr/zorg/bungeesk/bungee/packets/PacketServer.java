@@ -1,7 +1,7 @@
 package fr.zorg.bungeesk.bungee.packets;
 
-import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.BungeeConfig;
+import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.Debug;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 
@@ -10,7 +10,6 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class PacketServer {

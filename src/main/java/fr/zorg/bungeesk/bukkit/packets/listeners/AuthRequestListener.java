@@ -23,7 +23,7 @@ public class AuthRequestListener extends BungeeSKBukkitListener {
                 PacketClient.sendPacket(new AuthResponsePacket(uuid));
             } catch (GeneralSecurityException ex) {
                 BungeeSK.getInstance().getLogger().severe("§7Connection error: §cWrong password");
-                BungeeSK.getApi().getClient().disconnect();
+                PacketClient.getClient().disconnect();
             }
         }
     }

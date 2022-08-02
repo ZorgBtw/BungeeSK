@@ -3,9 +3,7 @@ package fr.zorg.bungeesk.bungee.packets;
 import fr.zorg.bungeesk.bungee.BungeeConfig;
 import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.Debug;
-import fr.zorg.bungeesk.bungee.utils.GlobalScriptsUtils;
 import fr.zorg.bungeesk.common.packets.AuthCompletePacket;
-import fr.zorg.bungeesk.common.packets.AuthResponsePacket;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import fr.zorg.bungeesk.common.packets.HandshakePacket;
 import fr.zorg.bungeesk.common.utils.EncryptionUtils;
@@ -14,9 +12,7 @@ import fr.zorg.bungeesk.common.utils.PacketUtils;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.UUID;
 
 public class SocketServer {
