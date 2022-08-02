@@ -4,6 +4,8 @@ import org.simpleyaml.configuration.file.YamlFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public enum BungeeConfig {
@@ -38,6 +40,10 @@ public enum BungeeConfig {
 
     public <T> T get() {
         return (T) this.value;
+    }
+
+    public ArrayList<?> getList() {
+        return ((ArrayList<?>) this.value);
     }
 
     private void setValue(final Object newValue) {

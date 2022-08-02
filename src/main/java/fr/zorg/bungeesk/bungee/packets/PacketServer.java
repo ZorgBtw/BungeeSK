@@ -1,5 +1,6 @@
 package fr.zorg.bungeesk.bungee.packets;
 
+import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.BungeeConfig;
 import fr.zorg.bungeesk.bungee.Debug;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
@@ -24,13 +25,13 @@ public class PacketServer {
             if (BungeeConfig.WHITELIST_IP$WHITELIST.get() == null)
                 whitelist = new ArrayList<>();
             else
-                whitelist = Arrays.asList(BungeeConfig.WHITELIST_IP$WHITELIST.get());
+                whitelist = ((ArrayList) BungeeConfig.WHITELIST_IP$WHITELIST.getList());
             serverSocket = new ServerSocket(BungeeConfig.PORT.get());
             Debug.log("PacketServer started on port " + BungeeConfig.PORT.get());
             serverThread.start();
             Debug.log("Now listening for clients connecting...");
         } catch (IOException e) {
-            System.err.println("An error occurred during the server's launching process. \n" +
+            BungeeSK.getInstance().getLogger().severe("An error occurred during the server's launching process. \n" +
                     "Is the port opened ? Is the port available and not occupied by another process ?");
         }
     }

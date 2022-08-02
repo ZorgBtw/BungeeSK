@@ -5,6 +5,7 @@ import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.Debug;
 import fr.zorg.bungeesk.bungee.utils.GlobalScriptsUtils;
 import fr.zorg.bungeesk.common.packets.AuthCompletePacket;
+import fr.zorg.bungeesk.common.packets.AuthResponsePacket;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import fr.zorg.bungeesk.common.packets.HandshakePacket;
 import fr.zorg.bungeesk.common.utils.EncryptionUtils;
@@ -15,6 +16,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.UUID;
 
 public class SocketServer {
@@ -74,7 +76,7 @@ public class SocketServer {
             return;
         this.handleSendListeners(packet);
         byte[] bytes = PacketUtils.packetToBytes(packet);
-        if (encrypting) {
+        if (this.encrypting) {
             Debug.log("Encrypting packet " + packet.getClass().getSimpleName());
             bytes = EncryptionUtils.encryptPacket(bytes, ((String) BungeeConfig.PASSWORD.get()).toCharArray());
             if (bytes == null) {
@@ -151,9 +153,6 @@ public class SocketServer {
             this.sendPacket(new AuthCompletePacket(BungeeConfig.ENCRYPT.get()));
             this.encrypting = BungeeConfig.ENCRYPT.get();
             Debug.log("Client with IP " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort + " authenticated");
-            if (BungeeConfig.FILES$SYNC_AT_CONNECT.get()) {
-                GlobalScriptsUtils.sendGlobalScripts(this);
-            }
         } else {
             this.disconnect();
         }

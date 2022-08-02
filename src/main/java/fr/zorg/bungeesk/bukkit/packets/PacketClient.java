@@ -23,7 +23,7 @@ public class PacketClient {
                 socket = new Socket(builder.getAddress(), builder.getPort());
                 client = new SocketClient(socket);
             } catch (IOException ignored) {
-                System.err.println("An error occurred during the server's launching process. \n" +
+                BungeeSK.getInstance().getLogger().severe("An error occurred during the server's launching process. \n" +
                         "Is the port opened ? Is the port available and not occupied by another process ?");
             }
         });

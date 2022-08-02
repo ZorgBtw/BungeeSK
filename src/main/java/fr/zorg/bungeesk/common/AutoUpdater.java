@@ -28,7 +28,7 @@ public class AutoUpdater {
         } catch (IOException ex) {
             System.err.println("An error occured during the update-checking process !");
         }
-        return false;
+        return true;
     }
 
     //TODO: add auto downloader
