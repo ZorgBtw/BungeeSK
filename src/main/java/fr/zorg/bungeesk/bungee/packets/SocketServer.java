@@ -3,8 +3,11 @@ package fr.zorg.bungeesk.bungee.packets;
 import fr.zorg.bungeesk.bungee.BungeeConfig;
 import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.Debug;
+import fr.zorg.bungeesk.bungee.utils.BungeeUtils;
+import fr.zorg.bungeesk.common.entities.BungeeServer;
 import fr.zorg.bungeesk.common.packets.AuthCompletePacket;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
+import fr.zorg.bungeesk.common.packets.BungeeServerStopPacket;
 import fr.zorg.bungeesk.common.packets.HandshakePacket;
 import fr.zorg.bungeesk.common.utils.EncryptionUtils;
 import fr.zorg.bungeesk.common.utils.PacketUtils;
@@ -13,6 +16,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public class SocketServer {
@@ -72,7 +77,7 @@ public class SocketServer {
             return;
         this.handleSendListeners(packet);
         byte[] bytes = PacketUtils.packetToBytes(packet);
-        if (this.encrypting) {
+        if (this.encrypting && this.authenticated) {
             Debug.log("Encrypting packet " + packet.getClass().getSimpleName());
             bytes = EncryptionUtils.encryptPacket(bytes, ((String) BungeeConfig.PASSWORD.get()).toCharArray());
             if (bytes == null) {
@@ -93,6 +98,7 @@ public class SocketServer {
     public void disconnect() {
         if (this.socket.isConnected() && !this.socket.isClosed() && !this.readThread.isInterrupted()) {
             Debug.log("Disconnecting client with IP " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort);
+            final BungeeServer server = BungeeUtils.getServerFromSocket(this);
             try {
                 this.reader.close();
                 this.writer.close();
@@ -100,6 +106,8 @@ public class SocketServer {
                 this.readThread.interrupt();
                 Debug.log("Client with IP " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort + " disconnected");
                 PacketServer.getClientSockets().remove(this);
+                if (server != null)
+                    PacketServer.broadcastPacket(new BungeeServerStopPacket(server));
             } catch (IOException ignored) {
                 Debug.log("An error occurred while disconnecting the client with IP " + socket.getInetAddress().getHostAddress());
             }
@@ -145,9 +153,7 @@ public class SocketServer {
 
     public void completeChallenge(UUID uuid) {
         if (this.waitingForAuth && this.challengeUUID.compareTo(uuid) == 0 && !this.authenticated) {
-            this.authenticated = true;
             this.sendPacket(new AuthCompletePacket(BungeeConfig.ENCRYPT.get()));
-            this.encrypting = BungeeConfig.ENCRYPT.get();
             Debug.log("Client with IP " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort + " authenticated");
         } else {
             this.disconnect();
@@ -160,6 +166,13 @@ public class SocketServer {
 
     public boolean isEncrypting() {
         return this.encrypting;
+    }
+
+    public void authenticate() {
+        if (!this.authenticated) {
+            this.authenticated = true;
+            this.encrypting = BungeeConfig.ENCRYPT.get();
+        }
     }
 
     public void setMinecraftPort(int minecraftPort) {

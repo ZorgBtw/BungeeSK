@@ -2,6 +2,7 @@ package fr.zorg.bungeesk.bukkit.packets;
 
 import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.skript.events.bukkit.ClientDisconnectEvent;
+import fr.zorg.bungeesk.common.packets.AuthCompletePacket;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import fr.zorg.bungeesk.common.utils.EncryptionUtils;
 import fr.zorg.bungeesk.common.utils.PacketUtils;
@@ -55,6 +56,7 @@ public class SocketClient {
         BungeeSK.runAsync(() -> {
             if (this.isConnected()) {
                 this.handleSendListeners(packet);
+
                 byte[] bytes = PacketUtils.packetToBytes(packet);
                 if (this.isEncrypting()) {
                     bytes = EncryptionUtils.encryptPacket(bytes, PacketClient.getBuilder().getPassword());
@@ -65,6 +67,11 @@ public class SocketClient {
                     writer.writeInt(bytes.length);
                     writer.write(bytes);
                 } catch (IOException ignored) {
+                }
+
+
+                if (packet instanceof AuthCompletePacket) {
+                    setEncrypting(((AuthCompletePacket) packet).isEncrypting());
                 }
             }
         });

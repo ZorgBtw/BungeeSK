@@ -14,7 +14,6 @@ public class AuthCompleteListener extends BungeeSKBukkitListener {
         if (packet instanceof AuthCompletePacket) {
             final AuthCompletePacket authCompletePacket = (AuthCompletePacket) packet;
             final boolean encrypting = authCompletePacket.isEncrypting();
-            PacketClient.getClient().setEncrypting(encrypting);
             PacketClient.sendPacket(new AuthCompletePacket(encrypting));
             BungeeSK.callEvent(new ClientConnectEvent());
         }
