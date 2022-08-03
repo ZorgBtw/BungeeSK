@@ -1,6 +1,8 @@
 package fr.zorg.bungeesk.bukkit.packets.listeners;
 
+import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.api.BungeeSKBukkitListener;
+import fr.zorg.bungeesk.bukkit.skript.events.bukkit.GlobalScriptReceiveEvent;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import fr.zorg.bungeesk.common.packets.GlobalScriptsPacket;
 
@@ -28,6 +30,7 @@ public class GlobalScriptsListener extends BungeeSKBukkitListener {
                 folder.mkdirs();
 
             scripts.forEach((name, lines) -> {
+                BungeeSK.callEvent(new GlobalScriptReceiveEvent(name));
                 final File file = new File(folder, name);
                 if (file.exists())
                     file.delete();

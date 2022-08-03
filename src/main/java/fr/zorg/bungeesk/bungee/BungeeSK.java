@@ -2,6 +2,7 @@ package fr.zorg.bungeesk.bungee;
 
 import fr.zorg.bungeesk.bungee.commands.BungeeSKCommand;
 import fr.zorg.bungeesk.bungee.packets.PacketServer;
+import fr.zorg.bungeesk.bungee.utils.GlobalScriptsUtils;
 import fr.zorg.bungeesk.bungee.utils.GlobalVariablesUtils;
 import fr.zorg.bungeesk.bungee.utils.Metrics;
 import fr.zorg.bungeesk.common.AutoUpdater;
@@ -29,6 +30,7 @@ public class BungeeSK extends Plugin {
         api.registerListeners("fr.zorg.bungeesk.bungee.packets.listeners");
         super.getProxy().getPluginManager().registerListener(this, new BungeeEventsListener());
         super.getProxy().getPluginManager().registerCommand(this, new BungeeSKCommand());
+        GlobalScriptsUtils.listenFileChanging();
     }
 
     public static BungeeSK getInstance() {
