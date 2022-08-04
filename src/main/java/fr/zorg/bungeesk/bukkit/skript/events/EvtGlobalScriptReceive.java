@@ -4,9 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
-import fr.zorg.bungeesk.bukkit.skript.events.bukkit.BungeePlayerJoinEvent;
 import fr.zorg.bungeesk.bukkit.skript.events.bukkit.GlobalScriptReceiveEvent;
-import fr.zorg.bungeesk.common.entities.BungeePlayer;
 import org.jetbrains.annotations.Nullable;
 
 public class EvtGlobalScriptReceive {

@@ -4,7 +4,6 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
-import fr.zorg.bungeesk.bukkit.skript.events.bukkit.BungeeServerStartEvent;
 import fr.zorg.bungeesk.bukkit.skript.events.bukkit.BungeeServerStopEvent;
 import fr.zorg.bungeesk.common.entities.BungeeServer;
 import org.jetbrains.annotations.Nullable;
