@@ -41,7 +41,8 @@ public class PacketClient {
     }
 
     public static void sendPacket(BungeeSKPacket packet) {
-        client.send(packet);
+        if (isConnected())
+            client.sendPacket(packet);
     }
 
     public static void resetSocket() {

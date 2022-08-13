@@ -49,7 +49,7 @@ public class BukkitAPI {
     }
 
     public BukkitAPI sendPacket(BungeeSKPacket packet) {
-        this.getClient().send(packet);
+        this.getClient().sendPacket(packet);
         return this;
     }
 

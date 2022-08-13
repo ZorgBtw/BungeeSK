@@ -52,7 +52,7 @@ public class SocketClient {
         }
     }
 
-    public void send(BungeeSKPacket packet) {
+    public void sendPacket(BungeeSKPacket packet) {
         BungeeSK.runAsync(() -> {
             if (this.isConnected()) {
                 this.handleSendListeners(packet);
