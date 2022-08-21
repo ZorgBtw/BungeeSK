@@ -14,6 +14,7 @@ public class PacketUtils {
             objectOutputStream.writeObject(packet);
             objectOutputStream.flush();
             bytes = byteArrayOutputStream.toByteArray();
+            objectOutputStream.close();
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally {
@@ -32,6 +33,7 @@ public class PacketUtils {
         try {
             objectInput = new ObjectInputStream(byteArrayInputStream);
             packet = (BungeeSKPacket) objectInput.readObject();
+            byteArrayInputStream.close();
         } catch (IOException | ClassNotFoundException ex) {
             ex.printStackTrace();
         } finally {
