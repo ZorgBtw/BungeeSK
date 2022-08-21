@@ -12,17 +12,17 @@ import fr.zorg.bungeesk.common.packets.HandshakePacket;
 import fr.zorg.bungeesk.common.utils.EncryptionUtils;
 import fr.zorg.bungeesk.common.utils.PacketUtils;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.UUID;
 
 public class SocketServer {
 
     private final Socket socket;
-    private DataInputStream reader;
-    private DataOutputStream writer;
+    private ObjectOutputStream writer;
+    private ObjectInputStream reader;
     private final Thread readThread;
     private boolean authenticated;
     private UUID challengeUUID;
@@ -37,8 +37,8 @@ public class SocketServer {
         this.readThread = new Thread(this::read);
         if (!this.socket.isClosed()) {
             try {
-                this.reader = new DataInputStream(socket.getInputStream());
-                this.writer = new DataOutputStream(socket.getOutputStream());
+                this.writer = new ObjectOutputStream(socket.getOutputStream());
+                this.reader = new ObjectInputStream(socket.getInputStream());
                 this.readThread.start();
                 Debug.log("ClientSocket started on " + socket.getInetAddress().getHostAddress());
 
@@ -53,18 +53,24 @@ public class SocketServer {
     public void read() {
         while (this.socket.isConnected()) {
             try {
-                final int length = reader.readInt();
-                byte[] data = new byte[length];
-                reader.readFully(data, 0, data.length);
+                Object data = reader.readObject();
                 if (this.encrypting) {
-                    data = EncryptionUtils.decryptPacket(data, ((String) BungeeConfig.PASSWORD.get()).toCharArray());
+                    data = EncryptionUtils.decryptPacket((byte[]) data, ((String) BungeeConfig.PASSWORD.get()).toCharArray());
+                    if (data == null)
+                        continue;
+
+                    data = PacketUtils.packetFromBytes((byte[]) data);
                     if (data == null)
                         continue;
                 }
-                final BungeeSKPacket packet = PacketUtils.packetFromBytes(data);
+                if (!(data instanceof BungeeSKPacket)) {
+                    this.disconnect();
+                    return;
+                }
+                final BungeeSKPacket packet = (BungeeSKPacket) data;
                 Debug.log("Received packet " + packet.getClass().getSimpleName() + " from " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort);
                 this.handleReceiveListeners(packet);
-            } catch (IOException ex) {
+            } catch (IOException | ClassNotFoundException ex) {
                 this.disconnect();
             }
         }
@@ -74,19 +80,18 @@ public class SocketServer {
         if (this.writer == null || this.reader == null)
             return;
         this.handleSendListeners(packet);
-        byte[] bytes = PacketUtils.packetToBytes(packet);
+        Object toSend = packet;
         if (this.encrypting && this.authenticated) {
             Debug.log("Encrypting packet " + packet.getClass().getSimpleName());
-            bytes = EncryptionUtils.encryptPacket(bytes, ((String) BungeeConfig.PASSWORD.get()).toCharArray());
-            if (bytes == null) {
+            toSend = EncryptionUtils.encryptPacket(PacketUtils.packetToBytes(packet), ((String) BungeeConfig.PASSWORD.get()).toCharArray());
+            if (toSend == null) {
                 Debug.log("Failed to encrypt packet");
                 return;
             }
         }
         Debug.log("Sending packet " + packet.getClass().getSimpleName() + " to " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort);
         try {
-            writer.writeInt(bytes.length);
-            writer.write(bytes);
+            this.writer.writeObject(toSend);
             Debug.log("Packet " + packet.getClass().getSimpleName() + " sent to " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort);
         } catch (IOException ignored) {
             Debug.log("Error while sending packet " + packet.getClass().getSimpleName() + " to " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort);

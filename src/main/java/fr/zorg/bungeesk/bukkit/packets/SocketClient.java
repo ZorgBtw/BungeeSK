@@ -7,16 +7,16 @@ import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import fr.zorg.bungeesk.common.utils.EncryptionUtils;
 import fr.zorg.bungeesk.common.utils.PacketUtils;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class SocketClient {
 
     private final Socket socket;
-    private DataInputStream reader;
-    private DataOutputStream writer;
+    private ObjectOutputStream writer;
+    private ObjectInputStream reader;
     private final Thread readThread;
     private boolean encrypting;
 
@@ -24,8 +24,8 @@ public class SocketClient {
         this.socket = socket;
         this.encrypting = false;
         try {
-            this.reader = new DataInputStream(socket.getInputStream());
-            this.writer = new DataOutputStream(socket.getOutputStream());
+            this.writer = new ObjectOutputStream(socket.getOutputStream());
+            this.reader = new ObjectInputStream(socket.getInputStream());
         } catch (IOException ex) {
             this.disconnect();
         }
@@ -36,17 +36,23 @@ public class SocketClient {
     public void read() {
         while (this.isConnected()) {
             try {
-                final int length = reader.readInt();
-                byte[] data = new byte[length];
-                reader.readFully(data, 0, data.length);
+                Object data = reader.readObject();
                 if (this.encrypting) {
-                    data = EncryptionUtils.decryptPacket(data, PacketClient.getBuilder().getPassword());
+                    data = EncryptionUtils.decryptPacket((byte[]) data, PacketClient.getBuilder().getPassword());
+                    if (data == null)
+                        continue;
+
+                    data = PacketUtils.packetFromBytes((byte[]) data);
                     if (data == null)
                         continue;
                 }
-                final BungeeSKPacket packet = PacketUtils.packetFromBytes(data);
+                if (!(data instanceof BungeeSKPacket)) {
+                    this.disconnect();
+                    return;
+                }
+                final BungeeSKPacket packet = (BungeeSKPacket) data;
                 this.handleReceiveListeners(packet);
-            } catch (IOException ex) {
+            } catch (IOException | ClassNotFoundException ex) {
                 this.disconnect();
             }
         }
@@ -57,18 +63,16 @@ public class SocketClient {
             if (this.isConnected()) {
                 this.handleSendListeners(packet);
 
-                byte[] bytes = PacketUtils.packetToBytes(packet);
-                if (this.isEncrypting()) {
-                    bytes = EncryptionUtils.encryptPacket(bytes, PacketClient.getBuilder().getPassword());
-                    if (bytes == null)
+                Object toSend = packet;
+                if (this.encrypting) {
+                    toSend = EncryptionUtils.encryptPacket(PacketUtils.packetToBytes(packet), PacketClient.getBuilder().getPassword());
+                    if (toSend == null)
                         return;
                 }
                 try {
-                    writer.writeInt(bytes.length);
-                    writer.write(bytes);
+                    this.writer.writeObject(toSend);
                 } catch (IOException ignored) {
                 }
-
 
                 if (packet instanceof AuthCompletePacket) {
                     setEncrypting(((AuthCompletePacket) packet).isEncrypting());
