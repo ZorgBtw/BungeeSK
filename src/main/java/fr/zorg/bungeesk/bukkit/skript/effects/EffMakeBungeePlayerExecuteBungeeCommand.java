@@ -14,7 +14,7 @@ import fr.zorg.bungeesk.common.entities.BungeePlayer;
 import fr.zorg.bungeesk.common.packets.MakeBungeePlayerBungeeCommandPacket;
 import org.bukkit.event.Event;
 
-@Name("Make BungeePlayer execute bungee command")
+@Name("Make bungee player execute bungee command")
 @Description("Make a player on the bungeecord execute a specific bungeecord-sided command")
 @Examples("make bungee player named \"Notch\" execute bungee command \"glist\"")
 @Since("2.0.0")
@@ -46,7 +46,7 @@ public class EffMakeBungeePlayerExecuteBungeeCommand extends Effect {
 
     @Override
     public String toString(Event e, boolean debug) {
-        return "make bungee player " + this.player.toString(e, debug) + " execute command " + this.command.toString(e, debug);
+        return "make bungee player " + this.player.toString(e, debug) + " execute bungee command " + this.command.toString(e, debug);
     }
 
 }

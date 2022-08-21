@@ -14,7 +14,7 @@ import fr.zorg.bungeesk.common.entities.BungeePlayer;
 import fr.zorg.bungeesk.common.packets.MakeBungeePlayerCommandPacket;
 import org.bukkit.event.Event;
 
-@Name("Make BungeePlayer execute command")
+@Name("Make bungee player execute command")
 @Description("Make a player on the bungeecord execute a specific command")
 @Examples("make bungee player named \"Notch\" execute command \"say What's up people !\"")
 @Since("1.1.0")
