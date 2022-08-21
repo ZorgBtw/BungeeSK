@@ -148,6 +148,8 @@ public class SocketServer {
             try {
                 Thread.sleep(3000); //Timeout of 3 seconds to authenticate
                 this.waitingForAuth = false;
+                if (!this.authenticated)
+                    this.disconnect();
             } catch (InterruptedException ignored) {
             }
         });

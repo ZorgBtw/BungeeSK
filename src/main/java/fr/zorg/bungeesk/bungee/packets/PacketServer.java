@@ -21,6 +21,7 @@ public class PacketServer {
 
     public static void start() {
         try {
+            clientSockets.clear();
             if (BungeeConfig.WHITELIST_IP$WHITELIST.get() == null)
                 whitelist = new ArrayList<>();
             else
@@ -67,6 +68,10 @@ public class PacketServer {
             serverSocket.close();
         } catch (IOException ignored) {
         }
+    }
+
+    public static ServerSocket getServerSocket() {
+        return serverSocket;
     }
 
     public static List<SocketServer> getClientSockets() {
