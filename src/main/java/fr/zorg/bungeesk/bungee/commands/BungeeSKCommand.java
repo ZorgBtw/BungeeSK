@@ -32,6 +32,11 @@ public class BungeeSKCommand extends Command implements Listener {
             sender.sendMessage(BungeeUtils.getTextComponent("  §8» §6/§fbungeesk §cdisconnect <IP:PORT / ALL>§e: §7Disconnect a specific server under BungeeSK"));
             sender.sendMessage(BungeeUtils.getTextComponent("  §8» §6/§fbungeesk §a<start|stop|restart>§e: §7Start, stop or restart BungeeSK"));
         } else if (args[0].equalsIgnoreCase("servers")) {
+            if (PacketServer.getServerSocket() == null) {
+                sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§cBungeeSK is currently stopped"));
+                return;
+            }
+
             if (PacketServer.getClientSockets().size() == 0) {
                 sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§fNo servers are connected to BungeeSK"));
                 return;
@@ -68,7 +73,7 @@ public class BungeeSKCommand extends Command implements Listener {
             sender.sendMessage(BungeeUtils.getTextComponent(this.prefix +
                     String.format("§7Disconnected server under address %s and port %s", server.getSocket().getInetAddress().getHostAddress(), server.getMinecraftPort())));
         } else if (args[0].equalsIgnoreCase("stop")) {
-            if (PacketServer.getServerSocket() != null && !PacketServer.getServerSocket().isClosed()) {
+            if (PacketServer.getServerSocket() == null || PacketServer.getServerSocket().isClosed()) {
                 sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§cBungeeSK is already stopped !"));
                 return;
             }
@@ -76,7 +81,7 @@ public class BungeeSKCommand extends Command implements Listener {
             sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§cBungeeSK has been stopped successfully !"));
         } else if (args[0].equalsIgnoreCase("start")) {
             if (PacketServer.getServerSocket() != null && !PacketServer.getServerSocket().isClosed()) {
-                sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§cBungeeSK is already stopped !"));
+                sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§cBungeeSK is already started !"));
                 return;
             }
             PacketServer.start();

@@ -15,13 +15,14 @@ import java.util.List;
 public class PacketServer {
 
     private static ServerSocket serverSocket;
-    private static final List<SocketServer> clientSockets = new ArrayList<>();
-    private static final Thread serverThread = new Thread(PacketServer::listenForClients);
+    private static List<SocketServer> clientSockets;
+    private static Thread serverThread;
     private static List<String> whitelist;
 
     public static void start() {
         try {
-            clientSockets.clear();
+            clientSockets = new ArrayList<>();
+            serverThread = new Thread(PacketServer::listenForClients);
             if (BungeeConfig.WHITELIST_IP$WHITELIST.get() == null)
                 whitelist = new ArrayList<>();
             else
@@ -46,8 +47,8 @@ public class PacketServer {
                 }
                 final SocketServer clientSocket = new SocketServer(socketClient);
                 clientSockets.add(clientSocket);
-            } catch (IOException ex) {
-                ex.printStackTrace();
+            } catch (IOException ignored) {
+                stop();
             }
         }
     }
@@ -61,7 +62,7 @@ public class PacketServer {
     }
 
     public static void stop() {
-        clientSockets.forEach(SocketServer::disconnect);
+        new ArrayList<>(clientSockets).forEach(SocketServer::disconnect);
         serverThread.interrupt();
         clientSockets.clear();
         try {

@@ -16,7 +16,7 @@ public class PacketClient {
     public static void start(ClientBuilder builder) {
         PacketClient.builder = builder;
         BungeeSK.runAsync(() -> {
-            if (socket != null && socket.isConnected())
+            if (socket != null && socket.isConnected() && client != null)
                 client.disconnect();
             try {
                 socket = new Socket(builder.getAddress(), builder.getPort());
