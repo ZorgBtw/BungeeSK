@@ -51,7 +51,7 @@ public class SocketServer {
     }
 
     public void read() {
-        while (this.socket.isConnected()) {
+        while (this.isConnected()) {
             try {
                 Object data = reader.readObject();
                 if (this.encrypting) {
@@ -99,7 +99,7 @@ public class SocketServer {
     }
 
     public void disconnect() {
-        if (this.socket.isConnected() && !this.socket.isClosed() && !this.readThread.isInterrupted()) {
+        if (this.isConnected()) {
             Debug.log("Disconnecting client with IP " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort);
             final BungeeServer server = BungeeUtils.getServerFromSocket(this);
             try {
@@ -163,6 +163,10 @@ public class SocketServer {
         } else {
             this.disconnect();
         }
+    }
+
+    public boolean isConnected() {
+        return this.socket != null && this.socket.isConnected() && !this.socket.isClosed();
     }
 
     public boolean isAuthenticated() {
