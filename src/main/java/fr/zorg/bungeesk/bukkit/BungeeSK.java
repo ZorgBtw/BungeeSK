@@ -42,7 +42,7 @@ public class BungeeSK extends JavaPlugin {
 
     private void launchAutoUpdater() {
         this.getServer().getScheduler().runTaskTimerAsynchronously(this, () -> {
-            if (AutoUpdater.isUpToDate(this.getDescription().getVersion())) {
+            if (!AutoUpdater.isUpToDate(this.getDescription().getVersion())) {
                 this.getLogger().warning("BungeeSK is not up to date ! Please download the latest version here: https//github.com/ZorgBtw/BungeeSK/releases/latest");
             }
         }, 10L, 1728000L); // Everyday
