@@ -9,6 +9,9 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public class BungeeUtils {
 
     public static ProxiedPlayer getPlayer(BungeePlayer bungeePlayer) {
@@ -38,19 +41,27 @@ public class BungeeUtils {
     }
 
     public static BungeeServer getServerFromAddress(String address, int port) {
-        final ServerInfo serverInfo = BungeeSK
-                .getInstance()
-                .getProxy()
-                .getServers()
-                .values()
-                .stream()
-                .filter(server ->
-                        server.getAddress().getAddress().getHostAddress().equalsIgnoreCase(address) &&
-                                server.getAddress().getPort() == port)
-                .findFirst()
-                .orElse(null);
+        try {
+            final InetAddress inetAddress = InetAddress.getByName(address);
+            final boolean isLocal = inetAddress.isLoopbackAddress() || inetAddress.isAnyLocalAddress();
+            final ServerInfo serverInfo = BungeeSK
+                    .getInstance()
+                    .getProxy()
+                    .getServers()
+                    .values()
+                    .stream()
+                    .filter(server ->
+                            (server.getAddress().getAddress().getHostAddress().equalsIgnoreCase(address) ||
+                                    server.getAddress().getAddress().isAnyLocalAddress() || server.getAddress().getAddress().isLoopbackAddress() && isLocal) &&
+                                    server.getAddress().getPort() == port)
+                    .findFirst()
+                    .orElse(null);
 
-        return serverInfo != null ? new BungeeServer(serverInfo.getAddress().getAddress(), serverInfo.getAddress().getPort(), serverInfo.getName()) : null;
+
+            return serverInfo != null ? new BungeeServer(serverInfo.getAddress().getAddress(), serverInfo.getAddress().getPort(), serverInfo.getName()) : null;
+        } catch (UnknownHostException ignored) {
+        }
+        return null;
     }
 
     public static BungeeServer getServerFromSocket(SocketServer socketServer) {
@@ -73,19 +84,18 @@ public class BungeeUtils {
 
     public static SocketServer getSocketFromBungeeServer(BungeeServer bungeeServer) {
 
+        final boolean isLocal = bungeeServer.getAddress().isLoopbackAddress() || bungeeServer.getAddress().isAnyLocalAddress();
+
         return PacketServer
                 .getClientSockets()
                 .stream()
                 .filter(clientSocket ->
-                        clientSocket
-                                .getSocket()
-                                .getInetAddress()
-                                .getHostAddress()
-                                .equalsIgnoreCase(
-                                        bungeeServer
-                                                .getAddress()
-                                                .getHostAddress()
-                                ) &&
+                        (clientSocket.getSocket().getInetAddress().getHostAddress().equalsIgnoreCase(
+                                bungeeServer
+                                        .getAddress()
+                                        .getHostAddress()
+                                ) ||
+                                clientSocket.getSocket().getInetAddress().isAnyLocalAddress() || clientSocket.getSocket().getInetAddress().isLoopbackAddress() && isLocal) &&
                                 clientSocket.getMinecraftPort() == bungeeServer.getPort()
                 )
                 .findFirst().orElse(null);
