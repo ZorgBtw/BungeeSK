@@ -17,6 +17,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class SocketServer {
 
@@ -45,31 +46,36 @@ public class SocketServer {
                 this.sendPacket(new HandshakePacket(0));
             } catch (IOException ex) {
                 this.disconnect();
-                ex.printStackTrace();
             }
+        } else {
+            this.disconnect();
         }
     }
 
     public void read() {
         while (this.isConnected()) {
             try {
-                Object data = reader.readObject();
-                if (this.encrypting) {
-                    data = EncryptionUtils.decryptPacket((byte[]) data, ((String) BungeeConfig.PASSWORD.get()).toCharArray());
-                    if (data == null)
-                        continue;
+                Object dataRaw = this.reader.readObject();
+                AtomicReference<?> dataAtomic = new AtomicReference<>(dataRaw);
+                BungeeSK.runAsync(() -> {
+                    Object data = dataAtomic.get();
+                    if (this.encrypting) {
+                        data = EncryptionUtils.decryptPacket((byte[]) data, ((String) BungeeConfig.PASSWORD.get()).toCharArray());
+                        if (data == null)
+                            return;
 
-                    data = PacketUtils.packetFromBytes((byte[]) data);
-                    if (data == null)
-                        continue;
-                }
-                if (!(data instanceof BungeeSKPacket)) {
-                    this.disconnect();
-                    return;
-                }
-                final BungeeSKPacket packet = (BungeeSKPacket) data;
-                Debug.log("Received packet " + packet.getClass().getSimpleName() + " from " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort);
-                this.handleReceiveListeners(packet);
+                        data = PacketUtils.packetFromBytes((byte[]) data);
+                        if (data == null)
+                            return;
+                    }
+                    if (!(data instanceof BungeeSKPacket)) {
+                        this.disconnect();
+                        return;
+                    }
+                    final BungeeSKPacket packet = (BungeeSKPacket) data;
+                    Debug.log("Received packet " + packet.getClass().getSimpleName() + " from " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort);
+                    this.handleReceiveListeners(packet);
+                });
             } catch (IOException | ClassNotFoundException ex) {
                 this.disconnect();
             }
@@ -102,13 +108,16 @@ public class SocketServer {
         if (this.isConnected()) {
             Debug.log("Disconnecting client with IP " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort);
             final BungeeServer server = BungeeUtils.getServerFromSocket(this);
+            PacketServer.getClientSockets().remove(this);
             try {
-                this.reader.close();
-                this.writer.close();
+                if (this.reader != null)
+                    this.reader.close();
+                if (this.writer != null)
+                    this.writer.close();
+                if (this.readThread != null)
+                    this.readThread.interrupt();
                 this.socket.close();
-                this.readThread.interrupt();
                 Debug.log("Client with IP " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort + " disconnected");
-                PacketServer.getClientSockets().remove(this);
                 if (server != null)
                     PacketServer.broadcastPacket(new BungeeServerStopPacket(server));
             } catch (IOException ignored) {

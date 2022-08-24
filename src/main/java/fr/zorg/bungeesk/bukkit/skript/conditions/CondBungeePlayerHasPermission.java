@@ -41,13 +41,13 @@ public class CondBungeePlayerHasPermission extends Condition {
     @Override
     public boolean check(Event e) {
         if (this.player.getSingle(e) == null)
-            return false;
+            return this.invert;
 
         final BungeePlayerPermissionPacket packet = new BungeePlayerPermissionPacket(this.player.getSingle(e), this.permission.getSingle(e));
         final Boolean response = (Boolean) CompletableFutureUtils.generateFuture(packet);
 
         if (response == null)
-            return false;
+            return this.invert;
 
         return this.invert ^ response;
     }

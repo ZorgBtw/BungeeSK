@@ -30,8 +30,7 @@ public class EncryptionUtils {
     public static byte[] encryptPacket(byte[] serializedPacket, char[] password) {
         try {
             return alice.encrypt(serializedPacket, password);
-        } catch (GeneralSecurityException | IOException ex) {
-            ex.printStackTrace();
+        } catch (GeneralSecurityException | IOException ignored) {
         }
         return null;
     }
@@ -39,8 +38,7 @@ public class EncryptionUtils {
     public static byte[] decryptPacket(byte[] encryptedPacket, char[] password) {
         try {
             return alice.decrypt(encryptedPacket, password);
-        } catch (GeneralSecurityException ex) {
-            ex.printStackTrace();
+        } catch (GeneralSecurityException ignored) {
         }
         return null;
     }

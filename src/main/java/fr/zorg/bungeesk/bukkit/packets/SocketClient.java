@@ -11,13 +11,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class SocketClient {
 
     private final Socket socket;
     private ObjectOutputStream writer;
     private ObjectInputStream reader;
-    private final Thread readThread;
+    private Thread readThread;
     private boolean encrypting;
 
     public SocketClient(Socket socket) {
@@ -26,32 +27,37 @@ public class SocketClient {
         try {
             this.writer = new ObjectOutputStream(socket.getOutputStream());
             this.reader = new ObjectInputStream(socket.getInputStream());
+            this.readThread = new Thread(this::read);
+            this.readThread.start();
         } catch (IOException ex) {
+            ex.printStackTrace();
             this.disconnect();
         }
-        this.readThread = new Thread(this::read);
-        this.readThread.start();
     }
 
     public void read() {
         while (this.isConnected()) {
             try {
-                Object data = reader.readObject();
-                if (this.encrypting) {
-                    data = EncryptionUtils.decryptPacket((byte[]) data, PacketClient.getBuilder().getPassword());
-                    if (data == null)
-                        continue;
+                Object dataRaw = this.reader.readObject();
+                final AtomicReference<?> dataAtomic = new AtomicReference<>(dataRaw);
+                BungeeSK.runAsync(() -> {
+                    Object data = dataAtomic.get();
+                    if (this.encrypting) {
+                        data = EncryptionUtils.decryptPacket((byte[]) data, PacketClient.getBuilder().getPassword());
+                        if (data == null)
+                            return;
 
-                    data = PacketUtils.packetFromBytes((byte[]) data);
-                    if (data == null)
-                        continue;
-                }
-                if (!(data instanceof BungeeSKPacket)) {
-                    this.disconnect();
-                    return;
-                }
-                final BungeeSKPacket packet = (BungeeSKPacket) data;
-                this.handleReceiveListeners(packet);
+                        data = PacketUtils.packetFromBytes((byte[]) data);
+                        if (data == null)
+                            return;
+                    }
+                    if (!(data instanceof BungeeSKPacket)) {
+                        this.disconnect();
+                        return;
+                    }
+                    final BungeeSKPacket packet = (BungeeSKPacket) data;
+                    this.handleReceiveListeners(packet);
+                });
             } catch (IOException | ClassNotFoundException ex) {
                 this.disconnect();
             }
@@ -84,10 +90,13 @@ public class SocketClient {
     public void disconnect() {
         if (this.isConnected()) {
             try {
-                this.reader.close();
-                this.writer.close();
+                if (this.reader != null)
+                    this.reader.close();
+                if (this.writer != null)
+                    this.writer.close();
+                if (this.readThread != null)
+                    this.readThread.interrupt();
                 this.socket.close();
-                this.readThread.interrupt();
                 PacketClient.resetSocket();
                 BungeeSK.callEvent(new ClientDisconnectEvent());
             } catch (IOException ignored) {

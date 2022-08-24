@@ -32,22 +32,22 @@ public class CondBungeePlayerConnected extends Condition {
 
     @Override
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
-        negate = (matchedPattern == 1);
-        player = (Expression<BungeePlayer>) exprs[0];
+        this.negate = (matchedPattern == 1);
+        this.player = (Expression<BungeePlayer>) exprs[0];
         return true;
     }
 
     @Override
     public boolean check(Event e) {
         if (this.player.getSingle(e) == null)
-            return negate;
+            return this.negate;
 
         final GetBungeePlayerConnectionPacket packet = new GetBungeePlayerConnectionPacket(this.player.getSingle(e));
         final Boolean response = (Boolean) CompletableFutureUtils.generateFuture(packet);
         if (response == null)
-            return negate;
+            return this.negate;
 
-        return response ^ negate;
+        return response ^ this.negate;
     }
 
     @Override

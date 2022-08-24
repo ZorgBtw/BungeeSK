@@ -39,13 +39,13 @@ public class CondBungeeServerStarted extends Condition {
     @Override
     public boolean check(Event e) {
         if (this.server.getSingle(e) == null)
-            return false;
+            return this.invert;
 
         final GetBungeeServerOnlineStatusPacket packet = new GetBungeeServerOnlineStatusPacket(this.server.getSingle(e));
         final Boolean response = (Boolean) CompletableFutureUtils.generateFuture(packet);
 
         if (response == null)
-            return false;
+            return this.invert;
 
         return this.invert ^ response;
     }
