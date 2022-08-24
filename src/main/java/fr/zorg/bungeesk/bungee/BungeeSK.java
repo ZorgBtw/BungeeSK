@@ -39,7 +39,7 @@ public class BungeeSK extends Plugin {
 
     private void launchAutoUpdater() {
         this.getProxy().getScheduler().schedule(this, () -> {
-            if (AutoUpdater.isUpToDate(this.getDescription().getVersion())) {
+            if (!AutoUpdater.isUpToDate(this.getDescription().getVersion())) {
                 this.getLogger().warning("BungeeSK is not up to date ! Please download the latest version here: https//github.com/ZorgBtw/BungeeSK/releases/latest");
             }
         }, 0, 1L, TimeUnit.DAYS); // Everyday

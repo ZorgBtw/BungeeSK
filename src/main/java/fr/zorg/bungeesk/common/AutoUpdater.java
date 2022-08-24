@@ -24,7 +24,7 @@ public class AutoUpdater {
             final JsonObject result = new JsonParser().parse(bufferedReader).getAsJsonObject();
             final int latestVersionInt = Integer.parseInt(result.get("tag_name").getAsString().replaceAll("\\.", ""));
             final int currentVersionInt = Integer.parseInt(currentVersion.replaceAll("\\.", ""));
-            return latestVersionInt > currentVersionInt;
+            return latestVersionInt < currentVersionInt;
         } catch (IOException ex) {
             System.err.println("An error occured during the update-checking process !");
         }
