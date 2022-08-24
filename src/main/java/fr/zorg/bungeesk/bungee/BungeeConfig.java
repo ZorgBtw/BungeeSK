@@ -18,9 +18,10 @@ public enum BungeeConfig {
     FILES$SYNC_AT_CONNECT(true, "Global scripts located at \"/plugins/BungeeSK/scripts\" will be synchronised whenever a spigot connects to the BungeeSK's server",
             "If you need to retrieve scripts manually, please refer to https://skripthub.net/docs/?id=5689"),
     FILES$AUTO_UPDATE(false, "On change of every script, this will be updated in every BungeeSK server"),
-    FILES$AUTO_DELETE(true, "On deletion of a global script, it will be deleted all accross the network"),
+    FILES$AUTO_DELETE(true, "On deletion of a global script, it will be deleted all across the network"),
     WHITELIST_IP$ENABLE(false, "If enabled and if the client doesn't match any IP below, it will be disconnected"),
-    WHITELIST_IP$WHITELIST(new String[]{"127.0.0.1"}, "List of all whitelisted IPs");
+    WHITELIST_IP$WHITELIST(new String[]{"127.0.0.1"}, "List of all whitelisted IPs"),
+    MESSAGES(false, "If enabled, a message will be sent when a client connects/disconnects from the server");
 
     private Object value;
     private final String[] comments;

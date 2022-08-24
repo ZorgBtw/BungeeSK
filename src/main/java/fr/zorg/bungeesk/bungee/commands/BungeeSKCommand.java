@@ -3,6 +3,7 @@ package fr.zorg.bungeesk.bungee.commands;
 import fr.zorg.bungeesk.bungee.packets.PacketServer;
 import fr.zorg.bungeesk.bungee.packets.SocketServer;
 import fr.zorg.bungeesk.bungee.utils.BungeeUtils;
+import fr.zorg.bungeesk.common.entities.BungeeServer;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.event.TabCompleteEvent;
 import net.md_5.bungee.api.plugin.Command;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 
 public class BungeeSKCommand extends Command implements Listener {
 
-    private final String prefix = "§6BungeeSK §7» ";
+    public static final String PREFIX = "§6BungeeSK §7» ";
 
     public BungeeSKCommand() {
         super("bungeesk");
@@ -27,75 +28,79 @@ public class BungeeSKCommand extends Command implements Listener {
         }
 
         if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
-            sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§bHelp"));
+            sender.sendMessage(BungeeUtils.getTextComponent(PREFIX + "§bHelp"));
             sender.sendMessage(BungeeUtils.getTextComponent("  §8» §6/§fbungeesk §3servers§e: §7Displays all servers connected to BungeeSK"));
             sender.sendMessage(BungeeUtils.getTextComponent("  §8» §6/§fbungeesk §cdisconnect <IP:PORT / ALL>§e: §7Disconnect a specific server under BungeeSK"));
             sender.sendMessage(BungeeUtils.getTextComponent("  §8» §6/§fbungeesk §a<start|stop|restart>§e: §7Start, stop or restart BungeeSK"));
         } else if (args[0].equalsIgnoreCase("servers")) {
             if (PacketServer.getServerSocket() == null) {
-                sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§cBungeeSK is currently stopped"));
+                sender.sendMessage(BungeeUtils.getTextComponent(PREFIX + "§cBungeeSK is currently stopped"));
                 return;
             }
 
             if (PacketServer.getClientSockets().size() == 0) {
-                sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§fNo servers are connected to BungeeSK"));
+                sender.sendMessage(BungeeUtils.getTextComponent(PREFIX + "§fNo servers are connected to BungeeSK"));
                 return;
             }
-            sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§3Servers"));
+            sender.sendMessage(BungeeUtils.getTextComponent(PREFIX + "§3Servers"));
             PacketServer.getClientSockets().forEach(socket -> {
-                sender.sendMessage(BungeeUtils.getTextComponent("  §8» §6" + socket.getSocket().getInetAddress().getHostAddress() + ":" + socket.getMinecraftPort()));
+                String message = "  §8» §6" + socket.getSocket().getInetAddress().getHostAddress() + ":" + socket.getMinecraftPort();
+                final BungeeServer server = BungeeUtils.getServerFromSocket(socket);
+                if (server != null)
+                    message += " §f(" + server.getName() + ")";
+                sender.sendMessage(BungeeUtils.getTextComponent(message));
             });
         } else if (args[0].equalsIgnoreCase("disconnect")) {
             if (args.length < 2) {
-                sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§cYou must specify a server to disconnect !"));
+                sender.sendMessage(BungeeUtils.getTextComponent(PREFIX + "§cYou must specify a server to disconnect !"));
                 return;
             }
 
             if (args[1].equalsIgnoreCase("all")) {
                 new ArrayList<>(PacketServer.getClientSockets()).forEach(SocketServer::disconnect);
-                sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§aAll BungeeSK clients are now disconnected !"));
+                sender.sendMessage(BungeeUtils.getTextComponent(PREFIX + "§aAll BungeeSK clients are now disconnected !"));
                 return;
             }
 
             if (!args[1].contains(":")) {
-                sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§cThe server IP:PORT is invalid !"));
+                sender.sendMessage(BungeeUtils.getTextComponent(PREFIX + "§cThe server IP:PORT is invalid !"));
                 return;
             }
 
             final SocketServer server = PacketServer.getClientSockets().stream().filter(socket -> socket.getSocket().getInetAddress().getHostAddress().equals(args[1].split(":")[0]) && socket.getMinecraftPort() == Integer.parseInt(args[1].split(":")[1])).findFirst().orElse(null);
 
             if (server == null) {
-                sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§cNo server exists under this IP:PORT"));
+                sender.sendMessage(BungeeUtils.getTextComponent(PREFIX + "§cNo server exists under this IP:PORT"));
                 return;
             }
 
             server.disconnect();
-            sender.sendMessage(BungeeUtils.getTextComponent(this.prefix +
+            sender.sendMessage(BungeeUtils.getTextComponent(PREFIX +
                     String.format("§7Disconnected server under address %s and port %s", server.getSocket().getInetAddress().getHostAddress(), server.getMinecraftPort())));
         } else if (args[0].equalsIgnoreCase("stop")) {
             if (PacketServer.getServerSocket() == null || PacketServer.getServerSocket().isClosed()) {
-                sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§cBungeeSK is already stopped !"));
+                sender.sendMessage(BungeeUtils.getTextComponent(PREFIX + "§cBungeeSK is already stopped !"));
                 return;
             }
             PacketServer.stop();
-            sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§cBungeeSK has been stopped successfully !"));
+            sender.sendMessage(BungeeUtils.getTextComponent(PREFIX + "§cBungeeSK has been stopped successfully !"));
         } else if (args[0].equalsIgnoreCase("start")) {
             if (PacketServer.getServerSocket() != null && !PacketServer.getServerSocket().isClosed()) {
-                sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§cBungeeSK is already started !"));
+                sender.sendMessage(BungeeUtils.getTextComponent(PREFIX + "§cBungeeSK is already started !"));
                 return;
             }
             PacketServer.start();
-            sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§aBungeeSK has been started successfully !"));
+            sender.sendMessage(BungeeUtils.getTextComponent(PREFIX + "§aBungeeSK has been started successfully !"));
         } else if (args[0].equalsIgnoreCase("restart")) {
             if (PacketServer.getServerSocket() == null || PacketServer.getServerSocket().isClosed()) {
-                sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§cBungeeSK is already started !"));
+                sender.sendMessage(BungeeUtils.getTextComponent(PREFIX + "§cBungeeSK is already started !"));
                 return;
             }
             PacketServer.stop();
             PacketServer.start();
-            sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§aBungeeSK has been restarted successfully !"));
+            sender.sendMessage(BungeeUtils.getTextComponent(PREFIX + "§aBungeeSK has been restarted successfully !"));
         } else {
-            sender.sendMessage(BungeeUtils.getTextComponent(this.prefix + "§cUnknown command !"));
+            sender.sendMessage(BungeeUtils.getTextComponent(PREFIX + "§cUnknown command !"));
         }
     }
 

@@ -55,8 +55,4 @@ public class BungeeAPI {
         return PacketServer.getClientSockets();
     }
 
-    public Optional<SocketServer> getClientWithInetAddress(InetAddress address) {
-        return this.getClients().stream().filter(client -> client.getSocket().getInetAddress().equals(address)).findFirst();
-    }
-
 }

@@ -3,6 +3,7 @@ package fr.zorg.bungeesk.bungee.packets;
 import fr.zorg.bungeesk.bungee.BungeeConfig;
 import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.Debug;
+import fr.zorg.bungeesk.bungee.commands.BungeeSKCommand;
 import fr.zorg.bungeesk.bungee.utils.BungeeUtils;
 import fr.zorg.bungeesk.common.entities.BungeeServer;
 import fr.zorg.bungeesk.common.packets.AuthCompletePacket;
@@ -118,8 +119,12 @@ public class SocketServer {
                     this.readThread.interrupt();
                 this.socket.close();
                 Debug.log("Client with IP " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort + " disconnected");
-                if (server != null)
+                String message = BungeeSKCommand.PREFIX + "§7Server disconnected: §c" + this.socket.getInetAddress().getHostAddress() + ":" + this.getMinecraftPort();
+                if (server != null) {
                     PacketServer.broadcastPacket(new BungeeServerStopPacket(server));
+                    message += " §f(§3" + server.getName() + "§f)";
+                }
+                BungeeSK.getInstance().getLogger().info(message);
             } catch (IOException ignored) {
                 Debug.log("An error occurred while disconnecting the client with IP " + socket.getInetAddress().getHostAddress());
             }
