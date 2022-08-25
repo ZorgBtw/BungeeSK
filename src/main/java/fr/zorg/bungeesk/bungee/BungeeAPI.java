@@ -11,7 +11,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class BungeeAPI {
 

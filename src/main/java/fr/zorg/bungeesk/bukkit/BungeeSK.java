@@ -2,14 +2,17 @@ package fr.zorg.bungeesk.bukkit;
 
 import ch.njol.skript.Skript;
 import ch.njol.skript.SkriptAddon;
+import fr.zorg.bungeesk.bukkit.skript.events.bukkit.BungeePingEvent;
 import fr.zorg.bungeesk.bukkit.utils.Metrics;
 import fr.zorg.bungeesk.common.AutoUpdater;
 import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
 
-public class BungeeSK extends JavaPlugin {
+public class BungeeSK extends JavaPlugin implements Listener {
 
     private static BukkitAPI api;
     private Metrics metrics;

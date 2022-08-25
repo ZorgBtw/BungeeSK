@@ -10,6 +10,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PacketServer {
@@ -25,8 +26,10 @@ public class PacketServer {
             serverThread = new Thread(PacketServer::listenForClients);
             if (BungeeConfig.WHITELIST_IP$WHITELIST.get() == null)
                 whitelist = new ArrayList<>();
+            else if (BungeeConfig.WHITELIST_IP$WHITELIST.get() instanceof String[])
+                whitelist = Arrays.asList(BungeeConfig.WHITELIST_IP$WHITELIST.get());
             else
-                whitelist = ((ArrayList) BungeeConfig.WHITELIST_IP$WHITELIST.getList());
+                whitelist = new ArrayList<>(BungeeConfig.WHITELIST_IP$WHITELIST.get());
             serverSocket = new ServerSocket(BungeeConfig.PORT.get());
             Debug.log("PacketServer started on port " + BungeeConfig.PORT.get());
             serverThread.start();
@@ -69,6 +72,10 @@ public class PacketServer {
             serverSocket.close();
         } catch (IOException ignored) {
         }
+    }
+
+    public static boolean isConnected() {
+        return !serverSocket.isClosed() && serverThread.isAlive();
     }
 
     public static ServerSocket getServerSocket() {

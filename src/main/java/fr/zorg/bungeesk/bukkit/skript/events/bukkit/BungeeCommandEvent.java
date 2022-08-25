@@ -1,7 +1,6 @@
 package fr.zorg.bungeesk.bukkit.skript.events.bukkit;
 
 import fr.zorg.bungeesk.common.entities.BungeePlayer;
-import fr.zorg.bungeesk.common.entities.BungeeServer;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 

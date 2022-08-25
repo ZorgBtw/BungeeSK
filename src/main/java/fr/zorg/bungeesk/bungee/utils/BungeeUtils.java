@@ -5,6 +5,7 @@ import fr.zorg.bungeesk.bungee.packets.PacketServer;
 import fr.zorg.bungeesk.bungee.packets.SocketServer;
 import fr.zorg.bungeesk.common.entities.BungeePlayer;
 import fr.zorg.bungeesk.common.entities.BungeeServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -94,11 +95,20 @@ public class BungeeUtils {
                                 bungeeServer
                                         .getAddress()
                                         .getHostAddress()
-                                ) ||
-                                clientSocket.getSocket().getInetAddress().isAnyLocalAddress() || clientSocket.getSocket().getInetAddress().isLoopbackAddress() && isLocal) &&
+                        ) ||
+                                (clientSocket.getSocket().getInetAddress().isAnyLocalAddress() || clientSocket.getSocket().getInetAddress().isLoopbackAddress() && isLocal)) &&
                                 clientSocket.getMinecraftPort() == bungeeServer.getPort()
                 )
                 .findFirst().orElse(null);
 
     }
+
+    public static BaseComponent[] getBaseComponent(String... text) {
+        final BaseComponent[] baseComponents = new TextComponent[text.length];
+        for (int i = 0; i < text.length; i++) {
+            baseComponents[i] = TextComponent.fromLegacyText(text[i])[0];
+        }
+        return baseComponents;
+    }
+
 }

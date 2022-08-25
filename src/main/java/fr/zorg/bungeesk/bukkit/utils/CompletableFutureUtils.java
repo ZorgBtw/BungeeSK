@@ -1,8 +1,11 @@
 package fr.zorg.bungeesk.bukkit.utils;
 
+import fr.zorg.bungeesk.bukkit.BungeeSK;
 import fr.zorg.bungeesk.bukkit.packets.PacketClient;
+import fr.zorg.bungeesk.common.entities.EmptyFutureResponse;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import fr.zorg.bungeesk.common.packets.CompletableFuturePacket;
+import fr.zorg.bungeesk.common.packets.CompletableFutureResponsePacket;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +45,23 @@ public class CompletableFutureUtils {
             futures.get(uuid).complete(response);
             futures.remove(uuid);
         }
+    }
+
+    public static void initFuture(UUID uuid, BungeeSKPacket input) {
+        BungeeSK.getApi().getListeners().forEach(listener -> {
+            try {
+                listener.getClass().getMethod("onFutureRequest", UUID.class, BungeeSKPacket.class);
+                final Object response = listener.onFutureRequest(uuid, input);
+                if (response != null) {
+                    PacketClient.sendPacket(
+                            new CompletableFutureResponsePacket(
+                                    uuid,
+                                    response instanceof EmptyFutureResponse ? null : response
+                            ));
+                }
+            } catch (NoSuchMethodException ignored) {
+            }
+        });
     }
 
 }

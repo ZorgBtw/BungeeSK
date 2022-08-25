@@ -5,9 +5,7 @@ import ch.njol.skript.lang.util.SimpleEvent;
 import ch.njol.skript.registrations.EventValues;
 import ch.njol.skript.util.Getter;
 import fr.zorg.bungeesk.bukkit.skript.events.bukkit.BungeeCommandEvent;
-import fr.zorg.bungeesk.bukkit.skript.events.bukkit.BungeeMessageReceiveEvent;
 import fr.zorg.bungeesk.common.entities.BungeePlayer;
-import fr.zorg.bungeesk.common.entities.BungeeServer;
 import org.jetbrains.annotations.Nullable;
 
 public class EvtBungeeCommand {

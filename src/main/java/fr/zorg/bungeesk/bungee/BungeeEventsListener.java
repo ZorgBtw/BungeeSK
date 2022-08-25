@@ -2,17 +2,16 @@ package fr.zorg.bungeesk.bungee;
 
 import fr.zorg.bungeesk.bungee.packets.PacketServer;
 import fr.zorg.bungeesk.bungee.utils.BungeeUtils;
+import fr.zorg.bungeesk.bungee.utils.PingUtils;
 import fr.zorg.bungeesk.common.entities.BungeePlayer;
 import fr.zorg.bungeesk.common.entities.BungeeServer;
 import fr.zorg.bungeesk.common.packets.BungeeCommandPacket;
 import fr.zorg.bungeesk.common.packets.BungeePlayerJoinPacket;
 import fr.zorg.bungeesk.common.packets.BungeePlayerLeavePacket;
 import fr.zorg.bungeesk.common.packets.BungeePlayerSwitchPacket;
+import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.ChatEvent;
-import net.md_5.bungee.api.event.PlayerDisconnectEvent;
-import net.md_5.bungee.api.event.PostLoginEvent;
-import net.md_5.bungee.api.event.ServerSwitchEvent;
+import net.md_5.bungee.api.event.*;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
@@ -57,6 +56,12 @@ public class BungeeEventsListener implements Listener {
         final BungeePlayer bungeePlayer = BungeeUtils.getBungeePlayer(player);
         final BungeeCommandPacket packet = new BungeeCommandPacket(e.getMessage().substring(1), bungeePlayer);
         PacketServer.broadcastPacket(packet);
+    }
+
+    @EventHandler
+    public void onPing(ProxyPingEvent e) {
+        final ServerPing response = PingUtils.getPing(e.getResponse(), e.getConnection().getAddress().getAddress());
+        e.setResponse(response);
     }
 
 }
