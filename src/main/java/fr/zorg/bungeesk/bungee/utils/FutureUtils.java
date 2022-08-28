@@ -18,7 +18,7 @@ import java.util.concurrent.TimeoutException;
 
 public class FutureUtils {
 
-    public static void initFuture(SocketServer socketServer, UUID uuid, BungeeSKPacket input) {
+    public static void completeFuture(SocketServer socketServer, UUID uuid, BungeeSKPacket input) {
         BungeeSK.getApi().getListeners().forEach(listener -> {
             try {
                 listener.getClass().getMethod("onFutureRequest", UUID.class, SocketServer.class, BungeeSKPacket.class);

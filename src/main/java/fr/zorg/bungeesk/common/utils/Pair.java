@@ -1,8 +1,9 @@
 package fr.zorg.bungeesk.common.utils;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public final class Pair<T, K> {
+public final class Pair<T, K> implements Serializable {
 
     private T firstValue;
     private K secondValue;

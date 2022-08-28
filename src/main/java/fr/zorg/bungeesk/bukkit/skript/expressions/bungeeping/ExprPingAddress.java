@@ -1,7 +1,6 @@
 package fr.zorg.bungeesk.bukkit.skript.expressions.bungeeping;
 
 import ch.njol.skript.Skript;
-import ch.njol.skript.classes.Changer;
 import ch.njol.skript.doc.Description;
 import ch.njol.skript.doc.Examples;
 import ch.njol.skript.doc.Name;
@@ -11,7 +10,6 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import ch.njol.util.coll.CollectionUtils;
 import fr.zorg.bungeesk.bukkit.skript.events.bukkit.BungeePingEvent;
 import org.bukkit.event.Event;
 

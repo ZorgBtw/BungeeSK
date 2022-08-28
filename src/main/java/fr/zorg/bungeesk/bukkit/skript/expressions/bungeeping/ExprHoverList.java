@@ -16,8 +16,6 @@ import fr.zorg.bungeesk.bukkit.skript.events.bukkit.BungeePingEvent;
 import org.bukkit.event.Event;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @Name("Ping's hover list")
 @Description("The hover list displayed when hovering the player's size in the ping's list.")

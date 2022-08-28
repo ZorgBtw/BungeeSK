@@ -12,7 +12,7 @@ public class CompletableFutureListener extends BungeeSKListener {
     public void onReceive(SocketServer socketServer, BungeeSKPacket packet) {
         if (packet instanceof CompletableFuturePacket) {
             final CompletableFuturePacket completableFuturePacket = (CompletableFuturePacket) packet;
-            FutureUtils.initFuture(socketServer, completableFuturePacket.getUuid(), completableFuturePacket.getPacket());
+            FutureUtils.completeFuture(socketServer, completableFuturePacket.getUuid(), completableFuturePacket.getPacket());
         }
     }
 
