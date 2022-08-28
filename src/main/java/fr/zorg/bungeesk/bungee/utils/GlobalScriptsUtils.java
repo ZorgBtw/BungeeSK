@@ -1,8 +1,6 @@
 package fr.zorg.bungeesk.bungee.utils;
 
-import fr.zorg.bungeesk.bungee.BungeeConfig;
 import fr.zorg.bungeesk.bungee.BungeeSK;
-import fr.zorg.bungeesk.bungee.Debug;
 import fr.zorg.bungeesk.bungee.packets.PacketServer;
 import fr.zorg.bungeesk.bungee.packets.SocketServer;
 import fr.zorg.bungeesk.common.packets.DeleteGlobalScriptPacket;

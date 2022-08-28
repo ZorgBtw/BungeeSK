@@ -1,4 +1,7 @@
-package fr.zorg.bungeesk.bungee;
+package fr.zorg.bungeesk.bungee.utils;
+
+import fr.zorg.bungeesk.bungee.BungeeSK;
+import fr.zorg.bungeesk.bungee.utils.BungeeConfig;
 
 public class Debug {
 

@@ -6,7 +6,7 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
-import fr.zorg.bungeesk.bukkit.EffectSection;
+import fr.zorg.bungeesk.bukkit.utils.EffectSection;
 import fr.zorg.bungeesk.common.entities.BungeeServerBuilder;
 import org.bukkit.event.Event;
 

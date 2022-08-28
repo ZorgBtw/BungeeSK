@@ -1,4 +1,4 @@
-package fr.zorg.bungeesk.bungee;
+package fr.zorg.bungeesk.bungee.utils;
 
 import fr.zorg.bungeesk.bungee.packets.PacketServer;
 import fr.zorg.bungeesk.bungee.utils.BungeeUtils;

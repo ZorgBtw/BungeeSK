@@ -1,5 +1,6 @@
-package fr.zorg.bungeesk.bungee;
+package fr.zorg.bungeesk.bungee.utils;
 
+import fr.zorg.bungeesk.bungee.BungeeSK;
 import org.simpleyaml.configuration.file.YamlFile;
 
 import java.io.File;

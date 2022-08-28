@@ -1,4 +1,4 @@
-package fr.zorg.bungeesk.bukkit;
+package fr.zorg.bungeesk.bukkit.utils;
 
 import ch.njol.skript.ScriptLoader;
 import ch.njol.skript.Skript;
