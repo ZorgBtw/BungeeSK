@@ -17,7 +17,6 @@ public class GetRequestFromOtherServerListener extends BungeeSKListener {
         if (packet instanceof GetRequestFromOtherServerPacket) {
             final GetRequestFromOtherServerPacket getRequestFromOtherServerPacket = (GetRequestFromOtherServerPacket) packet;
             final SocketServer otherServer = BungeeUtils.getSocketFromBungeeServer(getRequestFromOtherServerPacket.getServer());
-            System.out.println("otherServer.getMinecraftPort() = " + otherServer.getMinecraftPort());
             final Object response = FutureUtils.generateFuture(otherServer, getRequestFromOtherServerPacket);
 
             return response == null ? new EmptyFutureResponse() : response;
