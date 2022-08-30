@@ -23,7 +23,7 @@ public class BungeeSKCommand extends Command implements Listener {
     @Override
     public void execute(CommandSender sender, String[] args) {
         if (!sender.hasPermission("bungeesk.command")) {
-            sender.sendMessage(BungeeUtils.getTextComponent("&cYou don't have permission to use this command"));
+            sender.sendMessage(BungeeUtils.getTextComponent("§cYou don't have permission to use this command"));
             return;
         }
 
