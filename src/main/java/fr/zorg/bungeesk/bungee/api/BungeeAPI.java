@@ -16,7 +16,7 @@ public class BungeeAPI {
 
     private final List<BungeeSKListener> listeners;
 
-    protected BungeeAPI() {
+    public BungeeAPI() {
         this.listeners = new ArrayList<>();
     }
 

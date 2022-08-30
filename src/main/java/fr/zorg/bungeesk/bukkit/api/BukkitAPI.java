@@ -17,7 +17,7 @@ public class BukkitAPI {
 
     private final List<BungeeSKBukkitListener> listeners;
 
-    protected BukkitAPI() {
+    public BukkitAPI() {
         this.listeners = new ArrayList<>();
     }
 
