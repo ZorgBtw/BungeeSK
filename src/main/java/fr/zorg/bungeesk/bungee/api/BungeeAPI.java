@@ -1,6 +1,6 @@
-package fr.zorg.bungeesk.bungee;
+package fr.zorg.bungeesk.bungee.api;
 
-import fr.zorg.bungeesk.bungee.api.BungeeSKListener;
+import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.packets.PacketServer;
 import fr.zorg.bungeesk.bungee.packets.SocketServer;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;

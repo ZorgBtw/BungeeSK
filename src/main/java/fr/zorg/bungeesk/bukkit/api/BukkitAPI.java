@@ -1,6 +1,5 @@
-package fr.zorg.bungeesk.bukkit;
+package fr.zorg.bungeesk.bukkit.api;
 
-import fr.zorg.bungeesk.bukkit.api.BungeeSKBukkitListener;
 import fr.zorg.bungeesk.bukkit.packets.PacketClient;
 import fr.zorg.bungeesk.bukkit.packets.SocketClient;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
@@ -49,7 +48,7 @@ public class BukkitAPI {
     }
 
     public BukkitAPI sendPacket(BungeeSKPacket packet) {
-        this.getClient().sendPacket(packet);
+        PacketClient.sendPacket(packet);
         return this;
     }
 
