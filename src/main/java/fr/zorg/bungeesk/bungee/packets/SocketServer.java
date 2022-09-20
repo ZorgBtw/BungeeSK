@@ -1,10 +1,10 @@
 package fr.zorg.bungeesk.bungee.packets;
 
-import fr.zorg.bungeesk.bungee.utils.BungeeConfig;
 import fr.zorg.bungeesk.bungee.BungeeSK;
-import fr.zorg.bungeesk.bungee.utils.Debug;
 import fr.zorg.bungeesk.bungee.commands.BungeeSKCommand;
+import fr.zorg.bungeesk.bungee.utils.BungeeConfig;
 import fr.zorg.bungeesk.bungee.utils.BungeeUtils;
+import fr.zorg.bungeesk.bungee.utils.Debug;
 import fr.zorg.bungeesk.common.entities.BungeeServer;
 import fr.zorg.bungeesk.common.packets.AuthCompletePacket;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
@@ -124,7 +124,9 @@ public class SocketServer {
                     PacketServer.broadcastPacket(new BungeeServerStopPacket(server));
                     message += " §f(§3" + server.getName() + "§f)";
                 }
-                BungeeSK.getInstance().getLogger().info(message);
+                if (BungeeConfig.MESSAGES.get()) {
+                    BungeeSK.getInstance().getLogger().info(message);
+                }
             } catch (IOException ignored) {
                 Debug.log("An error occurred while disconnecting the client with IP " + socket.getInetAddress().getHostAddress());
             }
