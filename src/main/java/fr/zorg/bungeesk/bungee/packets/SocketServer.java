@@ -37,6 +37,16 @@ public class SocketServer {
         this.encrypting = false;
         this.authenticated = false;
         this.readThread = new Thread(this::read);
+        BungeeSK.getInstance().getProxy().getScheduler().runAsync(BungeeSK.getInstance(), () -> {
+            try {
+                Thread.sleep(5000); // wait 5 seconds
+                if ((!this.authenticated) || this.minecraftPort == 0) {
+                    this.disconnect();
+                }
+            } catch (InterruptedException ignored) {
+                this.disconnect();
+            }
+        });
         if (!this.socket.isClosed()) {
             try {
                 this.writer = new ObjectOutputStream(socket.getOutputStream());

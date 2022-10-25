@@ -61,7 +61,10 @@ public class PacketServer {
     }
 
     public static void broadcastPacket(BungeeSKPacket packet) {
-        clientSockets.forEach(client -> client.sendPacket(packet));
+        clientSockets.forEach(client -> {
+            if (client.getSocket().isConnected())
+                client.sendPacket(packet);
+        });
     }
 
     public static void stop() {
