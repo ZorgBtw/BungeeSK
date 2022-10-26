@@ -15,7 +15,7 @@ public class GetRequestFromOtherServerListener extends BungeeSKBukkitListener {
     public Object onFutureRequest(UUID uuid, BungeeSKPacket packet) {
         if (packet instanceof GetRequestFromOtherServerPacket) {
             final GetRequestFromOtherServerPacket getRequestFromOtherServerPacket = (GetRequestFromOtherServerPacket) packet;
-            final CustomRequestEvent event = new CustomRequestEvent(getRequestFromOtherServerPacket.getRequest());
+            final CustomRequestEvent event = new CustomRequestEvent(getRequestFromOtherServerPacket.getRequest(), getRequestFromOtherServerPacket.getServer());
             BungeeSK.getInstance().getServer().getPluginManager().callEvent(event);
             return event.getResponse() == null ? new EmptyFutureResponse() : event.getResponse();
         }

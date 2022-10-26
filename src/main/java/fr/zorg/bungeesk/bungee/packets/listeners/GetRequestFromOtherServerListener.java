@@ -16,6 +16,7 @@ public class GetRequestFromOtherServerListener extends BungeeSKListener {
     public Object onFutureRequest(UUID uuid, SocketServer socketServer, BungeeSKPacket packet) {
         if (packet instanceof GetRequestFromOtherServerPacket) {
             final GetRequestFromOtherServerPacket getRequestFromOtherServerPacket = (GetRequestFromOtherServerPacket) packet;
+            getRequestFromOtherServerPacket.setFrom(BungeeUtils.getServerFromSocket(socketServer));
             final SocketServer otherServer = BungeeUtils.getSocketFromBungeeServer(getRequestFromOtherServerPacket.getServer());
             final Object response = FutureUtils.generateFuture(otherServer, getRequestFromOtherServerPacket);
 

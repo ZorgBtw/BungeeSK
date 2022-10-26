@@ -50,7 +50,7 @@ public class ExprCustomRequest extends SimpleExpression<Object> {
         if (server == null)
             return new Object[0];
 
-        final GetRequestFromOtherServerPacket packet = new GetRequestFromOtherServerPacket(request, server);
+        final GetRequestFromOtherServerPacket packet = new GetRequestFromOtherServerPacket(request, server, null);
         final Object response = CompletableFutureUtils.generateFuture(packet);
 
         if (response == null)
