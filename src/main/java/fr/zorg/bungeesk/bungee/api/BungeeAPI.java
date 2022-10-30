@@ -41,11 +41,6 @@ public class BungeeAPI {
         return this;
     }
 
-    public BungeeAPI sendPacket(InetAddress address, BungeeSKPacket packet) {
-        PacketServer.sendPacket(address, packet);
-        return this;
-    }
-
     public List<BungeeSKListener> getListeners() {
         return listeners;
     }

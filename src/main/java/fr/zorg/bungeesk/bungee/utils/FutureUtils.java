@@ -47,7 +47,7 @@ public class FutureUtils {
         futures.put(randomUUID, future);
 
         final CompletableFuturePacket completableFuturePacket = new CompletableFuturePacket(packet, randomUUID);
-        PacketServer.sendPacket(server.getSocket().getInetAddress(), completableFuturePacket);
+        server.sendPacket(completableFuturePacket);
 
         Object response = null;
         try {
