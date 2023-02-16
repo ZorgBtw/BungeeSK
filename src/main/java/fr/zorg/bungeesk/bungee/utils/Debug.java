@@ -11,4 +11,9 @@ public class Debug {
                 BungeeSK.getInstance().getLogger().info(line);
     }
 
+    public static void throwEx(Exception ex) {
+        if ((boolean) BungeeConfig.DEBUG.get())
+            ex.printStackTrace();
+    }
+
 }

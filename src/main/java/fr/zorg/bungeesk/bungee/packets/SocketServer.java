@@ -43,7 +43,8 @@ public class SocketServer {
                 if ((!this.authenticated) || this.minecraftPort == 0) {
                     this.disconnect();
                 }
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException ex) {
+                Debug.throwEx(ex);
                 this.disconnect();
             }
         });
@@ -56,6 +57,7 @@ public class SocketServer {
 
                 this.sendPacket(new HandshakePacket(0));
             } catch (IOException ex) {
+                Debug.throwEx(ex);
                 this.disconnect();
             }
         } else {
@@ -88,6 +90,7 @@ public class SocketServer {
                     this.handleReceiveListeners(packet);
                 });
             } catch (IOException | ClassNotFoundException ex) {
+                Debug.throwEx(ex);
                 this.disconnect();
             }
         }
@@ -110,7 +113,8 @@ public class SocketServer {
         try {
             this.writer.writeObject(toSend);
             Debug.log("Packet " + packet.getClass().getSimpleName() + " sent to " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort);
-        } catch (IOException ignored) {
+        } catch (IOException ex) {
+            Debug.throwEx(ex);
             Debug.log("Error while sending packet " + packet.getClass().getSimpleName() + " to " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort);
         }
     }
@@ -137,7 +141,8 @@ public class SocketServer {
                 if (BungeeConfig.MESSAGES.get()) {
                     BungeeSK.getInstance().getLogger().info(message);
                 }
-            } catch (IOException ignored) {
+            } catch (IOException ex) {
+                Debug.throwEx(ex);
                 Debug.log("An error occurred while disconnecting the client with IP " + socket.getInetAddress().getHostAddress());
             }
         }
