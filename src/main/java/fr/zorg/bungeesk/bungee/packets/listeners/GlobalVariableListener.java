@@ -2,11 +2,12 @@ package fr.zorg.bungeesk.bungee.packets.listeners;
 
 import fr.zorg.bungeesk.bungee.api.BungeeSKListener;
 import fr.zorg.bungeesk.bungee.packets.SocketServer;
-import fr.zorg.bungeesk.bungee.utils.GlobalVariablesUtils;
+import fr.zorg.bungeesk.bungee.storage.GlobalVariables;
 import fr.zorg.bungeesk.common.entities.EmptyFutureResponse;
 import fr.zorg.bungeesk.common.entities.GlobalVariableChanger;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 import fr.zorg.bungeesk.common.packets.GlobalVariablePacket;
+import fr.zorg.bungeesk.common.utils.Pair;
 
 import java.util.UUID;
 
@@ -18,30 +19,19 @@ public class GlobalVariableListener extends BungeeSKListener {
 
             final GlobalVariablePacket globalVariablePacket = (GlobalVariablePacket) packet;
             final String varName = globalVariablePacket.getVariableName();
-            final Object globalVarObj = GlobalVariablesUtils.getGlobalVariable(varName);
+            final byte[] varValue = globalVariablePacket.getValue();
+            final String varType = globalVariablePacket.getType();
+            final GlobalVariableChanger changer = globalVariablePacket.getChanger();
 
-            switch (globalVariablePacket.getChanger()) {
-
-                case ADD:
-                    if (globalVarObj == null || !(globalVarObj instanceof Number))
-                        return;
-                    GlobalVariablesUtils.setGlobalVariable(varName, ((Number) globalVarObj).longValue() + ((Number) globalVariablePacket.getValue()).longValue());
-
+            switch (changer) {
+                case SET: {
+                    GlobalVariables.setGlobalVariable(varName, varValue, varType);
                     break;
-
-                case REMOVE:
-                    if (globalVarObj == null || !(globalVarObj instanceof Number))
-                        return;
-                    GlobalVariablesUtils.setGlobalVariable(varName, ((Number) globalVarObj).longValue() - ((Number) globalVariablePacket.getValue()).longValue());
+                }
+                case DELETE: {
+                    GlobalVariables.deleteGlobalVariable(varName);
                     break;
-
-                case SET:
-                    GlobalVariablesUtils.setGlobalVariable(varName, globalVariablePacket.getValue());
-                    break;
-
-                case DELETE:
-                    GlobalVariablesUtils.deleteGlobalVariable(varName);
-                    break;
+                }
             }
         }
     }
@@ -51,7 +41,7 @@ public class GlobalVariableListener extends BungeeSKListener {
         if (packet instanceof GlobalVariablePacket) {
             final GlobalVariablePacket globalVariablePacket = (GlobalVariablePacket) packet;
             if (globalVariablePacket.getChanger() == GlobalVariableChanger.GET) {
-                final Object globalVar = GlobalVariablesUtils.getGlobalVariable(globalVariablePacket.getVariableName());
+                final Pair<byte[], String> globalVar = GlobalVariables.getGlobalVariable(globalVariablePacket.getVariableName());
                 return globalVar == null ? new EmptyFutureResponse() : globalVar;
             }
         }

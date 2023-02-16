@@ -29,6 +29,7 @@ dependencies {
     implementation group: "com.github.rockaport", name:"alice", version: "0.9.0"
     implementation group: "me.carleslc.Simple-YAML", name: "Simple-Yaml", version: "1.7.2"
     implementation group: "io.methvin", name: "directory-watcher", version: "0.15.1"
+    implementation group: "org.xerial", name: "sqlite-jdbc", version: "3.40.1.0"
 }
 
 [compileJava, compileTestJava]*.options*.encoding = "UTF-8"
@@ -41,5 +42,7 @@ processResources {
 
 shadowJar {
     archiveName("BungeeSK.jar")
-    minimize()
+    minimize {
+        exclude dependency("org.xerial:sqlite-jdbc:.*")
+    }
 }

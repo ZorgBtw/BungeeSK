@@ -1,8 +1,10 @@
-package fr.zorg.bungeesk.bungee.utils;
+package fr.zorg.bungeesk.bungee.storage;
 
 import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.packets.PacketServer;
 import fr.zorg.bungeesk.bungee.packets.SocketServer;
+import fr.zorg.bungeesk.bungee.utils.BungeeConfig;
+import fr.zorg.bungeesk.bungee.utils.Debug;
 import fr.zorg.bungeesk.common.packets.DeleteGlobalScriptPacket;
 import fr.zorg.bungeesk.common.packets.GlobalScriptsPacket;
 import io.methvin.watcher.DirectoryChangeEvent;
@@ -17,17 +19,18 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class GlobalScriptsUtils {
+public class GlobalScripts {
+
+    private static final File GLOBAL_SCRIPTS_FOLDER = new File(BungeeSK.getInstance().getDataFolder().getAbsolutePath(), "global-scripts");
 
     public static void sendGlobalScripts(SocketServer socketServer) {
-        final File folder = new File(BungeeSK.getInstance().getDataFolder().getAbsolutePath(), "common-skript");
-        if (!folder.exists()) {
-            folder.mkdirs();
+        if (!GLOBAL_SCRIPTS_FOLDER.exists()) {
+            GLOBAL_SCRIPTS_FOLDER.mkdirs();
             return;
         }
 
         final HashMap<String, ArrayList<String>> scripts = new HashMap<>(); //Name | Script's lines
-        for (File file : folder.listFiles()) {
+        for (File file : GLOBAL_SCRIPTS_FOLDER.listFiles()) {
             if (file.getName().endsWith(".sk")) {
                 final String name = file.getName();
                 final ArrayList<String> lines;
@@ -63,7 +66,7 @@ public class GlobalScriptsUtils {
 
     public static void listenFileChanging() {
         if (BungeeConfig.FILES$AUTO_UPDATE.get()) {
-            final Path path = Paths.get(BungeeSK.getInstance().getDataFolder().getPath(), "common-skript");
+            final Path path = Paths.get(GLOBAL_SCRIPTS_FOLDER.getAbsolutePath());
             try {
                 final DirectoryWatcher watcher = DirectoryWatcher.builder()
                         .path(path)

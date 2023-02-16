@@ -10,12 +10,15 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
+import ch.njol.skript.registrations.Classes;
+import ch.njol.skript.variables.SerializedVariable;
 import ch.njol.util.Kleenean;
 import ch.njol.util.coll.CollectionUtils;
 import fr.zorg.bungeesk.bukkit.packets.PacketClient;
 import fr.zorg.bungeesk.bukkit.utils.CompletableFutureUtils;
 import fr.zorg.bungeesk.common.entities.GlobalVariableChanger;
 import fr.zorg.bungeesk.common.packets.GlobalVariablePacket;
+import fr.zorg.bungeesk.common.utils.Pair;
 import org.bukkit.event.Event;
 
 @Name("Global variables stored on the Bungeecord")
@@ -41,9 +44,18 @@ public class ExprGlobalVariables extends SimpleExpression<Object> {
 
     @Override
     protected Object[] get(Event e) {
-        final GlobalVariablePacket packet = new GlobalVariablePacket(this.varName.getSingle(e), null, GlobalVariableChanger.GET);
-        final Object response = CompletableFutureUtils.generateFuture(packet);
-        return response == null ? new Object[0] : new Object[]{response};
+        final GlobalVariablePacket packet = new GlobalVariablePacket(this.varName.getSingle(e), null, null, GlobalVariableChanger.GET);
+        final Object responseObject =  CompletableFutureUtils.generateFuture(packet);
+
+        if (responseObject == null)
+            return new Object[0];
+
+        final Pair<byte[], String> response = (Pair<byte[], String>) responseObject;
+
+        final byte[] value = response.getFirstValue();
+        final String type = response.getSecondValue();
+
+        return new Object[]{Classes.deserialize(type, value)};
     }
 
     @Override
@@ -63,7 +75,7 @@ public class ExprGlobalVariables extends SimpleExpression<Object> {
 
     @Override
     public Class<?>[] acceptChange(Changer.ChangeMode mode) {
-        if (mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.DELETE || mode == Changer.ChangeMode.ADD || mode == Changer.ChangeMode.REMOVE)
+        if (mode == Changer.ChangeMode.SET || mode == Changer.ChangeMode.DELETE)
             return CollectionUtils.array(Object.class);
         return null;
     }
@@ -73,36 +85,22 @@ public class ExprGlobalVariables extends SimpleExpression<Object> {
         if (mode != Changer.ChangeMode.DELETE && delta == null)
             return;
 
+        final SerializedVariable.Value variable = Classes.serialize(delta[0]);
+
+        if (variable == null)
+            return;
+
+        final byte[] value = variable.data;
+        final String type = variable.type;
 
         switch (mode) {
-            case ADD: {
-                final Object element = delta[0];
-                if (!(element instanceof Number))
-                    return;
-                final GlobalVariablePacket packet = new GlobalVariablePacket(this.varName.getSingle(e), element, GlobalVariableChanger.ADD);
-                PacketClient.sendPacket(packet);
-                break;
-            }
-            case REMOVE: {
-                final Object element = delta[0];
-                if (!(element instanceof Number))
-                    return;
-                final GlobalVariablePacket packet = new GlobalVariablePacket(this.varName.getSingle(e), element, GlobalVariableChanger.REMOVE);
-                PacketClient.sendPacket(packet);
-                break;
-            }
             case SET: {
-                final Object element = delta[0];
-
-                if (!(element instanceof Number) && !(element instanceof String) && !(element instanceof Boolean))
-                    return;
-
-                final GlobalVariablePacket packet = new GlobalVariablePacket(this.varName.getSingle(e), element, GlobalVariableChanger.SET);
+                final GlobalVariablePacket packet = new GlobalVariablePacket(this.varName.getSingle(e), value, type, GlobalVariableChanger.SET);
                 PacketClient.sendPacket(packet);
                 break;
             }
             case DELETE: {
-                final GlobalVariablePacket packet = new GlobalVariablePacket(this.varName.getSingle(e), null, GlobalVariableChanger.DELETE);
+                final GlobalVariablePacket packet = new GlobalVariablePacket(this.varName.getSingle(e), null, null, GlobalVariableChanger.DELETE);
                 PacketClient.sendPacket(packet);
                 break;
             }

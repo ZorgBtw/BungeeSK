@@ -1,5 +1,6 @@
 package fr.zorg.bungeesk.bungee.packets.listeners;
 
+import fr.zorg.bungeesk.bungee.storage.GlobalScripts;
 import fr.zorg.bungeesk.bungee.utils.BungeeConfig;
 import fr.zorg.bungeesk.bungee.BungeeSK;
 import fr.zorg.bungeesk.bungee.api.BungeeSKListener;
@@ -7,7 +8,6 @@ import fr.zorg.bungeesk.bungee.commands.BungeeSKCommand;
 import fr.zorg.bungeesk.bungee.packets.PacketServer;
 import fr.zorg.bungeesk.bungee.packets.SocketServer;
 import fr.zorg.bungeesk.bungee.utils.BungeeUtils;
-import fr.zorg.bungeesk.bungee.utils.GlobalScriptsUtils;
 import fr.zorg.bungeesk.common.entities.BungeeServer;
 import fr.zorg.bungeesk.common.packets.AuthCompletePacket;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
@@ -21,7 +21,7 @@ public class AuthCompleteListener extends BungeeSKListener {
             socketServer.authenticate();
 
             if (BungeeConfig.FILES$SYNC_AT_CONNECT.get())
-                GlobalScriptsUtils.sendGlobalScripts(socketServer);
+                GlobalScripts.sendGlobalScripts(socketServer);
 
             final BungeeServer server = BungeeUtils.getServerFromSocket(socketServer);
 

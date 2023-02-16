@@ -68,7 +68,7 @@ public class SocketServer {
     public void read() {
         while (this.isConnected()) {
             try {
-                Object dataRaw = this.reader.readObject();
+                final Object dataRaw = this.reader.readObject();
                 AtomicReference<?> dataAtomic = new AtomicReference<>(dataRaw);
                 BungeeSK.runAsync(() -> {
                     Object data = dataAtomic.get();
