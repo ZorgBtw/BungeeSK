@@ -44,6 +44,7 @@ public class GlobalVariableListener extends BungeeSKListener {
                 final Pair<byte[], String> globalVar = GlobalVariables.getGlobalVariable(globalVariablePacket.getVariableName());
                 return globalVar == null ? new EmptyFutureResponse() : globalVar;
             }
+            return new EmptyFutureResponse();
         }
         return null;
     }

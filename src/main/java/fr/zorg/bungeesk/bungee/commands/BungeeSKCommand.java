@@ -5,6 +5,10 @@ import fr.zorg.bungeesk.bungee.packets.SocketServer;
 import fr.zorg.bungeesk.bungee.utils.BungeeUtils;
 import fr.zorg.bungeesk.common.entities.BungeeServer;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.TabCompleteEvent;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.Listener;
@@ -47,8 +51,16 @@ public class BungeeSKCommand extends Command implements Listener {
                 String message = "  §8» §6" + socket.getSocket().getInetAddress().getHostAddress() + ":" + socket.getMinecraftPort();
                 final BungeeServer server = BungeeUtils.getServerFromSocket(socket);
                 if (server != null)
-                    message += " §f(" + server.getName() + ")";
-                sender.sendMessage(BungeeUtils.getTextComponent(message));
+                    message += " §f(§e" + server.getName() + " §7-> §b" + socket.getPing() + "ms§f)";
+                if (sender instanceof ProxiedPlayer) {
+                    final TextComponent component = new TextComponent(message);
+                    final TextComponent disconnectServerComponent = new TextComponent(" §c[✖]");
+                    disconnectServerComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, BungeeUtils.getTextComponent("§cDisconnect this server")));
+                    disconnectServerComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bungeesk disconnect " + socket.getSocket().getInetAddress().getHostAddress() + ":" + socket.getMinecraftPort()));
+                    component.addExtra(disconnectServerComponent);
+                    sender.sendMessage(component);
+                } else
+                    sender.sendMessage(BungeeUtils.getTextComponent(message));
             });
         } else if (args[0].equalsIgnoreCase("disconnect")) {
             if (args.length < 2) {

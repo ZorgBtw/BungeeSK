@@ -22,7 +22,7 @@ import fr.zorg.bungeesk.common.utils.Pair;
 import org.bukkit.event.Event;
 
 @Name("Global variables stored on the Bungeecord")
-@Description("Set, get and delete a global variable stored on the Bungeecord. Value can be boolean, number or string.")
+@Description("Set, get and delete a global variable stored on the Bungeecord. Value can be any type.")
 @Examples("set global variable \"rank.%player%\" to \"Admin\"\n" +
         "set {_rank} to global variable \"rank.%player%\"\n" +
         "set global variable \"money.%player%\" to 1000\n" +
@@ -85,16 +85,16 @@ public class ExprGlobalVariables extends SimpleExpression<Object> {
         if (mode != Changer.ChangeMode.DELETE && delta == null)
             return;
 
-        final SerializedVariable.Value variable = Classes.serialize(delta[0]);
-
-        if (variable == null)
-            return;
-
-        final byte[] value = variable.data;
-        final String type = variable.type;
-
         switch (mode) {
             case SET: {
+                final SerializedVariable.Value variable = Classes.serialize(delta[0]);
+
+                if (variable == null)
+                    return;
+
+                final byte[] value = variable.data;
+                final String type = variable.type;
+
                 final GlobalVariablePacket packet = new GlobalVariablePacket(this.varName.getSingle(e), value, type, GlobalVariableChanger.SET);
                 PacketClient.sendPacket(packet);
                 break;

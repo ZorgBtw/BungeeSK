@@ -5,11 +5,9 @@ import fr.zorg.bungeesk.bungee.commands.BungeeSKCommand;
 import fr.zorg.bungeesk.bungee.utils.BungeeConfig;
 import fr.zorg.bungeesk.bungee.utils.BungeeUtils;
 import fr.zorg.bungeesk.bungee.utils.Debug;
+import fr.zorg.bungeesk.bungee.utils.FutureUtils;
 import fr.zorg.bungeesk.common.entities.BungeeServer;
-import fr.zorg.bungeesk.common.packets.AuthCompletePacket;
-import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
-import fr.zorg.bungeesk.common.packets.BungeeServerStopPacket;
-import fr.zorg.bungeesk.common.packets.HandshakePacket;
+import fr.zorg.bungeesk.common.packets.*;
 import fr.zorg.bungeesk.common.utils.EncryptionUtils;
 import fr.zorg.bungeesk.common.utils.PacketUtils;
 
@@ -18,7 +16,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.TimeUnit;
 
 public class SocketServer {
 
@@ -31,6 +29,7 @@ public class SocketServer {
     private boolean waitingForAuth = false;
     private boolean encrypting;
     private int minecraftPort;
+    private long ping;
 
     public SocketServer(Socket socket) {
         this.socket = socket;
@@ -68,27 +67,23 @@ public class SocketServer {
     public void read() {
         while (this.isConnected()) {
             try {
-                final Object dataRaw = this.reader.readObject();
-                AtomicReference<?> dataAtomic = new AtomicReference<>(dataRaw);
-                BungeeSK.runAsync(() -> {
-                    Object data = dataAtomic.get();
-                    if (this.encrypting) {
-                        data = EncryptionUtils.decryptPacket((byte[]) data, ((String) BungeeConfig.PASSWORD.get()).toCharArray());
-                        if (data == null)
-                            return;
-
-                        data = PacketUtils.packetFromBytes((byte[]) data);
-                        if (data == null)
-                            return;
-                    }
-                    if (!(data instanceof BungeeSKPacket)) {
-                        this.disconnect();
+                Object dataRaw = this.reader.readObject();
+                if (this.encrypting) {
+                    dataRaw = EncryptionUtils.decryptPacket((byte[]) dataRaw, ((String) BungeeConfig.PASSWORD.get()).toCharArray());
+                    if (dataRaw == null)
                         return;
-                    }
-                    final BungeeSKPacket packet = (BungeeSKPacket) data;
-                    Debug.log("Received packet " + packet.getClass().getSimpleName() + " from " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort);
-                    this.handleReceiveListeners(packet);
-                });
+
+                    dataRaw = PacketUtils.packetFromBytes((byte[]) dataRaw);
+                    if (dataRaw == null)
+                        return;
+                }
+                if (!(dataRaw instanceof BungeeSKPacket)) {
+                    this.disconnect();
+                    return;
+                }
+                final BungeeSKPacket packet = (BungeeSKPacket) dataRaw;
+                Debug.log("Received packet " + packet.getClass().getSimpleName() + " from " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort);
+                this.handleReceiveListeners(packet);
             } catch (IOException | ClassNotFoundException ex) {
                 Debug.throwEx(ex);
                 this.disconnect();
@@ -99,6 +94,10 @@ public class SocketServer {
     public void sendPacket(BungeeSKPacket packet) {
         if (this.writer == null || this.reader == null)
             return;
+
+        if (!this.isConnected())
+            return;
+
         this.handleSendListeners(packet);
         Object toSend = packet;
         if (this.encrypting && this.authenticated) {
@@ -187,10 +186,30 @@ public class SocketServer {
         return this.challengeUUID;
     }
 
+    public void startKeepAlive() {
+        BungeeSK.getInstance().getProxy().getScheduler().schedule(BungeeSK.getInstance(), this::sendKeepAlive, 1, 5, TimeUnit.SECONDS);
+    }
+
+    public void sendKeepAlive() {
+        final long baseTimestamp = System.currentTimeMillis();
+        final Object response = FutureUtils.generateFuture(this, new KeepAlivePacket());
+        if (response == null) {
+            this.disconnect();
+            return;
+        }
+        if (!(response instanceof Long)) {
+            this.disconnect();
+            return;
+        }
+        final long responseTimestamp = (long) response;
+        this.ping = responseTimestamp - baseTimestamp;
+    }
+
     public void completeChallenge(UUID uuid) {
         if (this.waitingForAuth && this.challengeUUID.compareTo(uuid) == 0 && !this.authenticated) {
             this.sendPacket(new AuthCompletePacket(BungeeConfig.ENCRYPT.get()));
             Debug.log("Client with IP " + socket.getInetAddress().getHostAddress() + ":" + this.minecraftPort + " authenticated");
+            this.startKeepAlive();
         } else {
             this.disconnect();
         }
@@ -221,6 +240,10 @@ public class SocketServer {
 
     public int getMinecraftPort() {
         return this.minecraftPort;
+    }
+
+    public long getPing() {
+        return this.ping;
     }
 
 }
