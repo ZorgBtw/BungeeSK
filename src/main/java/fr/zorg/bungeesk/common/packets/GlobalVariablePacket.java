@@ -29,7 +29,6 @@ public class GlobalVariablePacket implements BungeeSKPacket {
     }
 
 
-
     public GlobalVariableChanger getChanger() {
         return this.changer;
     }

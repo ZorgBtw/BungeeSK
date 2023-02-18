@@ -45,7 +45,7 @@ public class ExprGlobalVariables extends SimpleExpression<Object> {
     @Override
     protected Object[] get(Event e) {
         final GlobalVariablePacket packet = new GlobalVariablePacket(this.varName.getSingle(e), null, null, GlobalVariableChanger.GET);
-        final Object responseObject =  CompletableFutureUtils.generateFuture(packet);
+        final Object responseObject = CompletableFutureUtils.generateFuture(packet);
 
         if (responseObject == null)
             return new Object[0];

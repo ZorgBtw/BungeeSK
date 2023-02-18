@@ -1,8 +1,6 @@
 package fr.zorg.bungeesk.bungee.utils;
 
 import fr.zorg.bungeesk.bungee.packets.PacketServer;
-import fr.zorg.bungeesk.bungee.utils.BungeeUtils;
-import fr.zorg.bungeesk.bungee.utils.PingUtils;
 import fr.zorg.bungeesk.common.entities.BungeePlayer;
 import fr.zorg.bungeesk.common.entities.BungeeServer;
 import fr.zorg.bungeesk.common.packets.BungeeCommandPacket;

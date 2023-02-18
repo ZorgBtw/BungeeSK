@@ -10,8 +10,8 @@ import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.log.SkriptLogger;
 import ch.njol.util.Kleenean;
-import fr.zorg.bungeesk.bukkit.utils.EffectSection;
 import fr.zorg.bungeesk.bukkit.utils.ClientBuilder;
+import fr.zorg.bungeesk.bukkit.utils.EffectSection;
 import org.bukkit.event.Event;
 
 import java.io.IOException;

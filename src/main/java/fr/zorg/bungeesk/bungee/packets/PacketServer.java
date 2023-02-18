@@ -1,12 +1,11 @@
 package fr.zorg.bungeesk.bungee.packets;
 
-import fr.zorg.bungeesk.bungee.utils.BungeeConfig;
 import fr.zorg.bungeesk.bungee.BungeeSK;
+import fr.zorg.bungeesk.bungee.utils.BungeeConfig;
 import fr.zorg.bungeesk.bungee.utils.Debug;
 import fr.zorg.bungeesk.common.packets.BungeeSKPacket;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
