@@ -14,22 +14,23 @@ repositories {
     maven { url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/" }
     maven { url = "https://oss.sonatype.org/content/repositories/snapshots" }
     maven { url = "https://repo.destroystokyo.com/repository/maven-public/" }
+    maven { url = "https://repo.skriptlang.org/releases" }
 }
 
 dependencies {
-    compileOnly group: "org.spigotmc", name: "spigot-api", version: "1.18-R0.1-SNAPSHOT"
-    compileOnly group: "net.md-5", name: "bungeecord-api", version: "1.17-R0.1-SNAPSHOT"
+    compileOnly group: "org.spigotmc", name: "spigot-api", version: "1.20-R0.1-SNAPSHOT"
+    compileOnly group: "net.md-5", name: "bungeecord-api", version: "1.20-R0.1-SNAPSHOT"
     compileOnly group: "org.jetbrains", name: "annotations", version: "22.0.0"
-    compileOnly (group: "com.github.SkriptLang", name: "Skript", version: "2.6.2") {
+    compileOnly (group: "com.github.SkriptLang", name: "Skript", version: "2.6.4") {
         exclude group: "com.sk89q.worldguard", module: "worldguard-legacy"
         exclude group: "net.milkbowl.vault", module: "Vault"
     }
     implementation group: "commons-io", name: "commons-io", version: "2.11.0"
 
     implementation group: "com.github.rockaport", name:"alice", version: "0.9.0"
-    implementation group: "me.carleslc.Simple-YAML", name: "Simple-Yaml", version: "1.7.2"
+    implementation group: "com.github.Carleslc.Simple-YAML", name: "Simple-Yaml", version: "1.8.4"
     implementation group: "io.methvin", name: "directory-watcher", version: "0.15.1"
-    implementation group: "org.xerial", name: "sqlite-jdbc", version: "3.40.1.0"
+    implementation group: "org.xerial", name: "sqlite-jdbc", version: "3.42.0.0"
 }
 
 [compileJava, compileTestJava]*.options*.encoding = "UTF-8"
