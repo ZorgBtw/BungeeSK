@@ -25,11 +25,17 @@ public class AuthCompleteListener extends BungeeSKListener {
 
             final BungeeServer server = BungeeUtils.getServerFromSocket(socketServer);
 
+            System.out.println("BungeeConfig.MESSAGES.get() = " + BungeeConfig.MESSAGES.get());
             if (BungeeConfig.MESSAGES.get()) {
-                BungeeSK.getInstance().getLogger()
-                        .info(BungeeSKCommand.PREFIX +
-                                "§7New server connected: §a" + server.getAddress().getHostAddress() + ":" + server.getPort() +
-                                " §f(§3" + server.getName() + "§f)");
+                if (server != null)
+                    BungeeSK.getInstance().getLogger()
+                            .info(BungeeSKCommand.PREFIX +
+                                    "§7New server connected: §a" + server.getAddress().getHostAddress() + ":" + server.getPort() +
+                                    " §f(§3" + server.getName() + "§f)");
+                else
+                    BungeeSK.getInstance().getLogger()
+                            .info(BungeeSKCommand.PREFIX +
+                                    "§7New server connected: §a" + socketServer.getSocket().getInetAddress().getHostAddress() + ":" + socketServer.getMinecraftPort());
             }
 
             if (server != null)
