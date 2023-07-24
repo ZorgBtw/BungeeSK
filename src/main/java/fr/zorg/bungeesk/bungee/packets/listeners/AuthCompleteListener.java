@@ -25,7 +25,6 @@ public class AuthCompleteListener extends BungeeSKListener {
 
             final BungeeServer server = BungeeUtils.getServerFromSocket(socketServer);
 
-            System.out.println("BungeeConfig.MESSAGES.get() = " + BungeeConfig.MESSAGES.get());
             if (BungeeConfig.MESSAGES.get()) {
                 if (server != null)
                     BungeeSK.getInstance().getLogger()

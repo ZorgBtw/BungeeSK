@@ -8,6 +8,7 @@ import fr.zorg.bungeesk.common.packets.BungeePlayerJoinPacket;
 import fr.zorg.bungeesk.common.packets.BungeePlayerLeavePacket;
 import fr.zorg.bungeesk.common.packets.BungeePlayerSwitchPacket;
 import net.md_5.bungee.api.ServerPing;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.*;
 import net.md_5.bungee.api.plugin.Listener;
@@ -26,8 +27,16 @@ public class BungeeEventsListener implements Listener {
     @EventHandler
     public void onQuit(PlayerDisconnectEvent e) {
         final ProxiedPlayer player = e.getPlayer();
+        if (player == null)
+            return;
+
+        final ServerInfo server = player.getServer().getInfo();
+        if (server == null)
+            return;
+
         final BungeePlayer bungeePlayer = new BungeePlayer(player.getName(), player.getUniqueId());
-        final BungeePlayerLeavePacket packet = new BungeePlayerLeavePacket(bungeePlayer);
+        final BungeeServer bungeeServer = BungeeUtils.getServerFromInfo(server);
+        final BungeePlayerLeavePacket packet = new BungeePlayerLeavePacket(bungeePlayer, bungeeServer);
         PacketServer.broadcastPacket(packet);
     }
 

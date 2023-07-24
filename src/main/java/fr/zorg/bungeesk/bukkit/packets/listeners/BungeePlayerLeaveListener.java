@@ -11,7 +11,8 @@ public class BungeePlayerLeaveListener extends BungeeSKBukkitListener {
     @Override
     public void onReceive(BungeeSKPacket packet) {
         if (packet instanceof BungeePlayerLeavePacket) {
-            BungeeSK.callEvent(new BungeePlayerLeaveEvent(((BungeePlayerLeavePacket) packet).getBungeePlayer()));
+            final BungeePlayerLeavePacket leavePacket = (BungeePlayerLeavePacket) packet;
+            BungeeSK.callEvent(new BungeePlayerLeaveEvent(leavePacket.getBungeePlayer(), leavePacket.getDisconnectedFrom()));
         }
     }
 
