@@ -18,9 +18,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle, using shadowJar
-        run: ./gradlew :BungeeSK:clean :BungeeSK:shadowJar --stacktrace
-      - name: Build with Gradle, using shadowJar 2
-        run: ./gradlew :VelocitySK:clean :VelocitySK:shadowJar --stacktrace
+        run: ./gradlew :BungeeSK:clean :BungeeSK:shadowJar :VelocitySK:clean :VelocitySK:shadowJar shadowJar --stacktrace
       - name: Upload artifact
         uses: actions/upload-artifact@v3.1.3
         with:
