@@ -10,7 +10,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import fr.zorg.bungeesk.bukkit.skript.scopes.ScopeConnectToServer;
+import fr.zorg.bungeesk.bukkit.skript.sections.SecConnectToServer;
 import fr.zorg.bungeesk.bukkit.utils.ClientBuilder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +38,7 @@ public class ExprLastConnection extends SimpleExpression<ClientBuilder> {
 
     @Override
     protected ClientBuilder[] get(Event e) {
-        return new ClientBuilder[]{ScopeConnectToServer.builder};
+        return new ClientBuilder[]{SecConnectToServer.builder};
     }
 
     @Override

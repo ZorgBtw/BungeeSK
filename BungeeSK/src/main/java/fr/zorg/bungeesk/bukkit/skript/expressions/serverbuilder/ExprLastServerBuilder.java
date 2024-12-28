@@ -10,7 +10,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import fr.zorg.bungeesk.bukkit.skript.scopes.ScopeCreateBungeeServer;
+import fr.zorg.bungeesk.bukkit.skript.sections.SecCreateBungeeServer;
 import fr.zorg.bungeesk.common.entities.BungeeServerBuilder;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +38,7 @@ public class ExprLastServerBuilder extends SimpleExpression<BungeeServerBuilder>
 
     @Override
     protected BungeeServerBuilder[] get(Event e) {
-        return new BungeeServerBuilder[]{ScopeCreateBungeeServer.builder};
+        return new BungeeServerBuilder[]{SecCreateBungeeServer.builder};
     }
 
     @Override
