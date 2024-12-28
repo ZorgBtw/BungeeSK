@@ -83,7 +83,7 @@ public class BungeeSK {
     private void launchAutoUpdater() {
         BungeeSK.getServer().getScheduler().buildTask(this, () -> {
                     if (!AutoUpdater.isUpToDate(BungeeSK.getServer().getPluginManager().getPlugin("bungeesk").get().getDescription().getVersion().get())) {
-                        BungeeSK.getLogger().atWarn().log("BungeeSK is not up to date ! Please download the latest version here: https//github.com/ZorgBtw/BungeeSK/releases/latest");
+                        BungeeSK.getLogger().warn("BungeeSK is not up to date ! Please download the latest version here: https//github.com/ZorgBtw/BungeeSK/releases/latest");
                     }
                 })
                 .repeat(Duration.ofDays(1))

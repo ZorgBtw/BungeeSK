@@ -1,8 +1,6 @@
-import org.apache.tools.ant.filters.ReplaceTokens
-
 plugins {
     id "java"
-    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "com.github.johnrengelman.shadow" version "8.1.1"
 }
 
 group = "fr.zorg"
@@ -10,7 +8,7 @@ version = parent.version
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(8)
+        languageVersion = JavaLanguageVersion.of(11)
     }
 }
 
@@ -27,11 +25,11 @@ dependencies {
     compileOnly group: "org.spigotmc", name: "spigot-api", version: "1.20-R0.1-SNAPSHOT"
     compileOnly group: "net.md-5", name: "bungeecord-api", version: "1.20-R0.1-SNAPSHOT"
     compileOnly group: "org.jetbrains", name: "annotations", version: "22.0.0"
-    compileOnly(group: "com.github.SkriptLang", name: "Skript", version: "2.6.4") {
+    compileOnly(group: "com.github.SkriptLang", name: "Skript", version: "2.9.5") {
         exclude group: "com.sk89q.worldguard", module: "worldguard-legacy"
         exclude group: "net.milkbowl.vault", module: "Vault"
     }
-    implementation group: "commons-io", name: "commons-io", version: "2.11.0"
+    implementation group: "commons-io", name: "commons-io", version: "2.18.0"
 
     implementation group: "com.github.rockaport", name: "alice", version: "0.9.0"
     implementation group: "com.github.Carleslc.Simple-YAML", name: "Simple-Yaml", version: "1.8.4"

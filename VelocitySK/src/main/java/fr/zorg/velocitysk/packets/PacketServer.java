@@ -34,7 +34,7 @@ public class PacketServer {
             serverThread.start();
             Debug.log("Now listening for clients connecting...");
         } catch (IOException e) {
-            BungeeSK.getLogger().atError().log("An error occurred during the server's launching process. \n" +
+            BungeeSK.getLogger().error("An error occurred during the server's launching process. \n" +
                     "Is the port opened ? Is the port available and not occupied by another process ?");
         }
     }
