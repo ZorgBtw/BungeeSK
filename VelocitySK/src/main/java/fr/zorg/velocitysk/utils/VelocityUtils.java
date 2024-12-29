@@ -9,6 +9,10 @@ import fr.zorg.velocitysk.BungeeSK;
 import fr.zorg.velocitysk.packets.PacketServer;
 import fr.zorg.velocitysk.packets.SocketServer;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.ComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -37,13 +41,13 @@ public class VelocityUtils {
     }
 
     public static Component getTextComponent(String... text) {
-        final Component textComponent = Component.empty();
+        final TextComponent.Builder builder = Component.text();
         for (int i = 0; i < text.length; i++) {
-            textComponent.append(Component.text(text[i]));
+            builder.append(LegacyComponentSerializer.legacySection().deserialize(text[i]).asComponent());
             if (i != text.length - 1)
-                textComponent.append(Component.newline());
+                builder.appendNewline();
         }
-        return textComponent;
+        return builder.build();
     }
 
     public static BungeeServer getServerFromName(String name) {
