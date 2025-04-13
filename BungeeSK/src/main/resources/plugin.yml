@@ -1,0 +1,7 @@
+name: BungeeSK
+author: Zorg
+main: fr.zorg.bungeesk.bukkit.BungeeSK
+website: https://github.com/ZorgBtw/BungeeSK
+version: 2.0.0
+api-version: 1.13
+softdepend: [ Skript ]

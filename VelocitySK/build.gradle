@@ -1,0 +1,43 @@
+plugins {
+    id "java"
+    id "com.github.johnrengelman.shadow" version "8.1.1"
+}
+
+group = "fr.zorg"
+version = parent.version
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url = "https://jitpack.io" }
+    maven { url = "https://repo.papermc.io/repository/maven-public/" }
+}
+
+dependencies {
+    implementation project(":BungeeSK")
+
+    implementation group: "com.github.rockaport", name:"alice", version: "0.9.0"
+    implementation group: "com.github.Carleslc.Simple-YAML", name: "Simple-Yaml", version: "1.8.4"
+    implementation group: "io.methvin", name: "directory-watcher", version: "0.15.1"
+    implementation group: "org.bstats", name: "bstats-velocity", version: "3.0.2"
+    compileOnly group: "com.velocitypowered", name: "velocity-api", version: "3.2.0-SNAPSHOT"
+    annotationProcessor group: "com.velocitypowered", name: "velocity-api", version: "3.2.0-SNAPSHOT"
+}
+
+[compileJava, compileTestJava]*.options*.encoding = "UTF-8"
+
+shadowJar {
+    archiveFileName = "BungeeSK_Velocity.jar"
+
+    relocate "org.bstats", "fr.zorg"
+
+    minimize {
+        exclude dependency("org.xerial:sqlite-jdbc:.*")
+        exclude project(":BungeeSK")
+    }
+}
